@@ -1,0 +1,129 @@
+{
+  "name": "dart-custom-formatter",
+  "displayName": "Dart Custom Formatter",
+  "description": "TODO: fill desc",
+  "version": "0.1.0",
+  "publisher": "Xnfo",
+  "engines": {
+    "vscode": "^1.70.0"
+  },
+  "categories": [
+    "Formatters"
+  ],
+  "activationEvents": [
+    "onCommand:dart-custom-formatter.helloWorld",
+    "onLanguage:dart"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "dart-custom-formatter.reloadExtension",
+        "title": "Reload Dart Custom Formatter"
+      },
+	  {
+		"command": "dart-custom-formatter.restartFormattingServer",
+		"title": "Restart Formatting Server",
+		"category": "Dart Formatting Server"
+		}
+    ],
+    "configuration":
+	[
+		{
+			"title": "Formatter configuration",
+			"order": 1,
+			"properties": {
+				"dart-custom-formatter.enableCustomFormatter": {
+					"type": "boolean",
+					"default": true,
+					"markdownDescription": "Whether to enable the [custom_formatter] (https://URL) formatter for Dart code.",
+					"scope": "window"
+				},
+				"dart-custom-formatter.doNotFormat": {
+					"type": "array",
+					"default": [],
+					"markdownDescription": "An array of glob patterns that should be excluded for formatting. The pattern is matched against the absolute path of the file. Use `**/test/**` to skip formatting for all test directories.",
+					"items": {
+						"type": "string"
+					},
+					"scope": "resource"
+				},
+				"dart-custom-formatter.formatterPath": {
+					"type": [
+						"null",
+						"string"
+					],
+					"default": null,
+					"description": "The path to a custom Dart Formatting Server. This setting is intended for use by Dart Format Server developers.",
+					"scope": "machine-overridable"
+				},
+				"dart-custom-formatter.formatterSshHost": {
+					"type": [
+						"null",
+						"string"
+					],
+					"default": null,
+					"description": "An SSH host to run the Formatter Server.\nThis can be useful when modifying code on a remote machine using SSHFS.",
+					"scope": "window"
+				}
+       		}
+		},
+		{
+			"title": "Formatting settings",
+			"order": 1,
+			"properties": {
+				"dart-custom-formatter.lineLength": {
+					"type": "integer",
+					"default": 120,
+					"description": "The maximum length of a line of code. This is used by the document formatter.",
+					"scope": "resource"
+				}
+
+			}
+		},
+		{
+			"title": "Logging",
+			"order": 1,
+			"properties": {
+				"dart-custom-formatter.maxLogLineLength": {
+					"type": "number",
+					"default": 2000,
+					"description": "The maximum length of a line in the log file. Lines longer than this will be truncated and suffixed with an ellipsis.",
+					"scope": "window"
+				},
+				"dart-custom-formatter.formatterLogFile": {
+					"type": [
+						"null",
+						"string"
+					],
+					"default": null,
+					"description": "The path to a log file for communication between Dart Code and the Formatting Server.",
+					"scope": "machine-overridable"
+				}
+			}
+		}
+	]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/glob": "^7.2.0",
+    "@types/mocha": "^9.1.1",
+    "@types/node": "16.x",
+    "@types/semver": "^7.3.12",
+    "@types/vscode": "^1.70.0",
+    "@typescript-eslint/eslint-plugin": "^5.31.0",
+    "@typescript-eslint/parser": "^5.31.0",
+    "@vscode/test-electron": "^2.1.5",
+    "eslint": "^8.20.0",
+    "glob": "^8.0.3",
+    "mocha": "^10.0.0",
+    "typescript": "^4.7.4"
+  }
+}
