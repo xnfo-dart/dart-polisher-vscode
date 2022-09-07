@@ -1,6 +1,6 @@
 {
   "name": "dart-custom-formatter",
-  "displayName": "Dart Custom Formatter",
+  "displayName": "Dart Formatter (Custom)",
   "description": "TODO: fill desc",
   "version": "0.1.0",
   "publisher": "Xnfo",
@@ -23,8 +23,8 @@
       },
 	  {
 		"command": "dart-custom-formatter.restartFormattingServer",
-		"title": "Restart Formatting Server",
-		"category": "Dart Formatting Server"
+		"title": "Restart Format Server",
+		"category": "Dart Format Server"
 		}
     ],
     "configuration":
@@ -36,7 +36,7 @@
 				"dart-custom-formatter.enableCustomFormatter": {
 					"type": "boolean",
 					"default": true,
-					"markdownDescription": "Whether to enable the [custom_formatter] (https://URL) formatter for Dart code.",
+					"markdownDescription": "Whether to enable the [dart_formatter] (https://github.com/tekert/dart-formatter) for Dart code. (customized)",
 					"scope": "window"
 				},
 				"dart-custom-formatter.doNotFormat": {
@@ -54,7 +54,7 @@
 						"string"
 					],
 					"default": null,
-					"description": "The path to a custom Dart Formatting Server. This setting is intended for use by Dart Format Server developers.",
+					"description": "The path to a custom Dart Format Server. This setting is intended for use by Dart Format Server developers.",
 					"scope": "machine-overridable"
 				},
 				"dart-custom-formatter.formatterSshHost": {
@@ -74,7 +74,7 @@
 			"properties": {
 				"dart-custom-formatter.lineLength": {
 					"type": "integer",
-					"default": 120,
+					"default": 95,
 					"description": "The maximum length of a line of code. This is used by the document formatter.",
 					"scope": "resource"
 				}
@@ -97,7 +97,7 @@
 						"string"
 					],
 					"default": null,
-					"description": "The path to a log file for communication between Dart Code and the Formatting Server.",
+					"description": "The path to a log file for communication between Dart Code and the Format Server.",
 					"scope": "machine-overridable"
 				}
 			}

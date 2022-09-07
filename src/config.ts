@@ -9,12 +9,12 @@ class Config {
 
 	constructor() {
 		workspace.onDidChangeConfiguration((e) => this.reloadConfig());
-		this.config = workspace.getConfiguration("dart_custom_formatter");
+		this.config = workspace.getConfiguration("dart-custom-formatter");
 		setupToolEnv(this.env);
 	}
 
 	private reloadConfig() {
-		this.config = workspace.getConfiguration("dart_custom_formatter");
+		this.config = workspace.getConfiguration("dart-custom-formatter");
 		setupToolEnv(this.env);
 	}
 
@@ -50,7 +50,7 @@ export class ResourceConfig {
 
 	constructor(uri?: Uri) {
 		this.uri = uri;
-		this.config = workspace.getConfiguration("dart_custom_formatter", this.uri);
+		this.config = workspace.getConfiguration("dart-custom-formatter", this.uri);
 	}
 
 	private getConfig<T>(key: string, defaultValue: T): NullAsUndefined<T> {

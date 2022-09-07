@@ -42,7 +42,7 @@ export class DasFormatter implements IAmDisposable {
 		this.client = new DasFormatterClient(this.logger, extensionPath);
 		this.disposables.push(this.client);
 
-        //TODO: ver de implementar estos 2 mensages en el server
+        //TODO: check if these 2 commands are implemented server side.
 		const connectedEvent = this.client.registerForServerConnected((sc) => {
 			this.onReadyCompleter.resolve();
 			connectedEvent.dispose();
@@ -54,6 +54,7 @@ export class DasFormatter implements IAmDisposable {
 		});
 	}
 
+	//TODO: check if these commands are implemented server side.
     private async setup(): Promise<void> {
 		await this.onReady;
 		this.onAnalysisStatusChange.listen((status) => {

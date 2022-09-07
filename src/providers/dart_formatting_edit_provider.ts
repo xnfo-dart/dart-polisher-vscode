@@ -11,7 +11,7 @@ import { DasFormatterClient } from "../formatter/formatter_das";
 export class DartFormattingEditProvider implements DocumentFormattingEditProvider, OnTypeFormattingEditProvider, IAmDisposable {
 	constructor(private readonly logger: Logger, private readonly formatter: DasFormatterClient, private readonly context: Context) {
 		workspace.onDidChangeConfiguration((e) => {
-			if (e.affectsConfiguration("dart_cf.enableCustomFormatter")) {
+			if (e.affectsConfiguration("xnfo.enableCustomFormatter")) {
 				if (config.enableCustomFormatter)
 					this.registerAllFormatters();
 				else
@@ -35,8 +35,7 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 		const registerAndTrack = () => this.registeredFormatters.push(reg());
 
 		// Register the formatter immediately if enabled.
-		//TODO: implementar setting o no usarla en debug mode.
-		//if (config.enableCustomFormatter)
+		if (config.enableCustomFormatter)
 			registerAndTrack();
 
 		// Add it to our list so we can re-register later..
@@ -57,7 +56,7 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 		try {
 			return await this.doFormat(document, true); // await is important for catch to work.
 		} catch
-		{	//TODO: mirar commits antiguas aver cuando se seteaba esto
+		{	//TODO: check, when does this gets initialized?
 			if (!this.context.hasWarnedAboutFormatterSyntaxLimitation) {
 				this.context.hasWarnedAboutFormatterSyntaxLimitation = true;
 				window.showInformationMessage("The Dart Custom Formatter will not run if the file has syntax errors");
@@ -66,7 +65,9 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 		}
 	}
 
-	public async provideOnTypeFormattingEdits(document: TextDocument, position: Position, ch: string, options: FormattingOptions, token: CancellationToken): Promise<TextEdit[] | undefined> {
+	public async provideOnTypeFormattingEdits(document: TextDocument, position: Position, ch: string, options: FormattingOptions,
+		 token: CancellationToken): Promise<TextEdit[] | undefined> {
+
 		try {
 			return await this.doFormat(document, false);
 		} catch {
@@ -80,10 +81,11 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 			return undefined;
 
 		try {
+			//TODO: implement new edit.format protocol.
 			const resp = await this.formatter.editFormat({
 				file: fsPath(document.uri),
-				lineLength: 120, //config.for(document.uri).lineLength,
-				selectionLength: 0,
+				lineLength: config.for(document.uri).lineLength,
+				selectionLength: 0, //TODO: cant we get selection? check reception.
 				selectionOffset: 0,
 			});
 			if (resp.edits.length === 0)
@@ -102,14 +104,14 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 		if (!document || !document.uri || document.uri.scheme !== "file")
 			return false;
 
-		//TODO: ver que hacia esta funcion
+		//TODO: check what this does
 		const resourceConf = config.for(document.uri);
 		const path = fsPath(document.uri);
 
 		return undefined === resourceConf.doNotFormat.find((p:any) => minimatch(path, p, { dot: true }));
 	}
 
-	//TODO: ver como resolver esto
+	//TODO: test this.
 	private convertData(document: TextDocument, edit: as.SourceEdit): TextEdit {
 		return new TextEdit(
 			new Range(document.positionAt(edit.offset), document.positionAt(edit.offset + edit.length)),

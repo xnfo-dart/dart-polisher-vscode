@@ -86,7 +86,7 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 	context.subscriptions.push(formattingEditProvider);
 	formattingEditProvider.registerDocumentFormatter(activeFileFilters);
 	// Only for Dart.
-	formattingEditProvider.registerTypingFormatter(DART_MODE, "}", ";");
+	formattingEditProvider.registerTypingFormatter(activeFileFilters, "}", ";");
 
 
 
