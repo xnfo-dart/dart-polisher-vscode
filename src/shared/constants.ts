@@ -17,7 +17,7 @@ export const executableNames = {
 	dart: isWin ? "dart.exe" : "dart",
 	dartdoc: isWin ? "dartdoc.bat" : "dartdoc",
 	pub: isWin ? "pub.bat" : "pub",
-	cformatter: isWin ? "cformat.exe" : "cformat",
+	cformatter: isWin ? "dartcfmt.exe" : "dartcfmt",
 };
 export const getExecutableName = (cmd: string) => (executableNames as { [key: string]: string | undefined })[cmd] ?? cmd;
 export const dartVMPath = "bin/" + executableNames.dart;

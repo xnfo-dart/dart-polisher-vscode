@@ -37,6 +37,7 @@ export class DasFormatter implements IAmDisposable {
         this.logger = new CategoryLogger(logger, LogCategory.Formatter);
 
 		let extensionPath = context.extensionPath;
+		//TEST: alternative method is: vs.extensions.getExtension(dartFormatterExtensionIdentifier)?.extensionUri.fsPath;
 
         // Fires up the format server
 		this.client = new DasFormatterClient(this.logger, extensionPath);
@@ -85,7 +86,7 @@ export class FormatterCapabilities {
 		this.version = analyzerVersion;
 	}
 
-    get hasCustomFormat1() { return versionIsAtLeast(this.version, "0.1.2"); }
+    get hasCustomFormat1() { return versionIsAtLeast(this.version, "0.1.0"); }
 }
 
 export class DasFormatterClient extends FormatServerBase {
@@ -95,11 +96,11 @@ export class DasFormatterClient extends FormatServerBase {
 	private currentFormatCompleter?: PromiseCompleter<void>;
     public capabilities: FormatterCapabilities = FormatterCapabilities.empty;
 
-    //TODO: ver como resolver el tema del binario, exe al lado de la extension o tratar de mirar sdk?
+    //TODO: test if bin gets loaded correctly from bin folder of the extension
     constructor(logger: Logger, extensionPath : string) {
 		super(logger, config.maxLogLineLength);
 
-        this.launchArgs = ["format", "-l", "80", "-o", "show"];
+        this.launchArgs = ["dartcfmt", "listen"];
 
         // Hook error subscriptions so we can try and get diagnostic info if this happens.
 		//this.registerForServerError((e) => this.requestDiagnosticsUpdate());
@@ -108,12 +109,12 @@ export class DasFormatterClient extends FormatServerBase {
 		// Register for version.
 		this.registerForServerConnected((e) => { this.version = e.version; this.capabilities.version = this.version; });
 
-        //TODO: revisar esto
-		// another form is vs.extensions.getExtension(dartFormatterExtensionIdentifier)?.extensionUri.fsPath;
+        //TODO: check this
+
         let formatter_bin_path = config.formatterPath;
         if (!formatter_bin_path) {
             if (!extensionPath)
-                extensionPath = "./";
+                extensionPath = "./bin";
 
             formatter_bin_path = path.join(extensionPath, executableNames.cformatter);
         }
@@ -126,7 +127,7 @@ export class DasFormatterClient extends FormatServerBase {
 		// to support launching it on a remote machine over SSH. This can be useful if the codebase
 		// is being modified remotely over SSHFS, and running the analysis server locally would
 		// result in excessive file reading over SSHFS.
-        //TODO: (tekert) ver bien esto
+        //TODO: (tekert) test this
 		if (config.formatterSshHost) {
 			binaryPath = "ssh";
 			processArgs.unshift(fullDartFormatterPath);
@@ -166,7 +167,6 @@ export class DasFormatterClient extends FormatServerBase {
         */
 
 	}
-
 
 	private resolvedPromise = Promise.resolve();
 	public get currentFormatting(): Promise<void> {
