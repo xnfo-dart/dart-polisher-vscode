@@ -62,7 +62,7 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 	buildLogHeaders(logger);
 
 	// Wire up a reload command that will re-initialise everything.
-	context.subscriptions.push(vs.commands.registerCommand("dart-custom-formatter.reloadExtension", async () => {
+	context.subscriptions.push(vs.commands.registerCommand("_dart-custom-formatter.reloadExtension", async () => {
 		logger.info("Performing silent extension reload...");
 		await deactivate(true);
 		disposeAll(context.subscriptions);

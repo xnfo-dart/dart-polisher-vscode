@@ -162,7 +162,7 @@ export class DasFormatterClient extends FormatterGen {
 		//let binaryPath = fullDartVmPath;
 		//let processArgs = this.launchArgs.slice();
 		//NOTE: for now we are launching the bin directly, without de dartVM, so launchArgs has the full path to the bin + args.
-		let binaryPath = this.launchArgs.shift() || path.join(extensionPath, gformatterPath);
+		let binaryPath = this.launchArgs.shift()!;
 		let processArgs = this.launchArgs.slice();
 
 
@@ -172,7 +172,7 @@ export class DasFormatterClient extends FormatterGen {
 		//TODO: (tekert) test this
 		if (config.formatterSshHost) {
 			binaryPath = "ssh";
-			//processArgs.unshift(fullDartFormatterPath);
+			//processArgs.unshift(fullDartFormatterPath); //NOTE: enable when using dartvm
 			processArgs = [
 				// SSH quiet mode, which prevents SSH from interfering with the STDOUT/STDIN communication
 				// with the analysis server.

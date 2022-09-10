@@ -11,6 +11,7 @@
     "Formatters"
   ],
   "activationEvents": [
+	"onLanguage:dart"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -31,10 +32,6 @@
 		]
 	},
     "commands": [
-		{
-			"command": "dart-custom-formatter.reloadExtension",
-			"title": "Reload Dart Formatter"
-		},
 		{
 			"command": "dart-custom-formatter.restartFormattingServer",
 			"title": "Restart Dart Formatter Server",

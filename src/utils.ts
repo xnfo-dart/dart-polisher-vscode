@@ -19,7 +19,7 @@ export async function promptToReloadExtension(prompt?: string, buttonText?: stri
 			showPromptAgain = true;
 			openLogContents(undefined, ringLogContents, tempLogPath);
 		} else if (!prompt || chosenAction === restartAction) {
-			commands.executeCommand("_cfdart.reloadExtension");
+			commands.executeCommand("_dart-custom-formatter.reloadExtension");
 		}
 	}
 }
