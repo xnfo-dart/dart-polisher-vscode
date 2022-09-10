@@ -1,7 +1,7 @@
 {
   "name": "dart-custom-formatter",
-  "displayName": "Dart Formatter (Custom)",
-  "description": "TODO: fill desc",
+  "displayName": "Dart Formatter (fork)",
+  "description": "[beta] Customized Dart formatter, tab indents, custom styles",
   "version": "0.1.0",
   "publisher": "Xnfo",
   "engines": {
@@ -11,20 +11,49 @@
     "Formatters"
   ],
   "activationEvents": [
-    "onCommand:dart-custom-formatter.helloWorld",
-    "onLanguage:dart"
   ],
   "main": "./out/extension.js",
   "contributes": {
+	"menus": {
+		"commandPalette": [
+			{
+				"command": "dart-custom-formatter.startLogging",
+				"when": "dart-custom-formatter:anyProjectLoaded"
+			},
+			{
+				"command": "dart-custom-formatter.stopLogging",
+				"when": "dart-custom-formatter:anyProjectLoaded && dart-custom-formatter:isCapturingLogs"
+			},
+			{
+				"command": "dart-custom-formatter.openExtensionLog",
+				"when": "dart-custom-formatter:anyProjectLoaded"
+			}
+		]
+	},
     "commands": [
-      {
-        "command": "dart-custom-formatter.reloadExtension",
-        "title": "Reload Dart Custom Formatter"
-      },
-	  {
-		"command": "dart-custom-formatter.restartFormattingServer",
-		"title": "Restart Format Server",
-		"category": "Dart Format Server"
+		{
+			"command": "dart-custom-formatter.reloadExtension",
+			"title": "Reload Dart Formatter"
+		},
+		{
+			"command": "dart-custom-formatter.restartFormattingServer",
+			"title": "Restart Dart Formatter Server",
+			"category": "Dart Formatter Server"
+		},
+		{
+			"command": "dart-custom-formatter.startLogging",
+			"title": "Capture Logs",
+			"category": "Dart Formatter"
+		},
+		{
+			"command": "dart-custom-formatter.openExtensionLog",
+			"title": "Open Extension Log",
+			"category": "Dart Formatter"
+		},
+		{
+			"command": "dart-custom-formatter.stopLogging",
+			"title": "Stop Capturing Logs",
+			"category": "Dart Formatter"
 		}
     ],
     "configuration":
@@ -74,7 +103,7 @@
 			"properties": {
 				"dart-custom-formatter.lineLength": {
 					"type": "integer",
-					"default": 95,
+					"default": 80,
 					"description": "The maximum length of a line of code. This is used by the document formatter.",
 					"scope": "resource"
 				}
@@ -91,7 +120,7 @@
 					"description": "The maximum length of a line in the log file. Lines longer than this will be truncated and suffixed with an ellipsis.",
 					"scope": "window"
 				},
-				"dart-custom-formatter.formatterLogFile": {
+				"dart-custom-formatter.extensionLogFile": {
 					"type": [
 						"null",
 						"string"

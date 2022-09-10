@@ -17,7 +17,7 @@ export const executableNames = {
 	dart: isWin ? "dart.exe" : "dart",
 	dartdoc: isWin ? "dartdoc.bat" : "dartdoc",
 	pub: isWin ? "pub.bat" : "pub",
-	cformatter: isWin ? "dartcfmt.exe" : "dartcfmt",
+	cformatter: isWin ? "dartcfmt.exe" : isMac ? "dartcfmt_mac" : "dartcfmt",
 };
 export const getExecutableName = (cmd: string) => (executableNames as { [key: string]: string | undefined })[cmd] ?? cmd;
 export const dartVMPath = "bin/" + executableNames.dart;
@@ -28,3 +28,5 @@ export const analyzerSnapshotPath = "bin/snapshots/analysis_server.dart.snapshot
 
 export const stopLoggingAction = "Stop Logging";
 export const showLogAction = "Show Log";
+
+export const FORMATTER_IS_CAPTURING_LOGS_CONTEXT = "dart-custom-formatter:isCapturingLogs";

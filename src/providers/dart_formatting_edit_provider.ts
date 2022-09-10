@@ -11,7 +11,7 @@ import { DasFormatterClient } from "../formatter/formatter_das";
 export class DartFormattingEditProvider implements DocumentFormattingEditProvider, OnTypeFormattingEditProvider, IAmDisposable {
 	constructor(private readonly logger: Logger, private readonly formatter: DasFormatterClient, private readonly context: Context) {
 		workspace.onDidChangeConfiguration((e) => {
-			if (e.affectsConfiguration("xnfo.enableCustomFormatter")) {
+			if (e.affectsConfiguration("dart-custom-formatter.enableCustomFormatter")) {
 				if (config.enableCustomFormatter)
 					this.registerAllFormatters();
 				else
@@ -81,7 +81,6 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 			return undefined;
 
 		try {
-			//TODO: implement new edit.format protocol.
 			const resp = await this.formatter.editFormat({
 				file: fsPath(document.uri),
 				lineLength: config.for(document.uri).lineLength,
@@ -104,7 +103,6 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 		if (!document || !document.uri || document.uri.scheme !== "file")
 			return false;
 
-		//TODO: check what this does
 		const resourceConf = config.for(document.uri);
 		const path = fsPath(document.uri);
 

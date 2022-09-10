@@ -2,7 +2,6 @@ import { ConfigurationTarget, Uri, workspace, WorkspaceConfiguration } from "vsc
 import { NullAsUndefined, nullToUndefined } from "./shared/utils";
 import { createFolderForFile, resolvePaths } from "./utils";
 import { setupToolEnv } from "./utils/processes";
-//TODO: ver como agregar config personales
 
 class Config {
 	private config: WorkspaceConfiguration;
@@ -30,12 +29,12 @@ class Config {
 	get env(): any { return this.getConfig<any>("env", {}); }
 
 	// Server settings
-    get enableCustomFormatter(): boolean { return this.getConfig<boolean>("enableCustomFormatter", true); }
+	get enableCustomFormatter(): boolean { return this.getConfig<boolean>("enableCustomFormatter", true); }
 	get formatterSshHost(): undefined | string { return this.getConfig<null | string>("formatterSshHost", null); }
 	get formatterPath(): undefined | string { return resolvePaths(this.getConfig<null | string>("formatterPath", null)); }
 
 	// Logging
-	get formatterLogFile(): undefined | string { return createFolderForFile(resolvePaths(this.getConfig<null | string>("formatterLogFile", null))); }
+	get extensionLogFile(): undefined | string { return createFolderForFile(resolvePaths(this.getConfig<null | string>("extensionLogFile", null))); }
 	get maxLogLineLength(): number { return this.getConfig<number>("maxLogLineLength", 2000); }
 
 
@@ -57,11 +56,13 @@ export class ResourceConfig {
 		return nullToUndefined(this.config.get<T>(key, defaultValue));
 	}
 
+	get extensionLogFile(): undefined | string { return createFolderForFile(resolvePaths(this.getConfig<null | string>("extensionLogFile", null))); }
+
 	// Server settings
 	get doNotFormat(): string[] { return this.getConfig<string[]>("doNotFormat", []); }
 
 	// Formatter
-	get lineLength(): number { return this.getConfig<number>("lineLength", 120); }
+	get lineLength(): number { return this.getConfig<number>("lineLength", 80); }
 }
 
 

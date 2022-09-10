@@ -140,7 +140,7 @@ export abstract class StdIOService<T> implements IAmDisposable {
 	protected async processUnhandledMessage(message: string): Promise<void> { }
 
 	public async handleMessage(message: string): Promise<void> {
-		this.logTraffic(`<== ${message.trimRight()}\r\n`);
+		this.logTraffic(`<== ${message.trimEnd()}\r\n`);
 
 		if (!this.shouldHandleMessage(message.trim())) {
 			return this.processUnhandledMessage(message);

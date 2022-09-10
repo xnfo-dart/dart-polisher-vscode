@@ -10,11 +10,11 @@ export class FormatServerCommands {
 			forcedReanalyzeCount++;
 			if (forcedReanalyzeCount === 10)
 				this.showServerRestartPrompt().catch((e) => logger.error(e));
-			vs.commands.executeCommand("xnfo.reloadExtension");
+			vs.commands.executeCommand("dart-custom-formatter.reloadExtension");
 		}));
 	}
 
 	private async showServerRestartPrompt(): Promise<void> {
-		const choice = await vs.window.showInformationMessage("Restarting Custom Dart Formatter Extension");
+		const choice = await vs.window.showInformationMessage("Restarting Dart Custom Formatter Extension");
 	}
 }

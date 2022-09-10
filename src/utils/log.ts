@@ -5,29 +5,26 @@ import { LogCategory } from "./../shared/enums";
 import { getRandomInt } from "./../shared/utils/fs";
 import { config } from "../config";
 
-// TODO: change config. log file to extensionLogFile
 let extensionLogPath: string;
 export function getExtensionLogPath() {
-	extensionLogPath = extensionLogPath || config.formatterLogFile || path.join(process.env.DC_TEST_LOGS || os.tmpdir(), `dart-cf-startup-log-${getRandomInt(0x1000, 0x10000).toString(16)}.txt`);
+	extensionLogPath = extensionLogPath || config.extensionLogFile || path.join(process.env.DC_TEST_LOGS || os.tmpdir(), `dart-formatter-startup-log-${getRandomInt(0x1000, 0x10000).toString(16)}.txt`);
 	return extensionLogPath;
 }
 export const userSelectableLogCategories: { [key: string]: LogCategory } = {
-	"General": LogCategory.General,
 	"Formatter": LogCategory.Formatter,
 	"Command Processes": LogCategory.CommandProcesses,
 };
-
-export const analysisServerLogCategories = [
-	LogCategory.General,
+/*
+export const formatServerLogCategories = [
 	LogCategory.CommandProcesses,
+	LogCategory.Formatter,
 ];
 
 export const extensionsLogCategories = [
 	LogCategory.CommandProcesses,
 	LogCategory.General,
-	LogCategory.Formatter,
 ];
-
+*/
 export const debuggingLogCategories = Object.values(userSelectableLogCategories)
 	.filter((c) => c !== LogCategory.Formatter);
 

@@ -7,25 +7,23 @@ import * as vs from 'vscode';
 import { disposeAll } from "./shared/utils";
 import { dartPlatformName, isWin, platformDisplayName } from "./shared/constants";
 import { captureLogs, EmittingLogger, logToConsole, RingLog } from "./shared/logging";
+import { LoggingCommands } from "./commands/logging";
 import { LogCategory } from "./shared/enums";
 import { IAmDisposable, Logger } from "./shared/interfaces";
 import { extensionVersion, isDevExtension } from "./shared/vscode/extension_utils";
 import { Context } from "./shared/vscode/workspace";
 import { DartFormattingEditProvider } from "./providers/dart_formatting_edit_provider";
+import * as util from "./utils";
 
 import { addToLogHeader, clearLogHeader, getExtensionLogPath, getLogHeader } from "./utils/log";
 import { FormatServerCommands } from './commands/formatter';
 import { DasFormatter } from './formatter/formatter_das';
 import { config } from './config';
 
+let previousSettings: string;
 
+const PROJECT_LOADED = "dart-custom-formatter:anyProjectLoaded";
 export const DART_MODE = { language: "dart", scheme: "file" };
-export function getActiveDartEditor(): vs.TextEditor | undefined {
-	const editor = vs.window.activeTextEditor;
-	if (!editor || editor.document.languageId !== "dart")
-		return undefined;
-	return editor;
-}
 
 let formatter: DasFormatter;
 
@@ -55,10 +53,12 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "dart-custom-formatter" is now active!');
+	console.log('Congratulations, your extension "Dart Formatter" is now active!');
 
 	// Set up log files.
-	setupLog(config.formatterLogFile, LogCategory.Formatter);
+	//setupLog(config.formatterServerLogFile, LogCategory.Formatter);
+
+	// Build log headers now we know formatter type.
 	buildLogHeaders(logger);
 
 	// Wire up a reload command that will re-initialise everything.
@@ -66,10 +66,9 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 		logger.info("Performing silent extension reload...");
 		await deactivate(true);
 		disposeAll(context.subscriptions);
-		await activate(context,true);
+		await activate(context, true);
 		logger.info("Done!");
 	}));
-
 
 	// Format Server VsCode Commands
 	formatter = new DasFormatter(logger, context);
@@ -81,14 +80,18 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 	const formatCommands = new FormatServerCommands(context, logger);
 
 	const activeFileFilters: vs.DocumentFilter[] = [DART_MODE];
-
 	const formattingEditProvider = new DartFormattingEditProvider(logger, dasClient, extContext);
 	context.subscriptions.push(formattingEditProvider);
 	formattingEditProvider.registerDocumentFormatter(activeFileFilters);
 	// Only for Dart.
-	formattingEditProvider.registerTypingFormatter(activeFileFilters, "}", ";");
+	formattingEditProvider.registerTypingFormatter(DART_MODE, "}", ";");
 
+	context.subscriptions.push(new LoggingCommands(logger, context.logPath));
 
+	setCommandVisiblity(true);
+
+	// Handle config changes so we can reanalyze if necessary.
+	context.subscriptions.push(vs.workspace.onDidChangeConfiguration(() => handleConfigurationChange()));
 
 	//context.subscriptions.push(disposable);
 }
@@ -117,9 +120,37 @@ function buildLogHeaders(logger?: Logger) {
 	logger?.info(getLogHeader());
 }
 
+function handleConfigurationChange() {
+
+	const newSettings = getSettingsThatRequireRestart();
+	const settingsChanged = previousSettings !== newSettings;
+	previousSettings = newSettings;
+
+	if (settingsChanged) {
+		// Delay the restart slightly.
+		// NOTE: not really necessary for a formatting server, but better on the safe side.
+		setTimeout(util.promptToReloadExtension, 50);
+	}
+}
+
+function getSettingsThatRequireRestart() {
+	// The return value here is used to detect when any config option changes that requires a project reload.
+	// It doesn't matter how these are combined; it just gets called on every config change and compared.
+	// Usually these are options that affect the formatter and need a reload, but config options used at
+	// activation time will also need to be included.
+	return "CONF-"
+	//	+ config.sdkPath
+	//	+ config.sdkPaths?.length //TODO: or take from dart extension
+		+ config.formatterPath
+	//	+ config.formatterInstrumentationLogFile //TODO: already implemented server side, arg config missing.
+	//	+ config.formatterAdditionalArgs
+		+ config.extensionLogFile
+}
+
 // this method is called when your extension is deactivated
 //export function deactivate() {}
 export async function deactivate(isRestart: boolean = false): Promise<void> {
+	setCommandVisiblity(false);
 
 	formatter?.dispose();
 	if (loggers) {
@@ -131,4 +162,8 @@ export async function deactivate(isRestart: boolean = false): Promise<void> {
 		logger.dispose();
 	}
 
+}
+
+function setCommandVisiblity(enable: boolean) {
+	vs.commands.executeCommand("setContext", PROJECT_LOADED, enable);
 }

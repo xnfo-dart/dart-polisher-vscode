@@ -189,6 +189,7 @@
 	format?: FormatStatus;
 }
 
+//TODO: not implemented server side, check then delete.
 export interface FormatStatus {
 	/**
 	 * True if formatting is currently being performed.
