@@ -94,6 +94,15 @@
 					"default": null,
 					"description": "An SSH host to run the Formatter Server.\nThis can be useful when modifying code on a remote machine using SSHFS.",
 					"scope": "window"
+				},
+				"dart-custom-formatter.formatterAdditionalArgs": {
+					"type": "array",
+					"default": [],
+					"description": "Additional arguments to pass to the Dart Formatter Server. This setting is intended for use by Dart Format Server developers.",
+					"scope": "window",
+					"items": {
+						"type": "string"
+					}
 				}
        		}
 		},

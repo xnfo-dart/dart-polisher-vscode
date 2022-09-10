@@ -32,6 +32,7 @@ class Config {
 	get enableCustomFormatter(): boolean { return this.getConfig<boolean>("enableCustomFormatter", true); }
 	get formatterSshHost(): undefined | string { return this.getConfig<null | string>("formatterSshHost", null); }
 	get formatterPath(): undefined | string { return resolvePaths(this.getConfig<null | string>("formatterPath", null)); }
+	get formatterAdditionalArgs(): string[] { return this.getConfig<string[]>("formatterAdditionalArgs", []); }
 
 	// Logging
 	get extensionLogFile(): undefined | string { return createFolderForFile(resolvePaths(this.getConfig<null | string>("extensionLogFile", null))); }

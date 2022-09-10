@@ -86,7 +86,8 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 	// Only for Dart.
 	formattingEditProvider.registerTypingFormatter(DART_MODE, "}", ";");
 
-	context.subscriptions.push(new LoggingCommands(logger, context.logPath));
+	//context.subscriptions.push(new LoggingCommands(logger, context.logPath));
+	context.subscriptions.push(new LoggingCommands(logger, context.logUri.toString()));
 
 	setCommandVisiblity(true);
 
@@ -143,7 +144,7 @@ function getSettingsThatRequireRestart() {
 	//	+ config.sdkPaths?.length //TODO: or take from dart extension
 		+ config.formatterPath
 	//	+ config.formatterInstrumentationLogFile //TODO: already implemented server side, arg config missing.
-	//	+ config.formatterAdditionalArgs
+		+ config.formatterAdditionalArgs
 		+ config.extensionLogFile
 }
 

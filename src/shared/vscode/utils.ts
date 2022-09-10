@@ -8,7 +8,7 @@ export const isTheia = vs.env.appName?.includes("Theia") ?? false;
 export const isCloudShell = vs.env.appName?.includes("Cloud Shell") ?? false;
 export const isKnownCloudIde = isTheia || isCloudShell;
 
-const dartExtension = extensions.getExtension(dartFormatterExtensionIdentifier);
+const formatterExtension = extensions.getExtension(dartFormatterExtensionIdentifier);
 
 // The extension kind is declared as Workspace, but VS Code will return UI in the
 // case that there is no remote extension host.
@@ -16,7 +16,7 @@ export const isRunningLocally =
 	// Some cloud IDEs mis-report the extension kind, so if we _know_ something is a cloud IDE,
 	// override that.
 	!isKnownCloudIde
-	&& (!dartExtension || dartExtension.extensionKind === ExtensionKind.UI);
+	&& (!formatterExtension || formatterExtension.extensionKind === ExtensionKind.UI);
 
 
 export function toPosition(location: Location): Position {

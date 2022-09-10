@@ -22,6 +22,7 @@ export const executableNames = {
 export const getExecutableName = (cmd: string) => (executableNames as { [key: string]: string | undefined })[cmd] ?? cmd;
 export const dartVMPath = "bin/" + executableNames.dart;
 export const dartDocPath = "bin/" + executableNames.dartdoc;
+export const gformatterPath = "bin/" + executableNames.cformatter;
 export const pubPath = "bin/" + executableNames.pub;
 export const pubSnapshotPath = "bin/snapshots/pub.dart.snapshot";
 export const analyzerSnapshotPath = "bin/snapshots/analysis_server.dart.snapshot";
