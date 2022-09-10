@@ -5,7 +5,7 @@
 import internal = require('stream');
 import * as vs from 'vscode';
 import { disposeAll } from "./shared/utils";
-import { dartPlatformName, isWin, platformDisplayName } from "./shared/constants";
+import { dartFormatterExtensionIdentifier, dartPlatformName, isWin, IS_RUNNING_LOCALLY_CONTEXT, platformDisplayName } from "./shared/constants";
 import { captureLogs, EmittingLogger, logToConsole, RingLog } from "./shared/logging";
 import { LoggingCommands } from "./commands/logging";
 import { LogCategory } from "./shared/enums";
@@ -19,6 +19,7 @@ import { addToLogHeader, clearLogHeader, getExtensionLogPath, getLogHeader } fro
 import { FormatServerCommands } from './commands/formatter';
 import { DasFormatter } from './formatter/formatter_das';
 import { config } from './config';
+import { isRunningLocally } from './shared/vscode/utils';
 
 let previousSettings: string;
 
@@ -46,6 +47,7 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 	if (isDevExtension)
 		context.subscriptions.push(logToConsole(logger));
 
+	vs.commands.executeCommand("setContext", IS_RUNNING_LOCALLY_CONTEXT, isRunningLocally);
 	buildLogHeaders();
 	setupLog(getExtensionLogPath(), LogCategory.General);
 
@@ -87,7 +89,7 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 	formattingEditProvider.registerTypingFormatter(DART_MODE, "}", ";");
 
 	//context.subscriptions.push(new LoggingCommands(logger, context.logPath));
-	context.subscriptions.push(new LoggingCommands(logger, context.logUri.toString()));
+	context.subscriptions.push(new LoggingCommands(logger, context.logUri.fsPath));
 
 	setCommandVisiblity(true);
 

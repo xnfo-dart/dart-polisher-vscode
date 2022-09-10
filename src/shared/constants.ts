@@ -31,3 +31,4 @@ export const stopLoggingAction = "Stop Logging";
 export const showLogAction = "Show Log";
 
 export const FORMATTER_IS_CAPTURING_LOGS_CONTEXT = "dart-custom-formatter:isCapturingLogs";
+export const IS_RUNNING_LOCALLY_CONTEXT = "dart-custom-formatter:isRunningLocally";

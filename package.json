@@ -132,7 +132,7 @@
 						"string"
 					],
 					"default": null,
-					"description": "The path to a log file for communication between Dart Code and the Format Server.",
+					"description": "The path to a low-traffic log file for basic extension and editor issues.",
 					"scope": "machine-overridable"
 				}
 			}
