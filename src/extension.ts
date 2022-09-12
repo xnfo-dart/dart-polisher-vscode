@@ -7,17 +7,17 @@ import * as vs from 'vscode';
 import { disposeAll } from "./shared/utils";
 import { dartFormatterExtensionIdentifier, dartPlatformName, isWin, IS_RUNNING_LOCALLY_CONTEXT, platformDisplayName } from "./shared/constants";
 import { captureLogs, EmittingLogger, logToConsole, RingLog } from "./shared/logging";
-import { LoggingCommands } from "./commands/logging";
+import { LoggingCommands } from "./extension/commands/logging";
 import { LogCategory } from "./shared/enums";
 import { IAmDisposable, Logger } from "./shared/interfaces";
 import { extensionVersion, isDevExtension } from "./shared/vscode/extension_utils";
 import { Context } from "./shared/vscode/workspace";
-import { DartFormattingEditProvider } from "./providers/dart_formatting_edit_provider";
+import { DartFormattingEditProvider } from "./extension/providers/dart_formatting_edit_provider";
 import * as util from "./utils";
 
 import { addToLogHeader, clearLogHeader, getExtensionLogPath, getLogHeader } from "./utils/log";
-import { FormatServerCommands } from './commands/formatter';
-import { DasFormatter } from './formatter/formatter_das';
+import { FormatServerCommands } from './extension/commands/formatter';
+import { DasFormatter } from './extension/formatter/formatter_das';
 import { config } from './config';
 import { isRunningLocally } from './shared/vscode/utils';
 
@@ -36,8 +36,6 @@ const logger = new EmittingLogger();
 // user when something crashed even if they don't have disk-logging enabled.
 export const ringLog: RingLog = new RingLog(200);
 
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
 export function activate(context: vs.ExtensionContext, isRestart: boolean = false) {
 
 	// Ring logger is only set up once and presist over silent restarts.
@@ -84,21 +82,41 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 	const activeFileFilters: vs.DocumentFilter[] = [DART_MODE];
 	const formattingEditProvider = new DartFormattingEditProvider(logger, dasClient, extContext);
 	context.subscriptions.push(formattingEditProvider);
-
 	//formattingEditProvider.registerDocumentFormatter(activeFileFilters); // One or the other
 	formattingEditProvider.registerDocumentRangeFormatter(activeFileFilters);
 	// Only for Dart.
 	formattingEditProvider.registerTypingFormatter(DART_MODE, "}", ";");
 
-	//context.subscriptions.push(new LoggingCommands(logger, context.logPath));
 	context.subscriptions.push(new LoggingCommands(logger, context.logUri.fsPath));
 
-	setCommandVisiblity(true);
+	// Things to do when we succefully connect to the server.
+	const serverConnected = dasClient.registerForServerConnected((sc) => {
+		serverConnected.dispose();
+		vs.workspace.workspaceFolders
+		const handleOpenFile = (d: vs.TextDocument) => {
+			if (d.languageId === "dart" && d.uri.scheme === "file") {
+				// TODO (tekert): for a future protocol where we send file contents
+				// to the formatter server and then only the changes
+				// so we dont need the client to save the file, check if not dirty
+				// send the path, then wait for the server to open it.
+				//vs.window.showWarningMessage("Test: opened a dart file");
+			}
+		};
+		context.subscriptions.push(vs.workspace.onDidOpenTextDocument((d) => handleOpenFile(d)));
+		// Fire for editors already visible at the time this code runs.
+		vs.window.visibleTextEditors.forEach((e) => handleOpenFile(e.document));
+
+		// Setup that requires formatter server version/capabilities.
+		//TODO (tekert): for future support.
+		if (dasClient.capabilities.hasCustomFormatTest) {
+		}
+	});
 
 	// Handle config changes so we can reanalyze if necessary.
 	context.subscriptions.push(vs.workspace.onDidChangeConfiguration(() => handleConfigurationChange()));
 
-	//context.subscriptions.push(disposable);
+	// Turn on all the commands.
+	setCommandVisiblity(true);
 }
 
 function setupLog(logFile: string | undefined, category: LogCategory) {

@@ -3,10 +3,10 @@
 // and should not be hand-edited!
 
 import * as vs from "vscode";
-import * as as from "./formatter_server_types";
-import { Logger } from "../shared/interfaces";
-import { UnknownNotification, UnknownResponse } from "../shared/services/interfaces";
-import { StdIOService } from "../shared/services/stdio_service";
+import * as as from "../../shared/formatter_server_types";
+import { Logger } from "../../shared/interfaces";
+import { UnknownNotification, UnknownResponse } from "../../shared/services/interfaces";
+import { StdIOService } from "../../shared/services/stdio_service";
 
 
 export abstract class FormatterGen extends StdIOService<UnknownNotification> {

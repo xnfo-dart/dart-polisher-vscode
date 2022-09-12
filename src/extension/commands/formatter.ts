@@ -1,5 +1,5 @@
 import * as vs from "vscode";
-import { Logger } from "../shared/interfaces";
+import { Logger } from "../../shared/interfaces";
 
 // Must be global, as all classes are created during an extension restart.
 let forcedReanalyzeCount = 0;

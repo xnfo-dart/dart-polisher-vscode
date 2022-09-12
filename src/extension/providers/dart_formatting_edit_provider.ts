@@ -1,14 +1,14 @@
 import * as minimatch from "minimatch";
 import { CancellationToken, DocumentFormattingEditProvider, DocumentSelector, FormattingOptions, languages, OnTypeFormattingEditProvider, Position, Range, TextDocument, TextEdit, window, workspace } from "vscode";
-import * as as from "../formatter/formatter_server_types";
-import { IAmDisposable, Logger } from "../shared/interfaces";
-import { disposeAll } from "../shared/utils";
-import { fsPath } from "../shared/utils/fs";
-import { Context } from "../shared/vscode/workspace";
-import { config } from "../config";
+import * as as from "../../shared/formatter_server_types";
+import { IAmDisposable, Logger } from "../../shared/interfaces";
+import { disposeAll } from "../../shared/utils";
+import { fsPath } from "../../shared/utils/fs";
+import { Context } from "../../shared/vscode/workspace";
+import { config } from "../../config";
 import { DasFormatterClient } from "../formatter/formatter_das";
-import { LogCategory } from "../shared/enums";
-import { fromRange } from "../shared/vscode/utils";
+import { LogCategory } from "../../shared/enums";
+import { fromRange } from "../../shared/vscode/utils";
 
 export class DartFormattingEditProvider implements DocumentFormattingEditProvider, OnTypeFormattingEditProvider, IAmDisposable {
 	constructor(private readonly logger: Logger, private readonly formatter: DasFormatterClient, private readonly context: Context) {

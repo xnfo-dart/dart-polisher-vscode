@@ -1,13 +1,13 @@
 import * as path from "path";
 import * as vs from "vscode";
-import { FORMATTER_IS_CAPTURING_LOGS_CONTEXT } from "../shared/constants";
-import { LogCategory } from "../shared/enums";
-import { captureLogs, EmittingLogger } from "../shared/logging";
-import { PromiseCompleter } from "../shared/utils";
-import { forceWindowsDriveLetterToUppercase, fsPath } from "../shared/utils/fs";
-import { config } from "../config";
-import { createFolderForFile } from "../utils";
-import { /*formatServerLogCategories, extensionsLogCategories,*/ getExtensionLogPath, getLogHeader, userSelectableLogCategories } from "../utils/log";
+import { FORMATTER_IS_CAPTURING_LOGS_CONTEXT } from "../../shared/constants";
+import { LogCategory } from "../../shared/enums";
+import { captureLogs, EmittingLogger } from "../../shared/logging";
+import { PromiseCompleter } from "../../shared/utils";
+import { forceWindowsDriveLetterToUppercase, fsPath } from "../../shared/utils/fs";
+import { config } from "../../config";
+import { createFolderForFile } from "../../utils";
+import { /*formatServerLogCategories, extensionsLogCategories,*/ getExtensionLogPath, getLogHeader, userSelectableLogCategories } from "../../utils/log";
 
 export let isLogging = false;
 
