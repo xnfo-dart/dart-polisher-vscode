@@ -11,7 +11,7 @@ export function getExtensionLogPath() {
 	return extensionLogPath;
 }
 export const userSelectableLogCategories: { [key: string]: LogCategory } = {
-	"Formatter": LogCategory.Formatter,
+	"Formatter": LogCategory.FormatterServer,
 	"Command Processes": LogCategory.CommandProcesses,
 };
 /*
@@ -26,7 +26,7 @@ export const extensionsLogCategories = [
 ];
 */
 export const debuggingLogCategories = Object.values(userSelectableLogCategories)
-	.filter((c) => c !== LogCategory.Formatter);
+	.filter((c) => c !== LogCategory.FormatterServer);
 
 const logHeader: string[] = [];
 export function clearLogHeader() {

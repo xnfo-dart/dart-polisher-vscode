@@ -86,9 +86,9 @@ export abstract class FormatterGen extends StdIOService<UnknownNotification> {
 		end of the selected region will be ignored. If preserving selection
 		information is not required, zero (0) can be specified for both the
 		selection offset and selection length.
-		If a request is made for a file which does not exist, or which is not
+		If a request is made for a file which does not exist, IRRELEVANT[or which is not
 		currently subject to analysis (e.g. because it is not associated with
-		any analysis root specified to analysis.setAnalysisRoots), an error of
+		any analysis root specified to analysis.setAnalysisRoots)], an error of
 		type FORMAT_INVALID_FILE will be generated. If the source
 		contains syntax errors, an error of type FORMAT_WITH_ERRORS
 		will be generated.

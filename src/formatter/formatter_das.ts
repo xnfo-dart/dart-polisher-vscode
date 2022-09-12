@@ -37,7 +37,7 @@ export class DasFormatter implements IAmDisposable {
 		this.disposables.push(this.onAnalysisStatusChangeEmitter);
 		this.setup();
 
-		this.logger = new CategoryLogger(logger, LogCategory.Formatter);
+		this.logger = new CategoryLogger(logger, LogCategory.FormatterServer);
 
 		//let extensionPath = context.extensionPath;
 		//TEST: alternative method is: vs.extensions.getExtension(dartFormatterExtensionIdentifier)?.extensionUri.fsPath;
@@ -47,16 +47,17 @@ export class DasFormatter implements IAmDisposable {
 		this.client = new DasFormatterClient(this.logger);
 		this.disposables.push(this.client);
 
-		//TODO: check if these 2 commands are implemented server side.
 		const connectedEvent = this.client.registerForServerConnected((sc) => {
 			this.onReadyCompleter.resolve();
 			connectedEvent.dispose();
 		});
 
-		this.client.registerForServerStatus((params) => {
-			if (params.format)
-				this.onAnalysisStatusChangeEmitter.fire({ isFormatting: params.format.isFormatting });
-		});
+		// NOTE: not necessary for a formatter server, maybe for something else?
+		/*		this.client.registerForServerStatus((params) => {
+					if (params.format)
+						this.onAnalysisStatusChangeEmitter.fire({ isFormatting: params.format.isFormatting });
+				});
+		*/
 	}
 
 	//TODO: check if these commands are implemented server side.
@@ -93,7 +94,7 @@ export class FormatterCapabilities {
 	get hasCustomFormat1() { return versionIsAtLeast(this.version, "0.1.0"); }
 }
 
-export function getFormatterArgs(logger: Logger,  dartCapabilities: FormatterCapabilities) {
+export function getFormatterArgs(logger: Logger, dartCapabilities: FormatterCapabilities) {
 	/*const formatterPath = config.formatterPath || (
 		dartCapabilities.supportsLanguageServerCommand
 			? "language-server"
@@ -104,7 +105,7 @@ export function getFormatterArgs(logger: Logger,  dartCapabilities: FormatterCap
 
 	// If the ssh host is set, then we are running the formatter on a remote machine, that same formatter
 	// might not exist on the local machine.
-	if (!config.formatterSshHost &&  !fs.existsSync(formatterPath)) {
+	if (!config.formatterSshHost && !fs.existsSync(formatterPath)) {
 		const msg = "Could not find a Dart Formatter Server at " + formatterPath;
 		vs.window.showErrorMessage(msg);
 		logger.error(msg);

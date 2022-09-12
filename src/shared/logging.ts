@@ -54,7 +54,7 @@ class LogMessageImpl implements LogMessage {
 			maxLength && this.message && this.message.length > maxLength
 				? this.message.substring(0, maxLength) + "…"
 				: (this.message || "<empty message>")
-		).trimRight();
+		).trimEnd();
 
 		const time = `[${(new Date()).toLocaleTimeString()}]`;
 		const prefix = `[${LogCategory[this.category]}] [${LogSeverity[this.severity]}]`;

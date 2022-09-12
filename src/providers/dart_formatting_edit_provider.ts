@@ -7,6 +7,8 @@ import { fsPath } from "../shared/utils/fs";
 import { Context } from "../shared/vscode/workspace";
 import { config } from "../config";
 import { DasFormatterClient } from "../formatter/formatter_das";
+import { LogCategory } from "../shared/enums";
+import { fromRange } from "../shared/vscode/utils";
 
 export class DartFormattingEditProvider implements DocumentFormattingEditProvider, OnTypeFormattingEditProvider, IAmDisposable {
 	constructor(private readonly logger: Logger, private readonly formatter: DasFormatterClient, private readonly context: Context) {
@@ -31,6 +33,10 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 		this.registerFormatter(() => languages.registerOnTypeFormattingEditProvider(filter, this, firstTriggerCharacter, ...moreTriggerCharacters));
 	}
 
+	public registerDocumentRangeFormatter(filter: DocumentSelector): void {
+		this.registerFormatter(() => languages.registerDocumentRangeFormattingEditProvider(filter, this));
+	}
+
 	private registerFormatter(reg: () => IAmDisposable) {
 		const registerAndTrack = () => this.registeredFormatters.push(reg());
 
@@ -53,6 +59,7 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 	}
 
 	public async provideDocumentFormattingEdits(document: TextDocument, options: FormattingOptions, token: CancellationToken): Promise<TextEdit[] | undefined> {
+		//TODO: use [options: FormattingOptions] for edit insertspace and tabsize
 		try {
 			return await this.doFormat(document, true); // await is important for catch to work.
 		} catch
@@ -66,8 +73,10 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 	}
 
 	public async provideOnTypeFormattingEdits(document: TextDocument, position: Position, ch: string, options: FormattingOptions,
-		 token: CancellationToken): Promise<TextEdit[] | undefined> {
-
+		token: CancellationToken): Promise<TextEdit[] | undefined> {
+		//TODO: use [options: FormattingOptions] for edit insertspace and tabsize
+		//! TODO: ch (last typed char that triggers this is deleted when formatted text arrives from response)
+		// make it only format a line.
 		try {
 			return await this.doFormat(document, false);
 		} catch {
@@ -75,28 +84,71 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 		}
 	}
 
-	private async doFormat(document: TextDocument, doLogError = true): Promise<TextEdit[] | undefined> {
+	public async provideDocumentRangeFormattingEdits(document: TextDocument, range: Range, options: FormattingOptions,
+		token: CancellationToken): Promise<TextEdit[] | undefined> {
+		//TODO: use [options: FormattingOptions] for edit insertspace and tabsize
+		try {
+			return await this.doFormat(document, true, range); // await is important for catch to work.
+		} catch {
+			return undefined;
+		}
+	}
+
+	private async doFormat(document: TextDocument, doLogError = true, range?: Range): Promise<TextEdit[] | undefined> {
 
 		if (!this.shouldFormat(document))
 			return undefined;
 
+		// Force save if dirty,
+		//TODO (tekert): or make new protocol accepting source contents (new and modified parts) instead of file paths.
+		//! is causing timeout on vscode, save hangs after using context menu to Format Document.
+		//let r = await this.saveSyncDocument(document);
+		//if (!r)
+		//return undefined;
+
+		if (document.isDirty)
+			return undefined;
+
 		try {
+
+			let selectionOnly = false;
+			let offsets = {start: 0, end: 0}; // [start, end] zero-based
+			if (range) {
+
+				offsets = fromRange(document, range);
+				selectionOnly = true;
+			}
+
 			const resp = await this.formatter.editFormat({
 				file: fsPath(document.uri),
 				lineLength: config.for(document.uri).lineLength,
-				selectionLength: 0, //TODO: cant we get selection? check reception.
-				selectionOffset: 0,
+				selectionLength: offsets.end - offsets.start,
+				selectionOffset: offsets.start,
+				selectionOnly: selectionOnly,
 			});
 			if (resp.edits.length === 0)
 				return undefined;
-			else
-				return resp.edits.map((e) => this.convertData(document, e));
+			else {
+				let a = resp.edits.map((e) => this.convertData(document, e));
+				return a;
+			}
 
 		} catch (e) {
 			if (doLogError)
 				this.logger.error(e);
 			throw e;
 		}
+	}
+
+	private async saveSyncDocument(document: TextDocument): Promise<boolean> {
+		if (document.isDirty) {
+			let result = await document.save();
+			if (!result) {
+				this.logger.error(`Could not save file: ${document.uri}`, LogCategory.General);
+				return false;
+			}
+		}
+		return true;
 	}
 
 	private shouldFormat(document: TextDocument): boolean {
@@ -106,10 +158,9 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 		const resourceConf = config.for(document.uri);
 		const path = fsPath(document.uri);
 
-		return undefined === resourceConf.doNotFormat.find((p:any) => minimatch(path, p, { dot: true }));
+		return undefined === resourceConf.doNotFormat.find((p: any) => minimatch(path, p, { dot: true }));
 	}
 
-	//TODO: test this.
 	private convertData(document: TextDocument, edit: as.SourceEdit): TextEdit {
 		return new TextEdit(
 			new Range(document.positionAt(edit.offset), document.positionAt(edit.offset + edit.length)),

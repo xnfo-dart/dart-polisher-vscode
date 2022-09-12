@@ -1,6 +1,6 @@
-# dart-custom-formatter README
+# Dart Formatter (vscode-extension)
 
-This is the README for your extension "dart-custom-formatter". After writing up a brief description, we recommend including the following sections.
+TODO: desc
 
 ## Features
 

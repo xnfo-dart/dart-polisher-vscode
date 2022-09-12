@@ -84,7 +84,9 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 	const activeFileFilters: vs.DocumentFilter[] = [DART_MODE];
 	const formattingEditProvider = new DartFormattingEditProvider(logger, dasClient, extContext);
 	context.subscriptions.push(formattingEditProvider);
-	formattingEditProvider.registerDocumentFormatter(activeFileFilters);
+
+	//formattingEditProvider.registerDocumentFormatter(activeFileFilters); // One or the other
+	formattingEditProvider.registerDocumentRangeFormatter(activeFileFilters);
 	// Only for Dart.
 	formattingEditProvider.registerTypingFormatter(DART_MODE, "}", ";");
 
@@ -142,10 +144,10 @@ function getSettingsThatRequireRestart() {
 	// Usually these are options that affect the formatter and need a reload, but config options used at
 	// activation time will also need to be included.
 	return "CONF-"
-	//	+ config.sdkPath
-	//	+ config.sdkPaths?.length //TODO: or take from dart extension
+		//	+ config.sdkPath
+		//	+ config.sdkPaths?.length //TODO: or take from dart extension
 		+ config.formatterPath
-	//	+ config.formatterInstrumentationLogFile //TODO: already implemented server side, arg config missing.
+		//	+ config.formatterInstrumentationLogFile //TODO: already implemented server side, arg config missing.
 		+ config.formatterAdditionalArgs
 		+ config.extensionLogFile
 }

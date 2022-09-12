@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 export enum LogCategory {
 	General,
-	Formatter,
+	FormatterServer,
 	CommandProcesses,
 }
 

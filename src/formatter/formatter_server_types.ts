@@ -43,6 +43,12 @@
 	 * The line length to be used by the formatter.
 	 */
 	lineLength?: number;
+
+	/**
+	 * True if the code to be formatted should be limited
+	 * to the selected text
+	 */
+	selectionOnly?: boolean;
 }
 
 /**
