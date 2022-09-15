@@ -64,7 +64,24 @@ export class ResourceConfig {
 
 	// Formatter
 	get lineLength(): number { return this.getConfig<number>("lineLength", 80); }
+
+	get expressionIndent(): undefined | number { return this.getConfig<null | number>("expressionIndent", null); }
+	get blockIndent(): undefined | number { return this.getConfig<null | number>("blockIndent", null); }
+	get cascadeIndent(): undefined | number { return this.getConfig<null | number>("cascadeIndent", null); }
+	get constructorInitializerIndent(): undefined | number { return this.getConfig<null | number>("constructorInitializerIndent", null); }
+	get codeStyleCode(): number {
+		const key = this.getConfig<CodeStylesEnum>("codeStyle", CodeStylesEnum["Dart Style"]);
+		const num = CodeStylesEnum[key];
+		// the sintax analizer is confused and thinks this is a string, so...
+		let numValue = Number(CodeStylesEnum[key]);
+		if (Number.isNaN(numValue)) { numValue = 0; }
+		return numValue;
+	}
+	get codeStyle(): CodeStylesEnum { return this.getConfig<CodeStylesEnum>("codeStyle", CodeStylesEnum["Dart Style"]); }
 }
+
+export enum CodeStylesEnum {"Dart Style" = 0, "Dart Style (Allman)" = 1, "Dart Style (K&R)" = 2}
+
 
 
 export const config = new Config();

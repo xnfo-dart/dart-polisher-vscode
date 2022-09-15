@@ -7,7 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.8] - 2022-09-14
+### Added
+New configurable indents (tab size) for different expressions.
 
+### Changed
+
+### Removed
+Ontype formatting not working for now until i change protocol to use content and not file paths.
 
 ## [0.0.1] - 2014-05-31
 ### Added

@@ -1,16 +1,17 @@
 import * as minimatch from "minimatch";
-import { CancellationToken, DocumentFormattingEditProvider, DocumentSelector, FormattingOptions, languages, OnTypeFormattingEditProvider, Position, Range, TextDocument, TextEdit, window, workspace } from "vscode";
+import { CancellationToken, DocumentFormattingEditProvider, DocumentSelector, FormattingOptions, languages, DocumentRangeFormattingEditProvider, OnTypeFormattingEditProvider, Position, Range, TextDocument, TextEdit, window, workspace } from "vscode";
 import * as as from "../../shared/formatter_server_types";
 import { IAmDisposable, Logger } from "../../shared/interfaces";
 import { disposeAll } from "../../shared/utils";
 import { fsPath } from "../../shared/utils/fs";
 import { Context } from "../../shared/vscode/workspace";
-import { config } from "../../config";
+import { CodeStylesEnum, config } from "../../config";
 import { DasFormatterClient } from "../formatter/formatter_das";
 import { LogCategory } from "../../shared/enums";
 import { fromRange } from "../../shared/vscode/utils";
+import { CodeStyle, TabSize } from "../../shared/formatter_server_types";
 
-export class DartFormattingEditProvider implements DocumentFormattingEditProvider, OnTypeFormattingEditProvider, IAmDisposable {
+export class DartFormattingEditProvider implements DocumentFormattingEditProvider, OnTypeFormattingEditProvider, DocumentRangeFormattingEditProvider, IAmDisposable {
 	constructor(private readonly logger: Logger, private readonly formatter: DasFormatterClient, private readonly context: Context) {
 		workspace.onDidChangeConfiguration((e) => {
 			if (e.affectsConfiguration("dart-custom-formatter.enableCustomFormatter")) {
@@ -61,7 +62,7 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 	public async provideDocumentFormattingEdits(document: TextDocument, options: FormattingOptions, token: CancellationToken): Promise<TextEdit[] | undefined> {
 		//TODO: use [options: FormattingOptions] for edit insertspace and tabsize
 		try {
-			return await this.doFormat(document, true); // await is important for catch to work.
+			return await this.doFormat(document, true, options); // await is important for catch to work.
 		} catch
 		{	//TODO: check, when does this gets initialized?
 			if (!this.context.hasWarnedAboutFormatterSyntaxLimitation) {
@@ -72,13 +73,19 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 		}
 	}
 
+	//! TODO (tekert): Not working, file needs to be saved (not dirty) for format to work
 	public async provideOnTypeFormattingEdits(document: TextDocument, position: Position, ch: string, options: FormattingOptions,
 		token: CancellationToken): Promise<TextEdit[] | undefined> {
-		//TODO: use [options: FormattingOptions] for edit insertspace and tabsize
-		//! TODO: ch (last typed char that triggers this is deleted when formatted text arrives from response)
-		// make it only format a line.
+		// TODO (tekert): matching {}
+		let range : Range | undefined = undefined;
+		if (ch === ';') {
+			range = document.lineAt(position).range;
+		}
+		if (ch === '}') {
+
+		}
 		try {
-			return await this.doFormat(document, false);
+			return await this.doFormat(document, false, options, range);
 		} catch {
 			return undefined;
 		}
@@ -86,15 +93,15 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 
 	public async provideDocumentRangeFormattingEdits(document: TextDocument, range: Range, options: FormattingOptions,
 		token: CancellationToken): Promise<TextEdit[] | undefined> {
-		//TODO: use [options: FormattingOptions] for edit insertspace and tabsize
 		try {
-			return await this.doFormat(document, true, range); // await is important for catch to work.
+			return await this.doFormat(document, true, options, range); // await is important for catch to work.
 		} catch {
 			return undefined;
 		}
 	}
 
-	private async doFormat(document: TextDocument, doLogError = true, range?: Range): Promise<TextEdit[] | undefined> {
+	private async doFormat(document: TextDocument, doLogError = true, options: FormattingOptions, range?: Range | undefined):
+		Promise<TextEdit[] | undefined> {
 
 		if (!this.shouldFormat(document))
 			return undefined;
@@ -104,20 +111,33 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 		//! is causing timeout on vscode, save hangs after using context menu to Format Document.
 		//let r = await this.saveSyncDocument(document);
 		//if (!r)
-		//return undefined;
+		//	return undefined;
 
+		// Important, dont format using edit.format if the file is not saved.
+		// edit.format is using file paths to format the contents.
 		if (document.isDirty)
 			return undefined;
 
 		try {
 
 			let selectionOnly = false;
-			let offsets = {start: 0, end: 0}; // [start, end] zero-based
+			let offsets = { start: 0, end: 0 }; // [start, end] zero-based
 			if (range) {
 
 				offsets = fromRange(document, range);
 				selectionOnly = true;
 			}
+
+			// Space Indent sizes, if config is not set, use editor's default.
+			const tabSizes = new TabSize;
+			tabSizes.block = config.for(document.uri).blockIndent ?? options.tabSize;
+			tabSizes.cascade = config.for(document.uri).cascadeIndent ?? options.tabSize;
+			tabSizes.expression = config.for(document.uri).expressionIndent ?? options.tabSize;
+			tabSizes.constructorInitializer = config.for(document.uri).constructorInitializerIndent ?? options.tabSize;
+
+			// Get code associated wich profile
+			const style: CodeStyle = new CodeStyle();
+			style.code = config.for(document.uri).codeStyleCode;
 
 			const resp = await this.formatter.editFormat({
 				file: fsPath(document.uri),
@@ -125,12 +145,14 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 				selectionLength: offsets.end - offsets.start,
 				selectionOffset: offsets.start,
 				selectionOnly: selectionOnly,
+				insertSpaces: undefined, //options.insertSpaces, //TODO (tekert): there is already a convert in vscode. use that.
+				tabSize: tabSizes,
+				styleProfile: style,
 			});
 			if (resp.edits.length === 0)
 				return undefined;
 			else {
-				let a = resp.edits.map((e) => this.convertData(document, e));
-				return a;
+				return resp.edits.map((e) => this.convertData(document, e));
 			}
 
 		} catch (e) {

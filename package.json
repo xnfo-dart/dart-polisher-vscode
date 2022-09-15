@@ -62,7 +62,7 @@
 				"dart-custom-formatter.enableCustomFormatter": {
 					"type": "boolean",
 					"default": true,
-					"markdownDescription": "Whether to enable the [dart_formatter] (https://github.com/tekert/dart-formatter) for Dart code. (customized)",
+					"markdownDescription": "Whether to enable the [dart_formatter] (https://github.com/tekert/dart-formatter) for Dart code.",
 					"scope": "window"
 				},
 				"dart-custom-formatter.doNotFormat": {
@@ -80,7 +80,7 @@
 						"string"
 					],
 					"default": null,
-					"description": "The path to a custom Dart Format Server. This setting is intended for use by Dart Format Server developers.",
+					"description": "The path to a custom Dart Formatter Server. This setting is intended for use by Dart Format Server developers.",
 					"scope": "machine-overridable"
 				},
 				"dart-custom-formatter.formatterSshHost": {
@@ -111,7 +111,64 @@
 					"type": "integer",
 					"default": 80,
 					"description": "The maximum length of a line of code. This is used by the document formatter.",
-					"scope": "resource"
+					"scope": "resource",
+					"order": 10
+				},
+				"dart-custom-formatter.expressionIndent": {
+					"type": [
+						"null",
+						"number"
+					],
+					"default": null,
+					"markdownDescription": "The number of spaces in a single level of expression nesting. Defaults to `#editor.tabSize#`",
+					"scope": "resource",
+					"minimum": 0,
+					"order": 20
+				},
+				"dart-custom-formatter.blockIndent": {
+					"type": [
+						"null",
+						"number"
+					],
+					"default": null,
+					"markdownDescription": "The number of spaces in a block or collection body. Defaults to `#editor.tabSize#`",
+					"scope": "resource",
+					"minimum": 0,
+					"order": 21
+				},
+				"dart-custom-formatter.cascadeIndent": {
+					"type": [
+						"null",
+						"number"
+					],
+					"default": null,
+					"markdownDescription": "How much wrapped cascade sections indent. Defaults to `#editor.tabSize#`",
+					"scope": "resource",
+					"minimum": 0,
+					"order": 22
+				},
+				"dart-custom-formatter.constructorInitializerIndent": {
+					"type": [
+						"null",
+						"number"
+					],
+					"default": null,
+					"markdownDescription": "The ':' on a wrapped constructor initialization list. Defaults to `#editor.tabSize#`",
+					"scope": "resource",
+					"minimum": 0,
+					"order": 23
+				},
+				"dart-custom-formatter.codeStyle": {
+					"type": "string",
+					"default": "Dart Style",
+					"enum": ["Dart Style", "Dart Style (Allman)", "Dart Style (K&R)"],
+					"enumDescriptions": [
+						"Original Dart Style with the ability to set custom tab sizes and indents",
+						"An outer braces style based on Dart Style",
+						"[Not implemented yet]"
+					],
+					"scope": "resource",
+					"order": 5
 				}
 
 			}

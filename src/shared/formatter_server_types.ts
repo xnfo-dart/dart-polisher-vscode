@@ -5,7 +5,7 @@
  * not absolute or is not normalized, then an error of type
  * INVALID_FILE_PATH_FORMAT will be generated.
  */
- export type FilePath = string;
+export type FilePath = string;
 
 /**
  * Format the contents of a single file. The currently selected region of
@@ -23,7 +23,7 @@
  * contains syntax errors, an error of type FORMAT_WITH_ERRORS
  * will be generated.
  */
- export interface EditFormatRequest {
+export interface EditFormatRequest {
 	/**
 	 * The file containing the code to be formatted.
 	 */
@@ -49,12 +49,49 @@
 	 * to the selected text
 	 */
 	selectionOnly?: boolean;
+
+	/// The tab size in spaces to be used by the formatter.
+	/// defaults all indents to 4 if not set
+	tabSize?: TabSize;
+
+	/// True if the code to be formatted should use spaces for indentations,
+	/// false to use tab stops. ignores [spaceIndent] if false. defaults to true
+	/// if not set.
+	insertSpaces?: boolean;
+
+	/// Set of common code styles using the format "[code]" example: 0 or 1 ..
+	/// 100 etc. default to 0 = dart_style with unlocked tab sizes. for more info
+	/// check [StyleCode] type.
+	styleProfile?: CodeStyle;
+}
+
+export class TabSize {
+	/// The number of spaces in a block or collection body.
+	block: number = 4;
+
+	/// How much wrapped cascade sections indent.
+	cascade: number = 4;
+
+	/// The number of spaces in a single level of expression nesting.
+	expression: number = 4;
+
+	/// The ":" on a wrapped constructor initialization list.
+	constructorInitializer: number = 4;
+}
+
+export class CodeStyle {
+	/// 0 = dart_style
+	/// 1 = Allman [https://en.wikipedia.org/wiki/Indentation_style#Allman_style]
+	/// 2 = K&R [https://en.wikipedia.org/wiki/Indentation_style#K&R_style]
+	/// 3 = etc
+	/// 4 = etc
+	code: number = 0;
 }
 
 /**
  * A description of a single change to a single file.
  */
- export interface SourceEdit {
+export interface SourceEdit {
 	/**
 	 * The offset of the region to be modified.
 	 */
@@ -99,7 +136,7 @@
  * contains syntax errors, an error of type FORMAT_WITH_ERRORS
  * will be generated.
  */
- export interface EditFormatResponse {
+export interface EditFormatResponse {
 	/**
 	 * The edit(s) to be applied in order to format the code. The list
 	 * will be empty if the code was already formatted (there are no
@@ -127,7 +164,7 @@
  * It is not possible to subscribe to or unsubscribe from this
  * notification.
  */
- export interface ServerConnectedNotification {
+export interface ServerConnectedNotification {
 	/**
 	 * The version number of the formatting server.
 	 */
@@ -155,7 +192,7 @@
  * It is not possible to subscribe to or unsubscribe from this
  * notification.
  */
- export interface ServerErrorNotification {
+export interface ServerErrorNotification {
 	/**
 	 * True if the error is a fatal error, meaning that the
 	 * server will shutdown automatically after sending this
@@ -186,7 +223,7 @@
  * the list of services passed in a server.setSubscriptions
  * request.
  */
- export interface ServerStatusNotification {
+export interface ServerStatusNotification {
 	/**
 	 * The current status of format server, including whether
 	 * formatting is being performed and if so what is being

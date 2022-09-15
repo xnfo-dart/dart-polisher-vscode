@@ -46,7 +46,8 @@ function buildFormatterArgs(formatterPath: string, dartCapabilities: FormatterCa
 	formatterArgs.push(`--client-version=${extensionVersion}`);
 
 	// The format server supports a verbose instrumentation log file.
-	// TODO: intrumentation log file is already implemented server side.
+	// TODO: uncomment this when config for this is done,
+    // its doesnt do much, only 1 or 2 exeptions are logged server side.
 	//if (config.formatterInstrumentationLogFile)
 	//	formatterArgs.push(`--instrumentation-log-file=${config.formatterInstrumentationLogFile}`);
 
