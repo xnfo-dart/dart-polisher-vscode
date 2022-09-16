@@ -1,6 +1,6 @@
 import * as fs from "fs";
 
-export const dartFormatterExtensionIdentifier = "Xnfo.dart-custom-formatter";
+export const dartFormatterExtensionIdentifier = "xnfo.dart-custom-formatter";
 
 export const isCI = !!process.env.CI;
 export const isWin = process.platform.startsWith("win");

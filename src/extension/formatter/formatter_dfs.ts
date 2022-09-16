@@ -3,10 +3,10 @@ import * as vs from "vscode";
 
 import { LogCategory } from "../../shared/enums";
 import { CategoryLogger } from "../../shared/logging";
-import { config } from "../../config";
-import { escapeShell } from "../../utils";
-import { reportCFormatterTerminatedWithError } from "../../utils/misc";
-import { getToolEnv } from "../../utils/processes";
+import { config } from "../config";
+import { escapeShell } from "../utils";
+import { reportCFormatterTerminatedWithError } from "../utils/misc";
+import { getToolEnv } from "../utils/processes";
 import { Logger } from "../../shared/interfaces";
 import { FormatterGen } from "./formatter_gen";
 import { PromiseCompleter, versionIsAtLeast } from "../../shared/utils";
@@ -26,9 +26,9 @@ export class FormatterCapabilities {
 	get hasCustomFormatTest() { return versionIsAtLeast(this.version, "0.1.0"); }
 }
 
-export class DasFormatter extends Formatter {
+export class DfsFormatter extends Formatter {
 
-	public readonly client: DasFormatterClient;
+	public readonly client: DfsFormatterClient;
 
 	constructor(logger: Logger, context: vs.ExtensionContext) {
 		super(new CategoryLogger(logger, LogCategory.FormatterServer));
@@ -38,7 +38,7 @@ export class DasFormatter extends Formatter {
 		// or vs.extensions.getExtension(dartFormatterExtensionIdentifier)?.packageJSON['extensionLocation']['_fsPath'];
 
 		// Fires up the format server
-		this.client = new DasFormatterClient(this.logger);
+		this.client = new DfsFormatterClient(this.logger);
 		this.disposables.push(this.client);
 
 		const connectedEvent = this.client.registerForServerConnected((sc) => {
@@ -57,7 +57,7 @@ export class DasFormatter extends Formatter {
 
 }
 
-export class DasFormatterClient extends FormatterGen {
+export class DfsFormatterClient extends FormatterGen {
 	private launchArgs: string[];
 	private version?: string;
 	private isFormatting = false;

@@ -1,5 +1,5 @@
 import * as path from "path";
-import { Logger } from "../shared/interfaces";
+import { Logger } from "../../shared/interfaces";
 import { promptToReloadExtension } from "../utils";
 
 let isShowingAnalyzerError = false;

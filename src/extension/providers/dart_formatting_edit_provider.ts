@@ -5,14 +5,14 @@ import { IAmDisposable, Logger } from "../../shared/interfaces";
 import { disposeAll } from "../../shared/utils";
 import { fsPath } from "../../shared/utils/fs";
 import { Context } from "../../shared/vscode/workspace";
-import { CodeStylesEnum, config } from "../../config";
-import { DasFormatterClient } from "../formatter/formatter_das";
+import { CodeStylesEnum, config } from "../config";
+import { DfsFormatterClient } from "../formatter/formatter_dfs";
 import { LogCategory } from "../../shared/enums";
 import { fromRange } from "../../shared/vscode/utils";
 import { CodeStyle, TabSize } from "../../shared/formatter_server_types";
 
 export class DartFormattingEditProvider implements DocumentFormattingEditProvider, OnTypeFormattingEditProvider, DocumentRangeFormattingEditProvider, IAmDisposable {
-	constructor(private readonly logger: Logger, private readonly formatter: DasFormatterClient, private readonly context: Context) {
+	constructor(private readonly logger: Logger, private readonly formatter: DfsFormatterClient, private readonly context: Context) {
 		workspace.onDidChangeConfiguration((e) => {
 			if (e.affectsConfiguration("dart-custom-formatter.enableCustomFormatter")) {
 				if (config.enableCustomFormatter)
@@ -77,7 +77,7 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 	public async provideOnTypeFormattingEdits(document: TextDocument, position: Position, ch: string, options: FormattingOptions,
 		token: CancellationToken): Promise<TextEdit[] | undefined> {
 		// TODO (tekert): matching {}
-		let range : Range | undefined = undefined;
+		let range: Range | undefined = undefined;
 		if (ch === ';') {
 			range = document.lineAt(position).range;
 		}

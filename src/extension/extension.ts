@@ -4,29 +4,29 @@
 // Import the module and reference it with the alias vscode in your code below
 import internal = require('stream');
 import * as vs from 'vscode';
-import { disposeAll } from "./shared/utils";
-import { dartFormatterExtensionIdentifier, dartPlatformName, isWin, IS_RUNNING_LOCALLY_CONTEXT, platformDisplayName } from "./shared/constants";
-import { captureLogs, EmittingLogger, logToConsole, RingLog } from "./shared/logging";
-import { LoggingCommands } from "./extension/commands/logging";
-import { LogCategory } from "./shared/enums";
-import { IAmDisposable, Logger } from "./shared/interfaces";
-import { extensionVersion, isDevExtension } from "./shared/vscode/extension_utils";
-import { Context } from "./shared/vscode/workspace";
-import { DartFormattingEditProvider } from "./extension/providers/dart_formatting_edit_provider";
+import { disposeAll } from "../shared/utils";
+import { dartFormatterExtensionIdentifier, dartPlatformName, isWin, IS_RUNNING_LOCALLY_CONTEXT, platformDisplayName } from "../shared/constants";
+import { captureLogs, EmittingLogger, logToConsole, RingLog } from "../shared/logging";
+import { LoggingCommands } from "./commands/logging";
+import { LogCategory } from "../shared/enums";
+import { IAmDisposable, Logger } from "../shared/interfaces";
+import { extensionVersion, isDevExtension } from "../shared/vscode/extension_utils";
+import { Context } from "../shared/vscode/workspace";
+import { DartFormattingEditProvider } from "./providers/dart_formatting_edit_provider";
 import * as util from "./utils";
 
 import { addToLogHeader, clearLogHeader, getExtensionLogPath, getLogHeader } from "./utils/log";
-import { FormatServerCommands } from './extension/commands/formatter';
-import { DasFormatter } from './extension/formatter/formatter_das';
+import { FormatServerCommands } from './commands/formatter';
+import { DfsFormatter } from './formatter/formatter_dfs';
 import { config } from './config';
-import { isRunningLocally } from './shared/vscode/utils';
+import { isRunningLocally } from '../shared/vscode/utils';
 
 let previousSettings: string;
 
 const PROJECT_LOADED = "dart-custom-formatter:anyProjectLoaded";
 export const DART_MODE = { language: "dart", scheme: "file" };
 
-let formatter: DasFormatter;
+let formatter: DfsFormatter;
 
 const loggers: IAmDisposable[] = [];
 let ringLogger: IAmDisposable | undefined;
@@ -71,16 +71,16 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 	}));
 
 	// Format Server VsCode Commands
-	formatter = new DasFormatter(logger, context);
+	formatter = new DfsFormatter(logger, context);
 	const dasFormatter = formatter;
-	const dasClient = dasFormatter.client;
+	const dfsClient = dasFormatter.client;
 	context.subscriptions.push(formatter);
 
 	// VsCode Command for the custom formatter service
 	const formatCommands = new FormatServerCommands(context, logger);
 
 	const activeFileFilters: vs.DocumentFilter[] = [DART_MODE];
-	const formattingEditProvider = new DartFormattingEditProvider(logger, dasClient, extContext);
+	const formattingEditProvider = new DartFormattingEditProvider(logger, dfsClient, extContext);
 	context.subscriptions.push(formattingEditProvider);
 	//formattingEditProvider.registerDocumentFormatter(activeFileFilters); // One or the other
 	formattingEditProvider.registerDocumentRangeFormatter(activeFileFilters);
@@ -90,7 +90,7 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 	context.subscriptions.push(new LoggingCommands(logger, context.logUri.fsPath));
 
 	// Things to do when we succefully connect to the server.
-	const serverConnected = dasClient.registerForServerConnected((sc) => {
+	const serverConnected = dfsClient.registerForServerConnected((sc) => {
 		serverConnected.dispose();
 		vs.workspace.workspaceFolders
 		const handleOpenFile = (d: vs.TextDocument) => {
@@ -100,6 +100,7 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 				// so we dont need the client to save the file, check if not dirty
 				// send the path, then wait for the server to open it.
 				//vs.window.showWarningMessage("Test: opened a dart file");
+				// use https://code.visualstudio.com/api/references/vscode-api#FileSystemWatcher
 			}
 		};
 		context.subscriptions.push(vs.workspace.onDidOpenTextDocument((d) => handleOpenFile(d)));
@@ -108,7 +109,7 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 
 		// Setup that requires formatter server version/capabilities.
 		//TODO (tekert): for future support.
-		if (dasClient.capabilities.hasCustomFormatTest) {
+		if (dfsClient.capabilities.hasCustomFormatTest) {
 		}
 	});
 

@@ -5,9 +5,9 @@ import * as fs from "fs";
 import { dartFormatterExtensionIdentifier, executableNames, gformatterPath } from "../../shared/constants";
 import { isRunningLocally } from "../../shared/vscode/utils";
 import { extensionPath, extensionVersion } from "../../shared/vscode/extension_utils";
-import { config } from "../../config";
+import { config } from "../config";
 import { Logger } from "../../shared/interfaces";
-import { FormatterCapabilities } from "./formatter_das";
+import { FormatterCapabilities } from "./formatter_dfs";
 
 
 export function getFormatterArgs(logger: Logger, formatterCapabilities: FormatterCapabilities) {

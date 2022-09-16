@@ -5,9 +5,9 @@ import { LogCategory } from "../../shared/enums";
 import { captureLogs, EmittingLogger } from "../../shared/logging";
 import { PromiseCompleter } from "../../shared/utils";
 import { forceWindowsDriveLetterToUppercase, fsPath } from "../../shared/utils/fs";
-import { config } from "../../config";
-import { createFolderForFile } from "../../utils";
-import { /*formatServerLogCategories, extensionsLogCategories,*/ getExtensionLogPath, getLogHeader, userSelectableLogCategories } from "../../utils/log";
+import { config } from "../config";
+import { createFolderForFile } from "../utils";
+import { /*formatServerLogCategories, extensionsLogCategories,*/ getExtensionLogPath, getLogHeader, userSelectableLogCategories } from "../utils/log";
 
 export let isLogging = false;
 

@@ -2,8 +2,8 @@ import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
 import { commands, Uri, window, workspace, WorkspaceFolder } from "vscode";
-import { showLogAction } from "./shared/constants";
-import { fsPath, getRandomInt, mkDirRecursive } from "./shared/utils/fs";
+import { showLogAction } from "../shared/constants";
+import { fsPath, getRandomInt, mkDirRecursive } from "../shared/utils/fs";
 import { ringLog } from "./extension";
 
 export async function promptToReloadExtension(prompt?: string, buttonText?: string, offerLog?: boolean): Promise<void> {

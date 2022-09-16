@@ -3,7 +3,7 @@
   "displayName": "Dart Formatter (fork)",
   "description": "[beta] Customized Dart formatter, tab indents, custom styles",
   "version": "0.1.0",
-  "publisher": "Xnfo",
+  "publisher": "xnfo",
   "engines": {
     "vscode": "^1.70.0"
   },

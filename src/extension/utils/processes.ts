@@ -1,5 +1,5 @@
-import { Logger, SpawnedProcess } from "../shared/interfaces";
-import { runProcess, RunProcessResult, safeSpawn } from "../shared/processes";
+import { Logger, SpawnedProcess } from "../../shared/interfaces";
+import { runProcess, RunProcessResult, safeSpawn } from "../../shared/processes";
 
 // Environment used when spawning Dart and Flutter processes.
 let toolEnv: /* { [key: string]: string | undefined } */ any = {};
