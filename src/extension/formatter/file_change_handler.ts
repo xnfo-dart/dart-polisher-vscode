@@ -15,6 +15,9 @@ export class FileChangeHandler implements vs.Disposable {
 			vs.workspace.onDidCloseTextDocument((td) => this.onDidCloseTextDocument(td)),
 		);
 		// Handle already-open files.
+		//TODO (tekert): try to send only first modified files.
+		// for example if change fails with no overlay, send whole contents to sync, the send change again.
+		// the error type is INVALID_OVERLAY_CHANGE (with edit range error or no overlay) try to make INVALID_OVERLAY_RANGE
 		vs.workspace.textDocuments.forEach((td) => this.onDidOpenTextDocument(td));
 	}
 

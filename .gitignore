@@ -24,6 +24,6 @@ logs/
 node_modules/
 out/
 pubspec.lock
-cformat.exe
+dartcfmt.exe
 Generated.xcconfig
 vsc-extension-quickstart.md

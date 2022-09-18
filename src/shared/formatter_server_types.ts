@@ -232,7 +232,7 @@ export interface ServerStatusNotification {
 	format?: FormatStatus;
 }
 
-//TODO: not implemented server side, check then delete.
+// TODO: not implemented server side, check then delete.
 export interface FormatStatus {
 	/**
 	 * True if formatting is currently being performed.
@@ -246,7 +246,7 @@ export interface FormatStatus {
 	formatTarget?: string;
 }
 
-//NOTE: pretty straighfoward, except ChangeContentOverlay on the part on ranges.
+// NOTE: pretty straighfoward, except ChangeContentOverlay on the part on ranges.
 /**
  * Update the content of one or more files. Files that were
  * previously updated but not included in this update remain

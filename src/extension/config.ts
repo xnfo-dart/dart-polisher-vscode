@@ -72,16 +72,15 @@ export class ResourceConfig {
 	get codeStyleCode(): number {
 		const key = this.getConfig<CodeStylesEnum>("codeStyle", CodeStylesEnum["Dart Style"]);
 		const num = CodeStylesEnum[key];
-		// the sintax analizer is confused and thinks this is a string, so...
-		let numValue = Number(CodeStylesEnum[key]);
+		// the syntax analyzer is confused and thinks this is a string, so...
+		let numValue = Number(num);
 		if (Number.isNaN(numValue)) { numValue = 0; }
 		return numValue;
 	}
 	get codeStyle(): CodeStylesEnum { return this.getConfig<CodeStylesEnum>("codeStyle", CodeStylesEnum["Dart Style"]); }
 }
 
-export enum CodeStylesEnum {"Dart Style" = 0, "Expanded Style" = 1, "[Not available yet]" = 2}
-
-
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export enum CodeStylesEnum { "Dart Style" = 0, "Expanded Style" = 1, "[Not available yet]" = 2 }
 
 export const config = new Config();

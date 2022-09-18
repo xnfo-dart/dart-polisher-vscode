@@ -50,12 +50,12 @@ export function createFolderForFile(file?: string): string | undefined {
 export function isFormattable(file: { uri: Uri, isUntitled?: boolean, languageId?: string }): boolean {
 	if (file.isUntitled || !fsPath(file.uri) || file.uri.scheme !== "file")
 		return false;
-	//TODO (tekert): check this
+	// TODO (tekert): check this
 	const formattableLanguages = ["dart", "html"];
 	const formattableFilenames = [".analysis_options", "analysis_options.yaml", "pubspec.yaml"];
 	// We have to include dart/html extensions as this function may be called without a language ID
 	// (for example when triggered by a file system watcher).
-	const formattableFileExtensions = ["dart", "htm", "html"]; //.concat(config.additionalAnalyzerFileExtensions); //TODO (tekert): Check if we enable this option
+	const formattableFileExtensions = ["dart", "htm", "html"]; // .concat(config.additionalAnalyzerFileExtensions); // TODO (tekert): Check if we enable this option
 
 	const extName = path.extname(fsPath(file.uri));
 	const extension = extName ? extName.substr(1) : undefined;

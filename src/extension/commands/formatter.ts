@@ -10,7 +10,7 @@ export class FormatServerCommands {
 			forcedReanalyzeCount++;
 			if (forcedReanalyzeCount === 10)
 				this.showServerRestartPrompt().catch((e) => logger.error(e));
-			vs.commands.executeCommand("dart-custom-formatter.reloadExtension");
+			vs.commands.executeCommand("_dart-custom-formatter.reloadExtension");
 		}));
 	}
 

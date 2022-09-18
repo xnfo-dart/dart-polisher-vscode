@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/restrict-plus-operands */
 /* eslint-disable curly */
 
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-import internal = require('stream');
-import * as vs from 'vscode';
+import internal = require("stream");
+import * as vs from "vscode";
 import { disposeAll } from "../shared/utils";
 import { dartFormatterExtensionIdentifier, dartPlatformName, isWin, IS_RUNNING_LOCALLY_CONTEXT, platformDisplayName } from "../shared/constants";
 import { captureLogs, EmittingLogger, logToConsole, RingLog } from "../shared/logging";
@@ -17,10 +18,10 @@ import { DartFormattingEditProvider } from "./providers/dart_formatting_edit_pro
 import * as util from "./utils";
 
 import { addToLogHeader, clearLogHeader, getExtensionLogPath, getLogHeader } from "./utils/log";
-import { FormatServerCommands } from './commands/formatter';
-import { DfsFormatter } from './formatter/formatter_dfs';
-import { config } from './config';
-import { isRunningLocally } from '../shared/vscode/utils';
+import { FormatServerCommands } from "./commands/formatter";
+import { DfsFormatter } from "./formatter/formatter_dfs";
+import { config } from "./config";
+import { isRunningLocally } from "../shared/vscode/utils";
 
 let previousSettings: string;
 
@@ -67,7 +68,7 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 		logger.info("Performing silent extension reload...");
 		await deactivate(true);
 		disposeAll(context.subscriptions);
-		await activate(context, true);
+		activate(context, true);
 		logger.info("Done!");
 	}));
 
@@ -93,14 +94,14 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 	// Things to do when we succefully connect to the server.
 	const serverConnected = dfsClient.registerForServerConnected((sc) => {
 		serverConnected.dispose();
-		vs.workspace.workspaceFolders
+		//vs.workspace.workspaceFolders;
 
 		// Set up a handler to warn the user if they open a Dart file and we
 		// never set up the formatter
 		const handleOpenFile = (d: vs.TextDocument) => {
 			if (d.languageId === "dart" && d.uri.scheme === "file") {
 				// TODO (tekert): check then remove this if not necessary
-				//vs.window.showWarningMessage("For full Dart language support, please open a folder containing your Dart files instead of individual loose files");
+				// vs.window.showWarningMessage("For full Dart language support, please open a folder containing your Dart files instead of individual loose files");
 			}
 		};
 		context.subscriptions.push(vs.workspace.onDidOpenTextDocument((d) => handleOpenFile(d)));
@@ -108,9 +109,9 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 		vs.window.visibleTextEditors.forEach((e) => handleOpenFile(e.document));
 
 		// Setup that requires formatter server version/capabilities.
-		//TODO (tekert): for future support.
-		if (dfsClient.capabilities.hasCustomFormatTest) {
-		}
+		// TODO (tekert): for future support.
+		/*if (dfsClient.capabilities.hasCustomFormatTest) {
+		}*/
 	});
 
 	// Hook editor changes to send updated contents to formatter server.
@@ -168,15 +169,15 @@ function getSettingsThatRequireRestart() {
 	// activation time will also need to be included.
 	return "CONF-"
 		//	+ config.sdkPath
-		//	+ config.sdkPaths?.length //TODO: or take from dart extension
+		//	+ config.sdkPaths?.length // TODO: or take from dart extension
 		+ config.formatterPath
-		//	+ config.formatterInstrumentationLogFile //TODO: already implemented server side, arg config missing.
+		//	+ config.formatterInstrumentationLogFile // TODO: already implemented server side, arg config missing.
 		+ config.formatterAdditionalArgs
-		+ config.extensionLogFile
+		+ config.extensionLogFile;
 }
 
 // this method is called when your extension is deactivated
-//export function deactivate() {}
+// export function deactivate() {}
 export async function deactivate(isRestart: boolean = false): Promise<void> {
 	setCommandVisiblity(false);
 
