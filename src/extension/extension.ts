@@ -54,7 +54,7 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "Dart Formatter" is now active!');
+	console.log('Congratulations, your extension "Dart C Formatter" is now active!');
 
 	// Set up log files.
 	//setupLog(config.formatterServerLogFile, LogCategory.Formatter);
@@ -113,7 +113,8 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 		}
 	});
 
-	// Hook editor changes to send updated contents to analyzer.
+	// Hook editor changes to send updated contents to formatter server.
+	console.log("Registering FileChangeHandler");
 	context.subscriptions.push(new FileChangeHandler(dfsClient));
 
 	// Handle config changes so we can reanalyze if necessary.

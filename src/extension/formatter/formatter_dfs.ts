@@ -173,7 +173,6 @@ export class DfsFormatterClient extends FormatterGen {
 		return this.launchArgs;
 	}
 
-
 	private serverTerminatedSubscriptions: Array<() => void> = [];
 	public registerForServerTerminated(subscriber: () => void): vs.Disposable {
 		return this.subscribe(this.serverTerminatedSubscriptions, subscriber);
