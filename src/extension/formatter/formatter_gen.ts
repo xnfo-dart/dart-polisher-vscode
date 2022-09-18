@@ -97,4 +97,19 @@ export abstract class FormatterGen extends StdIOService<UnknownNotification> {
 		return this.sendRequest("edit.format", request);
 	}
 
+
+	/**
+		Update the content of one or more files. Files that were
+		previously updated but not included in this update remain
+		unchanged. This effectively represents an overlay of the
+		filesystem. The files whose content is overridden are
+		therefore seen by server as being files with the given
+		content, even if the files do not exist on the filesystem or
+		if the file path represents the path to a directory on the
+		filesystem.
+	*/
+	serverUpdateContent(request: as.ServerUpdateContentRequest): Promise<UnknownResponse> {
+		return this.sendRequest("server.updateContent", request);
+	}
+
 }

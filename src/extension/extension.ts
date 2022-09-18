@@ -10,6 +10,7 @@ import { captureLogs, EmittingLogger, logToConsole, RingLog } from "../shared/lo
 import { LoggingCommands } from "./commands/logging";
 import { LogCategory } from "../shared/enums";
 import { IAmDisposable, Logger } from "../shared/interfaces";
+import { FileChangeHandler } from "./formatter/file_change_handler";
 import { extensionVersion, isDevExtension } from "../shared/vscode/extension_utils";
 import { Context } from "../shared/vscode/workspace";
 import { DartFormattingEditProvider } from "./providers/dart_formatting_edit_provider";
@@ -93,14 +94,13 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 	const serverConnected = dfsClient.registerForServerConnected((sc) => {
 		serverConnected.dispose();
 		vs.workspace.workspaceFolders
+
+		// Set up a handler to warn the user if they open a Dart file and we
+		// never set up the formatter
 		const handleOpenFile = (d: vs.TextDocument) => {
 			if (d.languageId === "dart" && d.uri.scheme === "file") {
-				// TODO (tekert): for a future protocol where we send file contents
-				// to the formatter server and then only the changes
-				// so we dont need the client to save the file, check if not dirty
-				// send the path, then wait for the server to open it.
-				//vs.window.showWarningMessage("Test: opened a dart file");
-				// use https://code.visualstudio.com/api/references/vscode-api#FileSystemWatcher
+				// TODO (tekert): check then remove this if not necessary
+				//vs.window.showWarningMessage("For full Dart language support, please open a folder containing your Dart files instead of individual loose files");
 			}
 		};
 		context.subscriptions.push(vs.workspace.onDidOpenTextDocument((d) => handleOpenFile(d)));
@@ -112,6 +112,9 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 		if (dfsClient.capabilities.hasCustomFormatTest) {
 		}
 	});
+
+	// Hook editor changes to send updated contents to analyzer.
+	context.subscriptions.push(new FileChangeHandler(dfsClient));
 
 	// Handle config changes so we can reanalyze if necessary.
 	context.subscriptions.push(vs.workspace.onDidChangeConfiguration(() => handleConfigurationChange()));

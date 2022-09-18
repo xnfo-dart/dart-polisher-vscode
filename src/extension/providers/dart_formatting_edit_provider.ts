@@ -1,11 +1,11 @@
 import * as minimatch from "minimatch";
 import { CancellationToken, DocumentFormattingEditProvider, DocumentSelector, FormattingOptions, languages, DocumentRangeFormattingEditProvider, OnTypeFormattingEditProvider, Position, Range, TextDocument, TextEdit, window, workspace } from "vscode";
-import * as as from "../../shared/formatter_server_types";
+import * as fs from "../../shared/formatter_server_types";
 import { IAmDisposable, Logger } from "../../shared/interfaces";
 import { disposeAll } from "../../shared/utils";
 import { fsPath } from "../../shared/utils/fs";
 import { Context } from "../../shared/vscode/workspace";
-import { CodeStylesEnum, config } from "../config";
+import { config } from "../config";
 import { DfsFormatterClient } from "../formatter/formatter_dfs";
 import { LogCategory } from "../../shared/enums";
 import { fromRange } from "../../shared/vscode/utils";
@@ -109,14 +109,16 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 		// Force save if dirty,
 		//TODO (tekert): or make new protocol accepting source contents (new and modified parts) instead of file paths.
 		//! is causing timeout on vscode, save hangs after using context menu to Format Document.
+		// TODO: content changes implemented in API, comment this, test, then delete.
 		//let r = await this.saveSyncDocument(document);
 		//if (!r)
 		//	return undefined;
 
 		// Important, dont format using edit.format if the file is not saved.
 		// edit.format is using file paths to format the contents.
-		if (document.isDirty)
-			return undefined;
+		// TODO: content changes implemented in API, comment this, test, then delete.
+		//if (document.isDirty)
+			//return undefined;
 
 		try {
 
@@ -135,10 +137,11 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 			tabSizes.expression = config.for(document.uri).expressionIndent ?? options.tabSize;
 			tabSizes.constructorInitializer = config.for(document.uri).constructorInitializerIndent ?? options.tabSize;
 
-			// Get code associated wich profile
+			// Get selected code style
 			const style: CodeStyle = new CodeStyle();
 			style.code = config.for(document.uri).codeStyleCode;
 
+			// Send edit.format request (undefined params are just discarded) and await for response.
 			const resp = await this.formatter.editFormat({
 				file: fsPath(document.uri),
 				lineLength: config.for(document.uri).lineLength,
@@ -147,7 +150,7 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 				selectionOnly: selectionOnly,
 				insertSpaces: undefined, //options.insertSpaces, //TODO (tekert): there is already a convert in vscode. use that.
 				tabSize: tabSizes,
-				styleProfile: style,
+				codeStyle: style,
 			});
 			if (resp.edits.length === 0)
 				return undefined;
@@ -183,7 +186,7 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 		return undefined === resourceConf.doNotFormat.find((p: any) => minimatch(path, p, { dot: true }));
 	}
 
-	private convertData(document: TextDocument, edit: as.SourceEdit): TextEdit {
+	private convertData(document: TextDocument, edit: fs.SourceEdit): TextEdit {
 		return new TextEdit(
 			new Range(document.positionAt(edit.offset), document.positionAt(edit.offset + edit.length)),
 			edit.replacement,

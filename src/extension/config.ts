@@ -63,7 +63,7 @@ export class ResourceConfig {
 	get doNotFormat(): string[] { return this.getConfig<string[]>("doNotFormat", []); }
 
 	// Formatter
-	get lineLength(): number { return this.getConfig<number>("lineLength", 80); }
+	get lineLength(): number { return this.getConfig<number>("lineLength", 90); }
 
 	get expressionIndent(): undefined | number { return this.getConfig<null | number>("expressionIndent", null); }
 	get blockIndent(): undefined | number { return this.getConfig<null | number>("blockIndent", null); }
@@ -80,7 +80,7 @@ export class ResourceConfig {
 	get codeStyle(): CodeStylesEnum { return this.getConfig<CodeStylesEnum>("codeStyle", CodeStylesEnum["Dart Style"]); }
 }
 
-export enum CodeStylesEnum {"Dart Style" = 0, "Dart Style (Allman)" = 1, "Dart Style (K&R)" = 2}
+export enum CodeStylesEnum {"Dart Style" = 0, "Expanded Style" = 1, "[Not available yet]" = 2}
 
 
 

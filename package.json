@@ -109,7 +109,7 @@
 			"properties": {
 				"dart-custom-formatter.lineLength": {
 					"type": "integer",
-					"default": 80,
+					"default": 90,
 					"description": "The maximum length of a line of code. This is used by the document formatter.",
 					"scope": "resource",
 					"order": 10
@@ -161,10 +161,10 @@
 				"dart-custom-formatter.codeStyle": {
 					"type": "string",
 					"default": "Dart Style",
-					"enum": ["Dart Style", "Dart Style (Allman)", "Dart Style (K&R)"],
+					"enum": ["Dart Style", "Expanded Style", "[Not available yet]"],
 					"enumDescriptions": [
-						"Original Dart Style with the ability to set custom tab sizes and indents",
-						"An outer braces style based on Dart Style",
+						"Original Dart Style with the ability to set custom a tab size and code indents",
+						"An outer braces style based on Dart Style (and expanded else/on/catch)",
 						"[Not implemented yet]"
 					],
 					"scope": "resource",

@@ -59,10 +59,10 @@ export interface EditFormatRequest {
 	/// if not set.
 	insertSpaces?: boolean;
 
-	/// Set of common code styles using the format "[code]" example: 0 or 1 ..
-	/// 100 etc. default to 0 = dart_style with unlocked tab sizes. for more info
-	/// check [StyleCode] type.
-	styleProfile?: CodeStyle;
+	/// Set of common code styles.
+	///  default to 0 = dart_style with unlocked indent sizes.
+	///  for more info check [CodeStyle] type.
+	codeStyle?: CodeStyle;
 }
 
 export class TabSize {
@@ -81,8 +81,8 @@ export class TabSize {
 
 export class CodeStyle {
 	/// 0 = dart_style
-	/// 1 = Allman [https://en.wikipedia.org/wiki/Indentation_style#Allman_style]
-	/// 2 = K&R [https://en.wikipedia.org/wiki/Indentation_style#K&R_style]
+	/// 1 = expanded_style
+	/// 2 = etc
 	/// 3 = etc
 	/// 4 = etc
 	code: number = 0;
@@ -244,4 +244,86 @@ export interface FormatStatus {
 	 * omitted if formatting is false.
 	 */
 	formatTarget?: string;
+}
+
+//NOTE: pretty straighfoward, except ChangeContentOverlay on the part on ranges.
+/**
+ * Update the content of one or more files. Files that were
+ * previously updated but not included in this update remain
+ * unchanged. This effectively represents an overlay of the
+ * filesystem. The files whose content is overridden are
+ * therefore seen by server as being files with the given
+ * content, even if the files do not exist on the filesystem or
+ * if the file path represents the path to a directory on the
+ * filesystem.
+ */
+export interface ServerUpdateContentRequest {
+	/**
+	 * A table mapping the files whose content has changed to a
+	 * description of the content change.
+	 */
+	files: { [key: string]: AddContentOverlay | ChangeContentOverlay | RemoveContentOverlay | undefined; };
+}
+
+/**
+ * A directive to begin overlaying the contents of a file. The supplied
+ * content will be used for file access server-side in place of the file contents in the
+ * filesystem.
+ *
+ * If this directive is used on a file that already has a file content
+ * overlay, the old overlay is discarded and replaced with the new one.
+ */
+export interface AddContentOverlay {
+	/**
+	 *
+	 */
+	type: "add";
+
+	/**
+	 * The new content of the file.
+	 */
+	content: string;
+}
+
+/**
+ * A directive to modify an existing file content overlay. One or more ranges
+ * of text are deleted from the old file content overlay and replaced with
+ * new text.
+ *
+ * The edits are applied in the order in which they occur in the list. This
+ * means that the offset of each edit must be correct under the assumption
+ * that all previous edits have been applied.
+ *
+ * It is an error to use this overlay on a file that does not yet have a file
+ * content overlay or that has had its overlay removed via
+ * RemoveContentOverlay.
+ *
+ * If any of the edits cannot be applied due to its offset or length being
+ * out of range, an INVALID_OVERLAY_CHANGE error will be reported.
+ */
+export interface ChangeContentOverlay {
+	/**
+	 *
+	 */
+	type: "change";
+
+	/**
+	 * The edits to be applied to the file.
+	 */
+	edits: SourceEdit[];
+}
+
+/**
+ * A directive to remove an existing file content overlay. After processing
+ * this directive, the file contents will once again be read from the file
+ * system.
+ *
+ * If this directive is used on a file that doesn't currently have a content
+ * overlay, it has no effect.
+ */
+export interface RemoveContentOverlay {
+	/**
+	 *
+	 */
+	type: "remove";
 }
