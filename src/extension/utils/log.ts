@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import * as os from "os";
 import * as path from "path";
 import { platformEol } from "../../shared/constants";
@@ -11,7 +12,7 @@ export function getExtensionLogPath() {
 	return extensionLogPath;
 }
 export const userSelectableLogCategories: { [key: string]: LogCategory } = {
-	"Formatter": LogCategory.FormatterServer,
+	"Formatter": LogCategory.Formatter,
 	"Command Processes": LogCategory.CommandProcesses,
 };
 /*
@@ -26,7 +27,7 @@ export const extensionsLogCategories = [
 ];
 */
 export const debuggingLogCategories = Object.values(userSelectableLogCategories)
-	.filter((c) => c !== LogCategory.FormatterServer);
+	.filter((c) => c !== LogCategory.Formatter);
 
 const logHeader: string[] = [];
 export function clearLogHeader() {

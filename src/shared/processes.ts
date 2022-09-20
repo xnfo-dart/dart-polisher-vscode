@@ -49,8 +49,6 @@ export function runProcess(logger: Logger, binPath: string, args: string[], work
 
 type SpawnFunction = (workingDirectory: string | undefined, binPath: string, args: string[], env: { [key: string]: string | undefined } | undefined) => SpawnedProcess;
 
-
-
 export interface ExecutionInfo {
 	executable: string;
 	args: string[];

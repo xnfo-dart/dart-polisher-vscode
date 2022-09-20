@@ -14,7 +14,7 @@ lib-cov
 .packages
 .test_results/
 .vscode-test/
-.vscode/
+#.vscode/
 .vscode/.browse.VC.db*
 *.log
 build/

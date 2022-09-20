@@ -20,26 +20,26 @@ export const isRunningLocally =
 	&& (!formatterExtension || formatterExtension.extensionKind === ExtensionKind.UI);
 
 
-	export function toRange(document: TextDocument, offset: number, length: number): Range {
-		return new Range(document.positionAt(offset), document.positionAt(offset + length));
-	}
+export function toRange(document: TextDocument, offset: number, length: number): Range {
+	return new Range(document.positionAt(offset), document.positionAt(offset + length));
+}
 
-	export function toPosition(location: Location): Position {
-		return new Position(location.startLine - 1, location.startColumn - 1);
-	}
+export function toPosition(location: Location): Position {
+	return new Position(location.startLine - 1, location.startColumn - 1);
+}
 
-	// Translates an offset/length to a Range.
-	// NOTE: Does not wrap lines because it does not have access to a TextDocument to know
-	// where the line ends.
-	export function toRangeOnLine(location: Location): Range {
-		const startPos = toPosition(location);
-		return new Range(startPos, startPos.translate(0, location.length));
-	}
+// Translates an offset/length to a Range.
+// NOTE: Does not wrap lines because it does not have access to a TextDocument to know
+// where the line ends.
+export function toRangeOnLine(location: Location): Range {
+	const startPos = toPosition(location);
+	return new Range(startPos, startPos.translate(0, location.length));
+}
 
-	// Range to {start, end} zero based offsets.
-	export function fromRange(document: TextDocument, range: Range): {start : number, end : number} {
-		return {start: document.offsetAt(range.start), end: document.offsetAt(range.end)}
-	}
+// Range to {start, end} zero based offsets.
+export function fromRange(document: TextDocument, range: Range): {start : number, end : number} {
+	return {start: document.offsetAt(range.start), end: document.offsetAt(range.end)};
+}
 
 export function showCode(editor: TextEditor, displayRange: Range, highlightRange: Range, selectionRange?: Range): void {
 	if (selectionRange)

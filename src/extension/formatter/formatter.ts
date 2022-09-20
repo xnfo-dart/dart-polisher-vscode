@@ -18,7 +18,7 @@ export function getFormatterArgs(logger: Logger, formatterCapabilities: Formatte
 	);*/
 	//TODO: for now use binaries for each platform.
 	// see if we can use dill and get a dart sdk path.
-	const formatterPath = config.formatterPath || path.join(extensionPath, gformatterPath)
+	const formatterPath = config.formatterPath || path.join(extensionPath, gformatterPath);
 
 	// If the ssh host is set, then we are running the formatter on a remote machine, that same formatter
 	// might not exist on the local machine.
@@ -46,10 +46,9 @@ function buildFormatterArgs(formatterPath: string, dartCapabilities: FormatterCa
 	formatterArgs.push(`--client-version=${extensionVersion}`);
 
 	// The format server supports a verbose instrumentation log file.
-	// TODO: uncomment this when config for this is done,
-    // its doesnt do much, only 1 or 2 exeptions are logged server side.
-	//if (config.formatterInstrumentationLogFile)
-	//	formatterArgs.push(`--instrumentation-log-file=${config.formatterInstrumentationLogFile}`);
+	// its doesn't do much, only 1 or 2 exeptions are logged server side.
+	if (config.formatterInstrumentationLogFile)
+		formatterArgs.push(`--instrumentation-log-file=${config.formatterInstrumentationLogFile}`);
 
 	// Allow arbitrary args to be passed to the analysis server.
 	if (config.formatterAdditionalArgs)

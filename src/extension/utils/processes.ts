@@ -10,12 +10,12 @@ export function getToolEnv() {
 
 export function setupToolEnv(envOverrides?: any) {
 	toolEnv = {};
-/*
+	/*
 	toolEnv.PUB_ENVIRONMENT = (toolEnv.PUB_ENVIRONMENT ? `${toolEnv.PUB_ENVIRONMENT}:` : "") + "vscode.xnfo";
 	if (process.env.DART_CODE_IS_TEST_RUN) {
 		toolEnv.PUB_ENVIRONMENT += ".test.bot";
 	}
-*/
+	*/
 	// Add on any overrides.
 	if (envOverrides)
 		toolEnv = Object.assign(toolEnv, envOverrides);

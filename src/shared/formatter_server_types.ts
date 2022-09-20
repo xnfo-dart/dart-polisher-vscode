@@ -156,6 +156,46 @@ export interface EditFormatResponse {
 }
 
 /**
+ * An indication of a problem with the execution of the server,
+ * typically in response to a request.
+ */
+export interface RequestError {
+	/**
+	 * A code that uniquely identifies the error that occurred.
+	 */
+	code: RequestErrorCode;
+
+	/**
+	 * A short description of the error.
+	 */
+	message: string;
+
+	/**
+	 * The stack trace associated with processing the request,
+	 * used for debugging the server.
+	 */
+	stackTrace?: string;
+}
+
+/**
+ * An enumeration of the types of errors that can occur in the
+ * execution of the server.
+ */
+export type RequestErrorCode =
+	"FORMAT_INVALID_FILE"
+	| "FORMAT_WITH_ERRORS"
+	| "FORMAT_RANGE_ERROR"
+	| "INVALID_FILE_PATH_FORMAT"
+	| "INVALID_OVERLAY_CHANGE"
+	| "INVALID_OVERLAY_RANGE"
+	| "INVALID_PARAMETER"
+	| "INVALID_REQUEST"
+	| "SERVER_ALREADY_STARTED"
+	| "SERVER_ERROR"
+	| "UNKNOWN_REQUEST"
+	| "UNSUPPORTED_FEATURE";
+
+/**
  * Reports that the server is running. This notification is
  * issued once after the server has started running but before
  * any requests are processed to let the client know that it
@@ -186,7 +226,7 @@ export interface ServerConnectedNotification {
  * executing the server. This notification is not used for
  * problems with specific requests (which are returned as part
  * of the response) but is used for exceptions that occur while
- * performing other tasks, such as analysis or preparing
+ * performing other tasks, such as formatting or preparing
  * notifications.
  *
  * It is not possible to subscribe to or unsubscribe from this
@@ -211,39 +251,6 @@ export interface ServerErrorNotification {
 	 * error, used for debugging the server.
 	 */
 	stackTrace: string;
-}
-
-/**
- * Reports the current status of the server. Parameters are
- * omitted if there has been no change in the status
- * represented by that parameter.
- *
- * This notification is not subscribed to by default. Clients
- * can subscribe by including the value "STATUS" in
- * the list of services passed in a server.setSubscriptions
- * request.
- */
-export interface ServerStatusNotification {
-	/**
-	 * The current status of format server, including whether
-	 * formatting is being performed and if so what is being
-	 * formatted.
-	 */
-	format?: FormatStatus;
-}
-
-// TODO: not implemented server side, check then delete.
-export interface FormatStatus {
-	/**
-	 * True if formatting is currently being performed.
-	 */
-	isFormatting: boolean;
-
-	/**
-	 * The name of the current target to format. This field is
-	 * omitted if formatting is false.
-	 */
-	formatTarget?: string;
 }
 
 // NOTE: pretty straighfoward, except ChangeContentOverlay on the part on ranges.

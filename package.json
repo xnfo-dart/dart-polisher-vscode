@@ -1,228 +1,250 @@
 {
-  "name": "dart-custom-formatter",
-  "displayName": "Dart Formatter (fork)",
-  "description": "[beta] Customized Dart formatter, tab indents, custom styles",
-  "version": "0.1.0",
-  "publisher": "xnfo",
-  "engines": {
-    "vscode": "^1.70.0"
-  },
-  "categories": [
-    "Formatters"
-  ],
-  "activationEvents": [
-    "onLanguage:dart"
-  ],
-  "main": "./out/extension/extension.js",
-  "contributes": {
-    "menus": {
-      "commandPalette": [
-        {
-          "command": "dart-custom-formatter.startLogging",
-          "when": "dart-custom-formatter:anyProjectLoaded"
-        },
-        {
-          "command": "dart-custom-formatter.stopLogging",
-          "when": "dart-custom-formatter:anyProjectLoaded && dart-custom-formatter:isCapturingLogs"
-        },
-        {
-          "command": "dart-custom-formatter.openExtensionLog",
-          "when": "dart-custom-formatter:anyProjectLoaded"
-        },
-        {
-          "command": "dart-custom-formatter.restartFormattingServer",
-          "when": "dart-custom-formatter:anyProjectLoaded"
-        }
-      ]
-    },
-    "commands": [
-      {
-        "command": "dart-custom-formatter.restartFormattingServer",
-        "title": "Restart Dart Formatter Server",
-        "category": "Dart Formatter Server"
-      },
-      {
-        "command": "dart-custom-formatter.startLogging",
-        "title": "Capture Logs",
-        "category": "Dart Formatter"
-      },
-      {
-        "command": "dart-custom-formatter.openExtensionLog",
-        "title": "Open Extension Log",
-        "category": "Dart Formatter"
-      },
-      {
-        "command": "dart-custom-formatter.stopLogging",
-        "title": "Stop Capturing Logs",
-        "category": "Dart Formatter"
-      }
-    ],
-    "configuration": [
-      {
-        "title": "Formatter configuration",
-        "order": 1,
-        "properties": {
-          "dart-custom-formatter.enableCustomFormatter": {
-            "type": "boolean",
-            "default": true,
-            "markdownDescription": "Whether to enable the [dart_formatter] (https://github.com/tekert/dart-formatter) for Dart code.",
-            "scope": "window"
-          },
-          "dart-custom-formatter.doNotFormat": {
-            "type": "array",
-            "default": [],
-            "markdownDescription": "An array of glob patterns that should be excluded for formatting. The pattern is matched against the absolute path of the file. Use `**/test/**` to skip formatting for all test directories.",
-            "items": {
-              "type": "string"
-            },
-            "scope": "resource"
-          },
-          "dart-custom-formatter.formatterPath": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "default": null,
-            "description": "The path to a custom Dart Formatter Server. This setting is intended for use by Dart Format Server developers.",
-            "scope": "machine-overridable"
-          },
-          "dart-custom-formatter.formatterSshHost": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "default": null,
-            "description": "An SSH host to run the Formatter Server.\nThis can be useful when modifying code on a remote machine using SSHFS.",
-            "scope": "window"
-          },
-          "dart-custom-formatter.formatterAdditionalArgs": {
-            "type": "array",
-            "default": [],
-            "description": "Additional arguments to pass to the Dart Formatter Server. This setting is intended for use by Dart Format Server developers.",
-            "scope": "window",
-            "items": {
-              "type": "string"
-            }
-          }
-        }
-      },
-      {
-        "title": "Formatting settings",
-        "order": 1,
-        "properties": {
-          "dart-custom-formatter.lineLength": {
-            "type": "integer",
-            "default": 90,
-            "description": "The maximum length of a line of code. This is used by the document formatter.",
-            "scope": "resource",
-            "order": 10
-          },
-          "dart-custom-formatter.expressionIndent": {
-            "type": [
-              "null",
-              "number"
-            ],
-            "default": null,
-            "markdownDescription": "The number of spaces in a single level of expression nesting. Defaults to `#editor.tabSize#`",
-            "scope": "resource",
-            "minimum": 0,
-            "order": 20
-          },
-          "dart-custom-formatter.blockIndent": {
-            "type": [
-              "null",
-              "number"
-            ],
-            "default": null,
-            "markdownDescription": "The number of spaces in a block or collection body. Defaults to `#editor.tabSize#`",
-            "scope": "resource",
-            "minimum": 0,
-            "order": 21
-          },
-          "dart-custom-formatter.cascadeIndent": {
-            "type": [
-              "null",
-              "number"
-            ],
-            "default": null,
-            "markdownDescription": "How much wrapped cascade sections indent. Defaults to `#editor.tabSize#`",
-            "scope": "resource",
-            "minimum": 0,
-            "order": 22
-          },
-          "dart-custom-formatter.constructorInitializerIndent": {
-            "type": [
-              "null",
-              "number"
-            ],
-            "default": null,
-            "markdownDescription": "The ':' on a wrapped constructor initialization list. Defaults to `#editor.tabSize#`",
-            "scope": "resource",
-            "minimum": 0,
-            "order": 23
-          },
-          "dart-custom-formatter.codeStyle": {
-            "type": "string",
-            "default": "Dart Style",
-            "enum": [
-              "Dart Style",
-              "Expanded Style",
-              "[Not available yet]"
-            ],
-            "enumDescriptions": [
-              "Original Dart Style with the ability to set custom a tab size and code indents",
-              "An outer braces style based on Dart Style (and expanded else/on/catch)",
-              "[Not implemented yet]"
-            ],
-            "scope": "resource",
-            "order": 5
-          }
-        }
-      },
-      {
-        "title": "Logging",
-        "order": 1,
-        "properties": {
-          "dart-custom-formatter.maxLogLineLength": {
-            "type": "number",
-            "default": 2000,
-            "description": "The maximum length of a line in the log file. Lines longer than this will be truncated and suffixed with an ellipsis.",
-            "scope": "window"
-          },
-          "dart-custom-formatter.extensionLogFile": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "default": null,
-            "description": "The path to a low-traffic log file for basic extension and editor issues.",
-            "scope": "machine-overridable"
-          }
-        }
-      }
-    ]
-  },
-  "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "watch-ext": "tsc -p ./ --watch --extendedDiagnostics",
-    "pretest": "npm run compile && npm run lint",
-    "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js"
-  },
-  "devDependencies": {
-    "@types/glob": "^7.2.0",
-    "@types/mocha": "^9.1.1",
-    "@types/node": "16.x",
-    "@types/semver": "^7.3.12",
-    "@types/vscode": "^1.70.0",
-    "@typescript-eslint/eslint-plugin": "^5.31.0",
-    "@typescript-eslint/parser": "^5.31.0",
-    "@vscode/test-electron": "^2.1.5",
-    "eslint": "^8.20.0",
-    "glob": "^8.0.3",
-    "mocha": "^10.0.0",
-    "typescript": "^4.7.4"
-  }
+	"name": "dart-custom-formatter",
+	"displayName": "Dart Formatter (fork)",
+	"description": "[dev] Customizable Dart formatter, tab indents, custom styles",
+	"version": "0.8.9-dev",
+	"publisher": "xnfo",
+	"engines": {
+		"vscode": "^1.70.0"
+	},
+	"categories": [
+		"Formatters"
+	],
+	"keywords": [
+		"dart",
+		"formatter",
+		"format",
+		"dart format",
+		"dart formatter"
+	],
+	"activationEvents": [
+		"onLanguage:dart"
+	],
+	"main": "./out/extension/extension.js",
+	"contributes": {
+		"menus": {
+			"commandPalette": [
+				{
+					"command": "dart-custom-formatter.startLogging",
+					"when": "dart-custom-formatter:anyProjectLoaded"
+				},
+				{
+					"command": "dart-custom-formatter.stopLogging",
+					"when": "dart-custom-formatter:anyProjectLoaded && dart-custom-formatter:isCapturingLogs"
+				},
+				{
+					"command": "dart-custom-formatter.openExtensionLog",
+					"when": "dart-custom-formatter:anyProjectLoaded"
+				},
+				{
+					"command": "dart-custom-formatter.restartFormattingServer",
+					"when": "dart-custom-formatter:anyProjectLoaded"
+				}
+			]
+		},
+		"commands": [
+			{
+				"command": "dart-custom-formatter.restartFormattingServer",
+				"title": "Restart Dart Formatter Server",
+				"category": "Dart Formatter Server"
+			},
+			{
+				"command": "dart-custom-formatter.startLogging",
+				"title": "Capture Logs",
+				"category": "Dart Formatter"
+			},
+			{
+				"command": "dart-custom-formatter.openExtensionLog",
+				"title": "Open Extension Log",
+				"category": "Dart Formatter"
+			},
+			{
+				"command": "dart-custom-formatter.stopLogging",
+				"title": "Stop Capturing Logs",
+				"category": "Dart Formatter"
+			}
+		],
+		"configuration": [
+			{
+				"title": "Formatter",
+				"order": 1,
+				"properties": {
+					"dart-custom-formatter.enableCustomFormatter": {
+						"type": "boolean",
+						"default": true,
+						"markdownDescription": "Whether to enable the [dart_formatter] (https://github.com/tekert/dart-formatter) for Dart code.",
+						"scope": "window"
+					},
+					"dart-custom-formatter.doNotFormat": {
+						"type": "array",
+						"default": [],
+						"markdownDescription": "An array of glob patterns that should be excluded for formatting. The pattern is matched against the absolute path of the file. Use `**/test/**` to skip formatting for all test directories.",
+						"items": {
+							"type": "string"
+						},
+						"scope": "resource"
+					},
+					"dart-custom-formatter.formatterPath": {
+						"type": [
+							"null",
+							"string"
+						],
+						"default": null,
+						"description": "The path to a custom Dart Formatter Server. This setting is intended for use by Dart Format Server developers.",
+						"scope": "machine-overridable"
+					},
+					"dart-custom-formatter.formatterSshHost": {
+						"type": [
+							"null",
+							"string"
+						],
+						"default": null,
+						"description": "An SSH host to run the Formatter Server.\nThis can be useful when modifying code on a remote machine using SSHFS.",
+						"scope": "window"
+					},
+					"dart-custom-formatter.notifyFormatterErrors": {
+						"type": "boolean",
+						"default": true,
+						"description": "Whether to show a notification the first few times an Formatter Server exception occurs.",
+						"scope": "window"
+					},
+					"dart-custom-formatter.formatterAdditionalArgs": {
+						"type": "array",
+						"default": [],
+						"description": "Additional arguments to pass to the Dart Formatter Server. This setting is intended for use by Dart Format Server developers.",
+						"scope": "window",
+						"items": {
+							"type": "string"
+						}
+					}
+				}
+			},
+			{
+				"title": "Formatting settings",
+				"order": 1,
+				"properties": {
+					"dart-custom-formatter.lineLength": {
+						"type": "integer",
+						"default": 90,
+						"description": "The maximum length of a line of code. This is used by the document formatter.",
+						"scope": "resource",
+						"order": 10
+					},
+					"dart-custom-formatter.expressionIndent": {
+						"type": [
+							"null",
+							"number"
+						],
+						"default": null,
+						"markdownDescription": "The number of spaces in a single level of expression nesting. Defaults to `#editor.tabSize#`",
+						"scope": "resource",
+						"minimum": 0,
+						"order": 20
+					},
+					"dart-custom-formatter.blockIndent": {
+						"type": [
+							"null",
+							"number"
+						],
+						"default": null,
+						"markdownDescription": "The number of spaces in a block or collection body. Defaults to `#editor.tabSize#`",
+						"scope": "resource",
+						"minimum": 0,
+						"order": 21
+					},
+					"dart-custom-formatter.cascadeIndent": {
+						"type": [
+							"null",
+							"number"
+						],
+						"default": null,
+						"markdownDescription": "How much wrapped cascade sections indent. Defaults to `#editor.tabSize#`",
+						"scope": "resource",
+						"minimum": 0,
+						"order": 22
+					},
+					"dart-custom-formatter.constructorInitializerIndent": {
+						"type": [
+							"null",
+							"number"
+						],
+						"default": null,
+						"markdownDescription": "The ':' on a wrapped constructor initialization list. Defaults to `#editor.tabSize#`",
+						"scope": "resource",
+						"minimum": 0,
+						"order": 23
+					},
+					"dart-custom-formatter.codeStyle": {
+						"type": "string",
+						"default": "Dart Style",
+						"enum": [
+							"Dart Style",
+							"Expanded Style",
+							"[Not available yet]"
+						],
+						"enumDescriptions": [
+							"Original Dart Style with the ability to set custom a tab size and code indents",
+							"An outer braces style based on Dart Style (and expanded else/on/catch)",
+							"[Not implemented yet]"
+						],
+						"scope": "resource",
+						"order": 5
+					}
+				}
+			},
+			{
+				"title": "Logging",
+				"order": 1,
+				"properties": {
+					"dart-custom-formatter.maxLogLineLength": {
+						"type": "number",
+						"default": 2000,
+						"description": "The maximum length of a line in the log file. Lines longer than this will be truncated and suffixed with an ellipsis.",
+						"scope": "window"
+					},
+					"dart-custom-formatter.extensionLogFile": {
+						"type": [
+							"null",
+							"string"
+						],
+						"default": null,
+						"description": "The path to a low-traffic log file for basic extension and editor issues.",
+						"scope": "machine-overridable"
+					},
+					"dart.formatterInstrumentationLogFile": {
+						"type": [
+							"null",
+							"string"
+						],
+						"default": null,
+						"description": "The path to a log file for very detailed logging in the Dart Formatter Server that may be useful when trying to diagnose Formatter Server issues.",
+						"scope": "machine-overridable"
+					}
+				}
+			}
+		]
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"watch-ext": "tsc -p ./ --watch --extendedDiagnostics",
+		"pretest": "npm run compile && npm run lint",
+		"lint": "eslint src --ext ts",
+		"test": "node ./out/test/runTest.js"
+	},
+	"devDependencies": {
+		"@types/glob": "^7.2.0",
+		"@types/mocha": "^9.1.1",
+		"@types/node": "16.x",
+		"@types/semver": "^7.3.12",
+		"@types/vscode": "^1.70.0",
+		"@typescript-eslint/eslint-plugin": "^5.31.0",
+		"@typescript-eslint/parser": "^5.31.0",
+		"@vscode/test-electron": "^2.1.5",
+		"eslint": "^8.20.0",
+		"glob": "^8.0.3",
+		"mocha": "^10.0.0",
+		"typescript": "^4.7.4"
+	}
 }

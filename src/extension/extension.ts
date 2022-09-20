@@ -22,6 +22,7 @@ import { FormatServerCommands } from "./commands/formatter";
 import { DfsFormatter } from "./formatter/formatter_dfs";
 import { config } from "./config";
 import { isRunningLocally } from "../shared/vscode/utils";
+import { FormatterStatusReporter } from "./formatter/analyzer_status_reporter";
 
 let previousSettings: string;
 
@@ -89,7 +90,9 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 	// Only for Dart.
 	formattingEditProvider.registerTypingFormatter(DART_MODE, "}", ";");
 
-	context.subscriptions.push(new LoggingCommands(logger, context.logUri.fsPath));
+	if (dfsClient)
+		// tslint:disable-next-line: no-unused-expression
+		new FormatterStatusReporter(logger, dfsClient);
 
 	// Things to do when we succefully connect to the server.
 	const serverConnected = dfsClient.registerForServerConnected((sc) => {
@@ -113,10 +116,10 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 		/*if (dfsClient.capabilities.hasCustomFormatTest) {
 		}*/
 	});
-
 	// Hook editor changes to send updated contents to formatter server.
-	console.log("Registering FileChangeHandler");
 	context.subscriptions.push(new FileChangeHandler(dfsClient));
+
+	context.subscriptions.push(new LoggingCommands(logger, context.logUri.fsPath));
 
 	// Handle config changes so we can reanalyze if necessary.
 	context.subscriptions.push(vs.workspace.onDidChangeConfiguration(() => handleConfigurationChange()));
@@ -171,7 +174,7 @@ function getSettingsThatRequireRestart() {
 		//	+ config.sdkPath
 		//	+ config.sdkPaths?.length // TODO: or take from dart extension
 		+ config.formatterPath
-		//	+ config.formatterInstrumentationLogFile // TODO: already implemented server side, arg config missing.
+		+ config.formatterInstrumentationLogFile
 		+ config.formatterAdditionalArgs
 		+ config.extensionLogFile;
 }

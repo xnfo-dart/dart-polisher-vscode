@@ -60,7 +60,6 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 	}
 
 	public async provideDocumentFormattingEdits(document: TextDocument, options: FormattingOptions, token: CancellationToken): Promise<TextEdit[] | undefined> {
-		//TODO: use [options: FormattingOptions] for edit insertspace and tabsize
 		try {
 			return await this.doFormat(document, true, options); // await is important for catch to work.
 		} catch {	//TODO: check, when does this gets initialized?

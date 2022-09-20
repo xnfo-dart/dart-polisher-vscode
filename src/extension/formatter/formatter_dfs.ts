@@ -2,16 +2,16 @@
 import * as vs from "vscode";
 
 import { LogCategory } from "../../shared/enums";
+import { Formatter } from "../../shared/formatter";
+import { Logger } from "../../shared/interfaces";
 import { CategoryLogger } from "../../shared/logging";
+import { PromiseCompleter, versionIsAtLeast } from "../../shared/utils";
 import { config } from "../config";
 import { escapeShell } from "../utils";
 import { reportCFormatterTerminatedWithError } from "../utils/misc";
 import { getToolEnv } from "../utils/processes";
-import { Logger } from "../../shared/interfaces";
-import { FormatterGen } from "./formatter_gen";
-import { PromiseCompleter, versionIsAtLeast } from "../../shared/utils";
 import { getFormatterArgs } from "./formatter";
-import { Formatter } from "../../shared/formatter";
+import { FormatterGen } from "./formatter_gen";
 
 export class FormatterCapabilities {
 	public static get empty() { return new FormatterCapabilities("0.0.0"); }
@@ -31,13 +31,16 @@ export class DfsFormatter extends Formatter {
 	public readonly client: DfsFormatterClient;
 
 	constructor(logger: Logger, context: vs.ExtensionContext) {
-		super(new CategoryLogger(logger, LogCategory.FormatterServer));
+		super(new CategoryLogger(logger, LogCategory.Formatter));
 
 		//let extensionPath = context.extensionPath;
 		//TEST: alternative method is: vs.extensions.getExtension(dartFormatterExtensionIdentifier)?.extensionUri.fsPath;
 		// or vs.extensions.getExtension(dartFormatterExtensionIdentifier)?.packageJSON['extensionLocation']['_fsPath'];
 
 		// Fires up the format server
+		// the logger goes with (LogCategory.Formatter)
+		// from Extension -> DfsFormatter -> Formatter
+		// and  Extension -> DfsFormatter -> DfsFormatterClient -> FormatterGen -> StdIOService
 		this.client = new DfsFormatterClient(this.logger);
 		this.disposables.push(this.client);
 
@@ -69,10 +72,6 @@ export class DfsFormatterClient extends FormatterGen {
 
 		this.launchArgs = getFormatterArgs(logger, this.capabilities);
 
-		// Hook error subscriptions so we can try and get diagnostic info if this happens.
-		//this.registerForServerError((e) => this.requestDiagnosticsUpdate());
-		//this.registerForRequestError((e) => this.requestDiagnosticsUpdate());
-
 		// Register for version.
 		this.registerForServerConnected((e) => { this.version = e.version; this.capabilities.version = this.version; });
 
@@ -82,7 +81,6 @@ export class DfsFormatterClient extends FormatterGen {
 		//NOTE: for now we are launching the bin directly, without de dartVM, so launchArgs has the full path to the bin + args.
 		let binaryPath = this.launchArgs.shift()!;
 		let processArgs = this.launchArgs.slice();
-
 
 		// Since we communicate with the analysis server over STDOUT/STDIN, it is trivial for us
 		// to support launching it on a remote machine over SSH. This can be useful if the codebase
@@ -104,28 +102,6 @@ export class DfsFormatterClient extends FormatterGen {
 		this.process?.on("exit", (code, signal) => {
 			this.handleFormatterTerminated(!!code);
 		});
-
-		/*
-		this.registerForServerStatus((n) => {
-			if (n.format) {
-				if (n.format?.isFormatting) {
-					this.isFormatting = true;
-				} else {
-					this.isFormatting = false;
-					if (this.currentFormatCompleter) {
-						this.currentFormatCompleter.resolve();
-						this.currentFormatCompleter = undefined;
-					}
-				}
-			}
-		});
-
-		// tslint:disable-next-line: no-floating-promises
-		this.serverSetSubscriptions({
-			subscriptions: ["STATUS"],
-		});
-		*/
-
 	}
 
 	private resolvedPromise = Promise.resolve();

@@ -18,8 +18,8 @@ export class LoggingCommands implements vs.Disposable {
 	constructor(private readonly logger: EmittingLogger, private extensionLogPath: string) {
 		this.disposables.push(
 			vs.commands.registerCommand("dart-custom-formatter.startLogging", this.startLoggingViaPicker, this),
-		//	vs.commands.registerCommand("dart-custom-formatter.startLoggingFormatServer", this.startLoggingFormatServer, this),
-		//	vs.commands.registerCommand("dart-custom-formatter.startLoggingExtensionOnly", this.startLoggingExtensionOnly, this),
+			//	vs.commands.registerCommand("dart-custom-formatter.startLoggingFormatServer", this.startLoggingFormatServer, this),
+			//	vs.commands.registerCommand("dart-custom-formatter.startLoggingExtensionOnly", this.startLoggingExtensionOnly, this),
 			vs.commands.registerCommand("dart-custom-formatter.openExtensionLog", this.openExtensionLog, this),
 			vs.commands.registerCommand("dart-custom-formatter.stopLogging", this.stopLogging, this),
 		);
@@ -42,7 +42,7 @@ export class LoggingCommands implements vs.Disposable {
 
 		return this.startLogging(selectedLogCategories.map((s) => s.logCategory));
 	}
-/*
+	/*
 	private async startLoggingFormatServer(): Promise<string | undefined> {
 		return this.startLogging(formatServerLogCategories);
 	}
@@ -50,7 +50,7 @@ export class LoggingCommands implements vs.Disposable {
 	private async startLoggingExtensionOnly(): Promise<string | undefined> {
 		return this.startLogging(extensionsLogCategories);
 	}
-*/
+	*/
 	private async startLogging(categoriesToLog: LogCategory[]): Promise<string | undefined> {
 		const logFilename = path.join(forceWindowsDriveLetterToUppercase(this.extensionLogPath), this.generateFilename());
 		const logUri = vs.Uri.file(logFilename);

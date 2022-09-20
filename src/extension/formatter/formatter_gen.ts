@@ -23,7 +23,6 @@ export abstract class FormatterGen extends StdIOService<UnknownNotification> {
 
 	private serverConnectedSubscriptions: ((notification: as.ServerConnectedNotification) => void)[] = [];
 	private serverErrorSubscriptions: ((notification: as.ServerErrorNotification) => void)[] = [];
-	private serverStatusSubscriptions: ((notification: as.ServerStatusNotification) => void)[] = [];
 
 	protected async handleNotification(evt: UnknownNotification): Promise<void> {
 		switch (evt.event) {
@@ -32,9 +31,6 @@ export abstract class FormatterGen extends StdIOService<UnknownNotification> {
 				break;
 			case "server.error":
 				await this.notify(this.serverErrorSubscriptions, <as.ServerErrorNotification>evt.params);
-				break;
-			case "server.status":
-				await this.notify(this.serverStatusSubscriptions, <as.ServerStatusNotification>evt.params);
 				break;
 		}
 	}
@@ -56,26 +52,13 @@ export abstract class FormatterGen extends StdIOService<UnknownNotification> {
 		executing the server. This notification is not used for
 		problems with specific requests (which are returned as part
 		of the response) but is used for exceptions that occur while
-		performing other tasks, such as analysis or preparing
+		performing other tasks, such as formatting or preparing
 		notifications.
 		It is not possible to subscribe to or unsubscribe from this
 		notification.
 	*/
 	registerForServerError(subscriber: (notification: as.ServerErrorNotification) => void): vs.Disposable {
 		return this.subscribe(this.serverErrorSubscriptions, subscriber);
-	}
-
-	/**
-		Reports the current status of the server. Parameters are
-		omitted if there has been no change in the status
-		represented by that parameter.
-		This notification is not subscribed to by default. Clients
-		can subscribe by including the value "STATUS" in
-		the list of services passed in a server.setSubscriptions
-		request.
-	*/
-	registerForServerStatus(subscriber: (notification: as.ServerStatusNotification) => void): vs.Disposable {
-		return this.subscribe(this.serverStatusSubscriptions, subscriber);
 	}
 
 	/**
