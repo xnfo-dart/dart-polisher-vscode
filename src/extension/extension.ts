@@ -22,7 +22,7 @@ import { FormatServerCommands } from "./commands/formatter";
 import { DfsFormatter } from "./formatter/formatter_dfs";
 import { config } from "./config";
 import { isRunningLocally } from "../shared/vscode/utils";
-import { FormatterStatusReporter } from "./formatter/analyzer_status_reporter";
+import { FormatterStatusReporter } from "./formatter/formatter_status_reporter";
 
 let previousSettings: string;
 

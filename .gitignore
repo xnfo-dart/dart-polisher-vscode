@@ -8,6 +8,8 @@ lib-cov
 *.gz
 *.swp
 
+*.ts1
+
 .DS_Store
 .dcud/
 .nyc_output/

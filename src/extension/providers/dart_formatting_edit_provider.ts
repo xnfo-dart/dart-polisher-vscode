@@ -103,10 +103,6 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 		if (!this.shouldFormat(document))
 			return undefined;
 
-		// TODO: content changes implemented in API, test, then delete this.
-		//if (document.isDirty)
-		//return undefined;
-
 		try {
 
 			let selectionOnly = false;
@@ -135,7 +131,7 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 				selectionLength: offsets.end - offsets.start,
 				selectionOffset: offsets.start,
 				selectionOnly: selectionOnly,
-				insertSpaces: undefined, //options.insertSpaces, //TODO (tekert): there is already a convert in vscode. use that.
+				insertSpaces: options.insertSpaces,
 				tabSize: tabSizes,
 				codeStyle: style,
 			});

@@ -165,7 +165,7 @@ export abstract class StdIOService<T> implements IAmDisposable {
 			if (msg && this.isNotification(msg))
 				// tslint:disable-next-line: no-floating-promises
 				this.handleNotification(msg as T).catch((e) => this.logger.error(e));
-			else if (msg && this.isRequest(msg))
+			else if (msg && this.isRequest(msg)) // first check if its a request before cheking if its a response.
 				this.processServerRequest(msg as Request<any>).catch((e) => this.logger.error(e));
 			else if (msg && this.isResponse(msg))
 				this.handleResponse(msg as UnknownResponse).catch((e) => this.logger.error(e));
@@ -185,7 +185,7 @@ export abstract class StdIOService<T> implements IAmDisposable {
 
 	protected abstract handleNotification(evt: T): Promise<void>;
 	// tslint:disable-next-line: no-empty
-	protected async handleRequest(method: string, args: any): Promise<any> { }
+	protected async handleRequest(method: string, args: any): Promise<any> { } // used in daemons
 	protected isNotification(msg: any): boolean { return !!msg.event; }
 	protected isRequest(msg: any): boolean { return !!msg.method && !!msg.id; }
 	protected isResponse(msg: any): boolean { return !!msg.id; }

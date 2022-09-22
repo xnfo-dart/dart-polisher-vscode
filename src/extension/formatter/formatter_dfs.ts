@@ -2,10 +2,9 @@
 import * as vs from "vscode";
 
 import { LogCategory } from "../../shared/enums";
-import { Formatter } from "../../shared/formatter";
-import { Logger } from "../../shared/interfaces";
+import { IAmDisposable, Logger } from "../../shared/interfaces";
 import { CategoryLogger } from "../../shared/logging";
-import { PromiseCompleter, versionIsAtLeast } from "../../shared/utils";
+import { PromiseCompleter, versionIsAtLeast, disposeAll } from "../../shared/utils";
 import { config } from "../config";
 import { escapeShell } from "../utils";
 import { reportCFormatterTerminatedWithError } from "../utils/misc";
@@ -26,12 +25,14 @@ export class FormatterCapabilities {
 	get hasCustomFormatTest() { return versionIsAtLeast(this.version, "0.1.0"); }
 }
 
-export class DfsFormatter extends Formatter {
-
+// Formatter Server Daemon
+export class DfsFormatter implements IAmDisposable {
+	protected readonly logger : Logger;
+	protected disposables: IAmDisposable[] = [];
 	public readonly client: DfsFormatterClient;
 
 	constructor(logger: Logger, context: vs.ExtensionContext) {
-		super(new CategoryLogger(logger, LogCategory.Formatter));
+		this.logger = new CategoryLogger(logger, LogCategory.Formatter);
 
 		//let extensionPath = context.extensionPath;
 		//TEST: alternative method is: vs.extensions.getExtension(dartFormatterExtensionIdentifier)?.extensionUri.fsPath;
@@ -39,27 +40,23 @@ export class DfsFormatter extends Formatter {
 
 		// Fires up the format server
 		// the logger goes with (LogCategory.Formatter)
-		// from Extension -> DfsFormatter -> Formatter
-		// and  Extension -> DfsFormatter -> DfsFormatterClient -> FormatterGen -> StdIOService
+		// Extension -> DfsFormatter -> DfsFormatterClient -> FormatterGen -> StdIOService
 		this.client = new DfsFormatterClient(this.logger);
 		this.disposables.push(this.client);
 
+		//TODO (tekert): delete this, its not needed anymore.
 		const connectedEvent = this.client.registerForServerConnected((sc) => {
-			this.onReadyCompleter.resolve();
+			//this.onReadyCompleter.resolve();
 			connectedEvent.dispose();
 		});
+	}
 
-		// NOTE: no use for a formatter server, maybe for something else?
-		/*
-		this.client.registerForServerStatus((params) => {
-			if (params.format)
-				this.onAnalysisStatusChangeEmitter.fire({ isFormatting: params.format.isFormatting });
-		});
-		*/
+	public dispose(): void | Promise<void> {
+		disposeAll(this.disposables);
 	}
 
 }
-
+// Formatter client
 export class DfsFormatterClient extends FormatterGen {
 	private launchArgs: string[];
 	private version?: string;
