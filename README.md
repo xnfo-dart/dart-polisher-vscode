@@ -2,6 +2,14 @@
 
 TODO: desc
 
+Inside your `settings.json` write
+```json
+"[dart]": {
+		"editor.defaultFormatter": "xnfo.dart-custom-formatter",
+		"editor.formatOnSave": true,
+		"editor.formatOnType": true,
+}
+```
 ## Features
 
 Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
