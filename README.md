@@ -5,7 +5,7 @@ TODO: desc
 Inside your `settings.json` write
 ```json
 "[dart]": {
-		"editor.defaultFormatter": "xnfo.dart-custom-formatter",
+		"editor.defaultFormatter": "xnfo.dart-formatter",
 		"editor.formatOnSave": true,
 		"editor.formatOnType": true,
 }

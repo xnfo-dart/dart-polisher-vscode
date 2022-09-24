@@ -6,11 +6,11 @@ let forcedReanalyzeCount = 0;
 
 export class FormatServerCommands {
 	constructor(context: vs.ExtensionContext, private readonly logger: Logger) {
-		context.subscriptions.push(vs.commands.registerCommand("dart-custom-formatter.restartFormattingServer", async () => {
+		context.subscriptions.push(vs.commands.registerCommand("dart-formatter.restartFormattingServer", async () => {
 			forcedReanalyzeCount++;
 			if (forcedReanalyzeCount === 10)
 				this.showServerRestartPrompt().catch((e) => logger.error(e));
-			vs.commands.executeCommand("_dart-custom-formatter.reloadExtension");
+			vs.commands.executeCommand("_dart-formatter.reloadExtension");
 		}));
 	}
 

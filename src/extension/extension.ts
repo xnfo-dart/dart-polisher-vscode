@@ -5,28 +5,28 @@
 // Import the module and reference it with the alias vscode in your code below
 import internal = require("stream");
 import * as vs from "vscode";
-import { disposeAll } from "../shared/utils";
-import { dartFormatterExtensionIdentifier, dartPlatformName, isWin, IS_RUNNING_LOCALLY_CONTEXT, platformDisplayName } from "../shared/constants";
-import { captureLogs, EmittingLogger, logToConsole, RingLog } from "../shared/logging";
-import { LoggingCommands } from "./commands/logging";
+import { IS_RUNNING_LOCALLY_CONTEXT, platformDisplayName } from "../shared/constants";
 import { LogCategory } from "../shared/enums";
 import { IAmDisposable, Logger } from "../shared/interfaces";
-import { FileChangeHandler } from "./formatter/file_change_handler";
+import { captureLogs, EmittingLogger, logToConsole, RingLog } from "../shared/logging";
+import { disposeAll } from "../shared/utils";
 import { extensionVersion, isDevExtension } from "../shared/vscode/extension_utils";
 import { Context } from "../shared/vscode/workspace";
+import { LoggingCommands } from "./commands/logging";
+import { FileChangeHandler } from "./formatter/file_change_handler";
 import { DartFormattingEditProvider } from "./providers/dart_formatting_edit_provider";
 import * as util from "./utils";
 
-import { addToLogHeader, clearLogHeader, getExtensionLogPath, getLogHeader } from "./utils/log";
-import { FormatServerCommands } from "./commands/formatter";
-import { DfsFormatter } from "./formatter/formatter_dfs";
-import { config } from "./config";
 import { isRunningLocally } from "../shared/vscode/utils";
+import { FormatServerCommands } from "./commands/formatter";
+import { config } from "./config";
+import { DfsFormatter } from "./formatter/formatter_dfs";
 import { FormatterStatusReporter } from "./formatter/formatter_status_reporter";
+import { addToLogHeader, clearLogHeader, getExtensionLogPath, getLogHeader } from "./utils/log";
 
 let previousSettings: string;
 
-const PROJECT_LOADED = "dart-custom-formatter:anyProjectLoaded";
+const PROJECT_LOADED = "dart-formatter:anyProjectLoaded";
 export const DART_MODE = { language: "dart", scheme: "file" };
 
 let formatter: DfsFormatter;
@@ -65,7 +65,7 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 	buildLogHeaders(logger);
 
 	// Wire up a reload command that will re-initialise everything.
-	context.subscriptions.push(vs.commands.registerCommand("_dart-custom-formatter.reloadExtension", async () => {
+	context.subscriptions.push(vs.commands.registerCommand("_dart-formatter.reloadExtension", async () => {
 		logger.info("Performing silent extension reload...");
 		await deactivate(true);
 		disposeAll(context.subscriptions);

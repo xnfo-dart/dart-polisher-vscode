@@ -1,7 +1,7 @@
 {
-	"name": "dart-custom-formatter",
-	"displayName": "Dart Formatter (fork)",
-	"description": "[dev] Customizable Dart formatter, tab indents, custom styles",
+	"name": "dart-formatter",
+	"displayName": "Dart Formatter",
+	"description": "[dev-beta] Customizable Dart formatter, indents, custom styles, based on Dart Style",
 	"repository": "https://github.com/tekert/dart-format-vscode",
 	"version": "0.8.9-dev",
 	"publisher": "xnfo",
@@ -26,41 +26,41 @@
 		"menus": {
 			"commandPalette": [
 				{
-					"command": "dart-custom-formatter.startLogging",
-					"when": "dart-custom-formatter:anyProjectLoaded"
+					"command": "dart-formatter.startLogging",
+					"when": "dart-formatter:anyProjectLoaded"
 				},
 				{
-					"command": "dart-custom-formatter.stopLogging",
-					"when": "dart-custom-formatter:anyProjectLoaded && dart-custom-formatter:isCapturingLogs"
+					"command": "dart-formatter.stopLogging",
+					"when": "dart-formatter:anyProjectLoaded && dart-formatter:isCapturingLogs"
 				},
 				{
-					"command": "dart-custom-formatter.openExtensionLog",
-					"when": "dart-custom-formatter:anyProjectLoaded"
+					"command": "dart-formatter.openExtensionLog",
+					"when": "dart-formatter:anyProjectLoaded"
 				},
 				{
-					"command": "dart-custom-formatter.restartFormattingServer",
-					"when": "dart-custom-formatter:anyProjectLoaded"
+					"command": "dart-formatter.restartFormattingServer",
+					"when": "dart-formatter:anyProjectLoaded"
 				}
 			]
 		},
 		"commands": [
 			{
-				"command": "dart-custom-formatter.restartFormattingServer",
+				"command": "dart-formatter.restartFormattingServer",
 				"title": "Restart Dart Formatter Server",
 				"category": "Dart Formatter Server"
 			},
 			{
-				"command": "dart-custom-formatter.startLogging",
+				"command": "dart-formatter.startLogging",
 				"title": "Capture Logs",
 				"category": "Dart Formatter"
 			},
 			{
-				"command": "dart-custom-formatter.openExtensionLog",
+				"command": "dart-formatter.openExtensionLog",
 				"title": "Open Extension Log",
 				"category": "Dart Formatter"
 			},
 			{
-				"command": "dart-custom-formatter.stopLogging",
+				"command": "dart-formatter.stopLogging",
 				"title": "Stop Capturing Logs",
 				"category": "Dart Formatter"
 			}
@@ -70,13 +70,13 @@
 				"title": "Formatter",
 				"order": 1,
 				"properties": {
-					"dart-custom-formatter.enableCustomFormatter": {
+					"dart-formatter.enableCustomFormatter": {
 						"type": "boolean",
 						"default": true,
 						"markdownDescription": "Whether to enable the [dart_formatter] (https://github.com/tekert/dart-formatter) for Dart code.",
 						"scope": "window"
 					},
-					"dart-custom-formatter.doNotFormat": {
+					"dart-formatter.doNotFormat": {
 						"type": "array",
 						"default": [],
 						"markdownDescription": "An array of glob patterns that should be excluded for formatting. The pattern is matched against the absolute path of the file. Use `**/test/**` to skip formatting for all test directories.",
@@ -85,7 +85,7 @@
 						},
 						"scope": "resource"
 					},
-					"dart-custom-formatter.formatterPath": {
+					"dart-formatter.formatterPath": {
 						"type": [
 							"null",
 							"string"
@@ -94,7 +94,7 @@
 						"description": "The path to a custom Dart Formatter Server. This setting is intended for use by Dart Format Server developers.",
 						"scope": "machine-overridable"
 					},
-					"dart-custom-formatter.formatterSshHost": {
+					"dart-formatter.formatterSshHost": {
 						"type": [
 							"null",
 							"string"
@@ -103,13 +103,13 @@
 						"description": "An SSH host to run the Formatter Server.\nThis can be useful when modifying code on a remote machine using SSHFS.",
 						"scope": "window"
 					},
-					"dart-custom-formatter.notifyFormatterErrors": {
+					"dart-formatter.notifyFormatterErrors": {
 						"type": "boolean",
 						"default": true,
 						"description": "Whether to show a notification the first few times an Formatter Server exception occurs.",
 						"scope": "window"
 					},
-					"dart-custom-formatter.formatterAdditionalArgs": {
+					"dart-formatter.formatterAdditionalArgs": {
 						"type": "array",
 						"default": [],
 						"description": "Additional arguments to pass to the Dart Formatter Server. This setting is intended for use by Dart Format Server developers.",
@@ -124,14 +124,14 @@
 				"title": "Formatting settings",
 				"order": 1,
 				"properties": {
-					"dart-custom-formatter.lineLength": {
+					"dart-formatter.lineLength": {
 						"type": "integer",
 						"default": 90,
 						"description": "The maximum length of a line of code. This is used by the document formatter.",
 						"scope": "resource",
 						"order": 10
 					},
-					"dart-custom-formatter.expressionIndent": {
+					"dart-formatter.expressionIndent": {
 						"type": [
 							"null",
 							"number"
@@ -142,7 +142,7 @@
 						"minimum": 0,
 						"order": 20
 					},
-					"dart-custom-formatter.blockIndent": {
+					"dart-formatter.blockIndent": {
 						"type": [
 							"null",
 							"number"
@@ -153,7 +153,7 @@
 						"minimum": 0,
 						"order": 21
 					},
-					"dart-custom-formatter.cascadeIndent": {
+					"dart-formatter.cascadeIndent": {
 						"type": [
 							"null",
 							"number"
@@ -164,7 +164,7 @@
 						"minimum": 0,
 						"order": 22
 					},
-					"dart-custom-formatter.constructorInitializerIndent": {
+					"dart-formatter.constructorInitializerIndent": {
 						"type": [
 							"null",
 							"number"
@@ -175,7 +175,7 @@
 						"minimum": 0,
 						"order": 23
 					},
-					"dart-custom-formatter.codeStyle": {
+					"dart-formatter.codeStyle": {
 						"type": "string",
 						"default": "Dart Style",
 						"enum": [
@@ -195,13 +195,13 @@
 				"title": "Logging",
 				"order": 1,
 				"properties": {
-					"dart-custom-formatter.maxLogLineLength": {
+					"dart-formatter.maxLogLineLength": {
 						"type": "number",
 						"default": 2000,
 						"description": "The maximum length of a line in the log file. Lines longer than this will be truncated and suffixed with an ellipsis.",
 						"scope": "window"
 					},
-					"dart-custom-formatter.extensionLogFile": {
+					"dart-formatter.extensionLogFile": {
 						"type": [
 							"null",
 							"string"

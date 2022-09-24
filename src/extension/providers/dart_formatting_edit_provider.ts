@@ -1,20 +1,20 @@
 import * as minimatch from "minimatch";
-import { CancellationToken, DocumentFormattingEditProvider, DocumentSelector, FormattingOptions, languages, DocumentRangeFormattingEditProvider, OnTypeFormattingEditProvider, Position, Range, TextDocument, TextEdit, window, workspace } from "vscode";
+import { CancellationToken, DocumentFormattingEditProvider, DocumentRangeFormattingEditProvider, DocumentSelector, FormattingOptions, languages, OnTypeFormattingEditProvider, Position, Range, TextDocument, TextEdit, window, workspace } from "vscode";
+import { LogCategory } from "../../shared/enums";
 import * as fs from "../../shared/formatter_server_types";
+import { CodeStyle, TabSize } from "../../shared/formatter_server_types";
 import { IAmDisposable, Logger } from "../../shared/interfaces";
 import { disposeAll } from "../../shared/utils";
 import { fsPath } from "../../shared/utils/fs";
+import { fromRange } from "../../shared/vscode/utils";
 import { Context } from "../../shared/vscode/workspace";
 import { config } from "../config";
 import { DfsFormatterClient } from "../formatter/formatter_dfs";
-import { LogCategory } from "../../shared/enums";
-import { fromRange } from "../../shared/vscode/utils";
-import { CodeStyle, TabSize } from "../../shared/formatter_server_types";
 
 export class DartFormattingEditProvider implements DocumentFormattingEditProvider, OnTypeFormattingEditProvider, DocumentRangeFormattingEditProvider, IAmDisposable {
 	constructor(private readonly logger: Logger, private readonly formatter: DfsFormatterClient, private readonly context: Context) {
 		workspace.onDidChangeConfiguration((e) => {
-			if (e.affectsConfiguration("dart-custom-formatter.enableCustomFormatter")) {
+			if (e.affectsConfiguration("dart-formatter.enableCustomFormatter")) {
 				if (config.enableCustomFormatter)
 					this.registerAllFormatters();
 				else
@@ -80,7 +80,7 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 		}
 		// TODO (tekert): matching {}
 		// eslint-disable-next-line no-empty
-		if (ch === "}") {}
+		if (ch === "}") { }
 		try {
 			return await this.doFormat(document, false, options, range);
 		} catch {

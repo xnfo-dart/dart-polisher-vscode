@@ -1,6 +1,6 @@
 import * as fs from "fs";
 
-export const dartFormatterExtensionIdentifier = "xnfo.dart-custom-formatter";
+export const dartFormatterExtensionIdentifier = "xnfo.dart-formatter";
 
 export const isCI = !!process.env.CI;
 export const isWin = process.platform.startsWith("win");
@@ -30,5 +30,5 @@ export const analyzerSnapshotPath = "bin/snapshots/analysis_server.dart.snapshot
 export const stopLoggingAction = "Stop Logging";
 export const showLogAction = "Show Log";
 
-export const FORMATTER_IS_CAPTURING_LOGS_CONTEXT = "dart-custom-formatter:isCapturingLogs";
-export const IS_RUNNING_LOCALLY_CONTEXT = "dart-custom-formatter:isRunningLocally";
+export const FORMATTER_IS_CAPTURING_LOGS_CONTEXT = "dart-formatter:isCapturingLogs";
+export const IS_RUNNING_LOCALLY_CONTEXT = "dart-formatter:isRunningLocally";
