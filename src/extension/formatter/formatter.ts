@@ -7,10 +7,9 @@ import { isRunningLocally } from "../../shared/vscode/utils";
 import { extensionPath, extensionVersion } from "../../shared/vscode/extension_utils";
 import { config } from "../config";
 import { Logger } from "../../shared/interfaces";
-import { FormatterCapabilities } from "./formatter_dfs";
 
 
-export function getFormatterArgs(logger: Logger, formatterCapabilities: FormatterCapabilities) {
+export function getFormatterArgs(logger: Logger) {
 	/*const formatterPath = config.formatterPath || (
 		dartCapabilities.supportsLanguageServerCommand
 			? "language-server"
@@ -29,10 +28,10 @@ export function getFormatterArgs(logger: Logger, formatterCapabilities: Formatte
 		throw new Error(msg);
 	}
 
-	return buildFormatterArgs(formatterPath, formatterCapabilities);
+	return buildFormatterArgs(formatterPath);
 }
 
-function buildFormatterArgs(formatterPath: string, dartCapabilities: FormatterCapabilities) {
+function buildFormatterArgs(formatterPath: string) {
 	let formatterArgs = [];
 
 	formatterArgs.push(formatterPath);

@@ -9,6 +9,7 @@ lib-cov
 *.swp
 
 *.ts1
+*.vsix
 
 .DS_Store
 .dcud/
@@ -25,7 +26,6 @@ bin/
 logs/
 node_modules/
 out/
-pubspec.lock
 dartcfmt.exe
 Generated.xcconfig
 vsc-extension-quickstart.md

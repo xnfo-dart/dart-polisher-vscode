@@ -74,7 +74,7 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 	}));
 
 	// Format Server VsCode Commands
-	formatter = new DfsFormatter(logger, context);
+	formatter = new DfsFormatter(logger);
 	const dasFormatter = formatter;
 	const dfsClient = dasFormatter.client;
 	context.subscriptions.push(formatter);

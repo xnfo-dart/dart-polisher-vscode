@@ -2,6 +2,7 @@
 	"name": "dart-custom-formatter",
 	"displayName": "Dart Formatter (fork)",
 	"description": "[dev] Customizable Dart formatter, tab indents, custom styles",
+	"repository": "https://github.com/tekert/dart-format-vscode",
 	"version": "0.8.9-dev",
 	"publisher": "xnfo",
 	"engines": {
@@ -179,13 +180,11 @@
 						"default": "Dart Style",
 						"enum": [
 							"Dart Style",
-							"Expanded Style",
-							"[Not available yet]"
+							"Expanded Style"
 						],
 						"enumDescriptions": [
-							"Original Dart Style with the ability to set custom a tab size and code indents",
-							"An outer braces style based on Dart Style (and expanded else/on/catch)",
-							"[Not implemented yet]"
+							"Original Dart Style (with the ability to set custom indent sizes).",
+							"An outer braces style based on Dart Style."
 						],
 						"scope": "resource",
 						"order": 5
@@ -232,6 +231,10 @@
 		"pretest": "npm run compile && npm run lint",
 		"lint": "eslint src --ext ts",
 		"test": "node ./out/test/runTest.js"
+	},
+	"dependencies": {
+		"minimatch": "^5.1.0",
+		"semver": "^7.3.7"
 	},
 	"devDependencies": {
 		"@types/glob": "^7.2.0",

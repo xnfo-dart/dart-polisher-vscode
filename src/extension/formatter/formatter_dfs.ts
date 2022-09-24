@@ -12,7 +12,8 @@ import { getToolEnv } from "../utils/processes";
 import { getFormatterArgs } from "./formatter";
 import { FormatterGen } from "./formatter_gen";
 
-export class FormatterCapabilities {
+
+class FormatterCapabilities {
 	public static get empty() { return new FormatterCapabilities("0.0.0"); }
 
 	public version: string;
@@ -31,7 +32,7 @@ export class DfsFormatter implements IAmDisposable {
 	protected disposables: IAmDisposable[] = [];
 	public readonly client: DfsFormatterClient;
 
-	constructor(logger: Logger, context: vs.ExtensionContext) {
+	constructor(logger: Logger) {
 		this.logger = new CategoryLogger(logger, LogCategory.Formatter);
 
 		//let extensionPath = context.extensionPath;
@@ -67,7 +68,7 @@ export class DfsFormatterClient extends FormatterGen {
 	constructor(logger: Logger) {
 		super(logger, config.maxLogLineLength);
 
-		this.launchArgs = getFormatterArgs(logger, this.capabilities);
+		this.launchArgs = getFormatterArgs(logger);
 
 		// Register for version.
 		this.registerForServerConnected((e) => { this.version = e.version; this.capabilities.version = this.version; });
