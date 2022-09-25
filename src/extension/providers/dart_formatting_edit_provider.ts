@@ -4,6 +4,7 @@ import { LogCategory } from "../../shared/enums";
 import * as fs from "../../shared/formatter_server_types";
 import { CodeStyle, TabSize } from "../../shared/formatter_server_types";
 import { IAmDisposable, Logger } from "../../shared/interfaces";
+import { UnknownResponse } from "../../shared/services/interfaces";
 import { disposeAll } from "../../shared/utils";
 import { fsPath } from "../../shared/utils/fs";
 import { fromRange } from "../../shared/vscode/utils";
@@ -14,8 +15,8 @@ import { DfsFormatterClient } from "../formatter/formatter_dfs";
 export class DartFormattingEditProvider implements DocumentFormattingEditProvider, OnTypeFormattingEditProvider, DocumentRangeFormattingEditProvider, IAmDisposable {
 	constructor(private readonly logger: Logger, private readonly formatter: DfsFormatterClient, private readonly context: Context) {
 		workspace.onDidChangeConfiguration((e) => {
-			if (e.affectsConfiguration("dart-formatter.enableCustomFormatter")) {
-				if (config.enableCustomFormatter)
+			if (e.affectsConfiguration("dart-formatter.enableFormatter")) {
+				if (config.enableFormatter)
 					this.registerAllFormatters();
 				else
 					this.unregisterAllFormatters();
@@ -42,7 +43,7 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 		const registerAndTrack = () => this.registeredFormatters.push(reg());
 
 		// Register the formatter immediately if enabled.
-		if (config.enableCustomFormatter)
+		if (config.enableFormatter)
 			registerAndTrack();
 
 		// Add it to our list so we can re-register later..
@@ -62,25 +63,28 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 	public async provideDocumentFormattingEdits(document: TextDocument, options: FormattingOptions, token: CancellationToken): Promise<TextEdit[] | undefined> {
 		try {
 			return await this.doFormat(document, true, options); // await is important for catch to work.
-		} catch {	//TODO: check, when does this gets initialized?
-			if (!this.context.hasWarnedAboutFormatterSyntaxLimitation) {
-				this.context.hasWarnedAboutFormatterSyntaxLimitation = true;
-				window.showInformationMessage("The Dart Custom Formatter will not run if the file has syntax errors");
-			}
+		} catch (e) {
+			this.showErrorMesages(e);
 			return undefined;
 		}
 	}
 
+	// TODO (tekert): Use workspace settings to include or exclude formatting onType.
 	public async provideOnTypeFormattingEdits(document: TextDocument, position: Position, ch: string, options: FormattingOptions
 		, token: CancellationToken): Promise<TextEdit[] | undefined> {
-		// TODO (tekert): last few lines.
+		// TODO (tekert): from last ;
 		let range: Range | undefined;
+
+		//document.getWordRangeAtPosition(position, RegExp("")); // DEBUG: Throw exception, for testing.
+
 		if (ch === ";") {
-			range = document.lineAt(position).range;
+			//range = document.lineAt(position).range;
 		}
+
 		// TODO (tekert): matching {}
 		// eslint-disable-next-line no-empty
 		if (ch === "}") { }
+
 		try {
 			return await this.doFormat(document, false, options, range);
 		} catch {
@@ -92,7 +96,8 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 		, token: CancellationToken): Promise<TextEdit[] | undefined> {
 		try {
 			return await this.doFormat(document, true, options, range); // await is important for catch to work.
-		} catch {
+		} catch (e) {
+			this.showErrorMesages(e);
 			return undefined;
 		}
 	}
@@ -128,7 +133,7 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 			const resp = await this.formatter.editFormat({
 				file: fsPath(document.uri),
 				lineLength: config.for(document.uri).lineLength,
-				selectionLength: offsets.end - offsets.start,
+				selectionLength: offsets.end - offsets.start, // API needs this to be 0 instead of null.
 				selectionOffset: offsets.start,
 				selectionOnly: selectionOnly,
 				insertSpaces: options.insertSpaces,
@@ -146,6 +151,19 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 				this.logger.error(e);
 			throw e;
 		}
+	}
+
+	private showErrorMesages(error: any) {
+		if (error.code === "FORMAT_WITH_ERRORS") {
+			if (!this.context.hasWarnedAboutFormatterSyntaxLimitation) {
+				this.context.hasWarnedAboutFormatterSyntaxLimitation = true;
+				window.showInformationMessage("The Xnfo Dart Formatter will not run if the file has syntax errors");
+			}
+		} else if (error.code === "FORMAT_RANGE_ERROR") {
+			const message : string = error.message;
+			window.showInformationMessage("Error: The Xnfo Dart Formatter will not run if the selected range is invalid: " + message);
+		}
+		return undefined;
 	}
 
 	private async saveSyncDocument(document: TextDocument): Promise<boolean> {

@@ -63,15 +63,15 @@ export class DfsFormatterClient extends FormatterGen {
 	private version?: string;
 	private isFormatting = false;
 	private currentFormatCompleter?: PromiseCompleter<void>;
-	public capabilities: FormatterCapabilities = FormatterCapabilities.empty;
+	public serverCapabilities: FormatterCapabilities = FormatterCapabilities.empty;
 
 	constructor(logger: Logger) {
 		super(logger, config.maxLogLineLength);
 
 		this.launchArgs = getFormatterArgs(logger);
 
-		// Register for version.
-		this.registerForServerConnected((e) => { this.version = e.version; this.capabilities.version = this.version; });
+		// Register to get version from formatter server.
+		this.registerForServerConnected((e) => { this.version = e.version; this.serverCapabilities.version = this.version; });
 
 		//const fullDartVmPath = path.join(sdks.dart, dartVMPath);
 		//let binaryPath = fullDartVmPath;

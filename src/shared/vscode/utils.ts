@@ -1,15 +1,14 @@
-import { start } from "repl";
 import * as vs from "vscode";
-import { CodeActionKind, env as vsEnv, ExtensionKind, extensions, Position, Range, Selection, TextDocument, TextEditor, TextEditorRevealType, Uri, workspace, WorkspaceFolder } from "vscode";
-import { dartFormatterExtensionIdentifier } from "../constants";
-import { Location, Logger } from "../interfaces";
+import { ExtensionKind, extensions, Position, Range, Selection, TextDocument, TextEditor, TextEditorRevealType } from "vscode";
+import { formatterExtensionIdentifier } from "../constants";
+import { Location } from "../interfaces";
 
 
 export const isTheia = vs.env.appName?.includes("Theia") ?? false;
 export const isCloudShell = vs.env.appName?.includes("Cloud Shell") ?? false;
 export const isKnownCloudIde = isTheia || isCloudShell;
 
-const formatterExtension = extensions.getExtension(dartFormatterExtensionIdentifier);
+const formatterExtension = extensions.getExtension(formatterExtensionIdentifier);
 
 // The extension kind is declared as Workspace, but VS Code will return UI in the
 // case that there is no remote extension host.
@@ -37,8 +36,8 @@ export function toRangeOnLine(location: Location): Range {
 }
 
 // Range to {start, end} zero based offsets.
-export function fromRange(document: TextDocument, range: Range): {start : number, end : number} {
-	return {start: document.offsetAt(range.start), end: document.offsetAt(range.end)};
+export function fromRange(document: TextDocument, range: Range): { start: number, end: number } {
+	return { start: document.offsetAt(range.start), end: document.offsetAt(range.end) };
 }
 
 export function showCode(editor: TextEditor, displayRange: Range, highlightRange: Range, selectionRange?: Range): void {

@@ -39,6 +39,7 @@ const logger = new EmittingLogger();
 // user when something crashed even if they don't have disk-logging enabled.
 export const ringLog: RingLog = new RingLog(200);
 
+// TODO: Log General Information, its empty now if the user selects logging.
 export function activate(context: vs.ExtensionContext, isRestart: boolean = false) {
 
 	// Ring logger is only set up once and presist over silent restarts.
@@ -48,15 +49,18 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 	if (isDevExtension)
 		context.subscriptions.push(logToConsole(logger));
 
+	// Can be used in 'when' clause of package.json (not used for now)
 	vs.commands.executeCommand("setContext", IS_RUNNING_LOCALLY_CONTEXT, isRunningLocally);
+
 	buildLogHeaders();
+	// Captures General log mesages to a file.
 	setupLog(getExtensionLogPath(), LogCategory.General);
 
 	const extContext = Context.for(context);
 
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "Dart C Formatter" is now active!');
+	console.log('Congratulations, your extension "Xnfo Format" is now active!');
 
 	// Set up log files.
 	//setupLog(config.formatterServerLogFile, LogCategory.Formatter);
@@ -75,23 +79,23 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 
 	// Format Server VsCode Commands
 	formatter = new DfsFormatter(logger);
-	const dasFormatter = formatter;
-	const dfsClient = dasFormatter.client;
+	const dfsFormatter = formatter;
+	const dfsClient = dfsFormatter.client;
 	context.subscriptions.push(formatter);
 
-	// VsCode Command for the custom formatter service
+	// VsCode Command for the formatter service
 	const formatCommands = new FormatServerCommands(context, logger);
 
+	// Setup formatting providers.
 	const activeFileFilters: vs.DocumentFilter[] = [DART_MODE];
 	const formattingEditProvider = new DartFormattingEditProvider(logger, dfsClient, extContext);
 	context.subscriptions.push(formattingEditProvider);
-	//formattingEditProvider.registerDocumentFormatter(activeFileFilters); // One or the other
+	//formattingEditProvider.registerDocumentFormatter(activeFileFilters); // Range already provides this.
 	formattingEditProvider.registerDocumentRangeFormatter(activeFileFilters);
-	// Only for Dart.
-	formattingEditProvider.registerTypingFormatter(DART_MODE, "}", ";");
+	formattingEditProvider.registerTypingFormatter(activeFileFilters, "}", ";");
 
+	// Report to the user exceptions and errors from server.
 	if (dfsClient)
-		// tslint:disable-next-line: no-unused-expression
 		new FormatterStatusReporter(logger, dfsClient);
 
 	// Things to do when we succefully connect to the server.
@@ -116,16 +120,22 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 		/*if (dfsClient.capabilities.hasCustomFormatTest) {
 		}*/
 	});
-	// Hook editor changes to send updated contents to formatter server.
+
+	// Important: Watch editor changes to send updated contents,
+	// to send incremental changes and to format to work on unsaved files.
 	context.subscriptions.push(new FileChangeHandler(dfsClient));
 
+	// For debugging purposes
 	context.subscriptions.push(new LoggingCommands(logger, context.logUri.fsPath));
 
-	// Handle config changes so we can reanalyze if necessary.
+	// Handle config changes so we can act if necessary.
 	context.subscriptions.push(vs.workspace.onDidChangeConfiguration(() => handleConfigurationChange()));
 
 	// Turn on all the commands.
 	setCommandVisiblity(true);
+
+
+	// TODO (tekert) return API for other extensions.
 }
 
 function setupLog(logFile: string | undefined, category: LogCategory) {
@@ -137,7 +147,7 @@ function buildLogHeaders(logger?: Logger) {
 	clearLogHeader();
 	addToLogHeader(() => `!! PLEASE REVIEW THIS LOG FOR SENSITIVE INFORMATION BEFORE SHARING !!`);
 	addToLogHeader(() => ``);
-	addToLogHeader(() => `Dart Custom Formatter extension: ${extensionVersion}`);
+	addToLogHeader(() => `Dart Formatter extension: ${extensionVersion}`);
 	addToLogHeader(() => ``);
 	addToLogHeader(() => `App: ${vs.env.appName}`);
 	if (vs.env.remoteName)
@@ -153,7 +163,6 @@ function buildLogHeaders(logger?: Logger) {
 }
 
 function handleConfigurationChange() {
-
 	const newSettings = getSettingsThatRequireRestart();
 	const settingsChanged = previousSettings !== newSettings;
 	previousSettings = newSettings;

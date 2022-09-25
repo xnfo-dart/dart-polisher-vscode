@@ -1,12 +1,12 @@
-import * as vs from "vscode";
-import * as path from "path";
 import * as fs from "fs";
+import * as path from "path";
+import * as vs from "vscode";
 
-import { dartFormatterExtensionIdentifier, executableNames, gformatterPath } from "../../shared/constants";
-import { isRunningLocally } from "../../shared/vscode/utils";
-import { extensionPath, extensionVersion } from "../../shared/vscode/extension_utils";
-import { config } from "../config";
+import { formatterPath as cformatterPath } from "../../shared/constants";
 import { Logger } from "../../shared/interfaces";
+import { extensionPath, extensionVersion } from "../../shared/vscode/extension_utils";
+import { isRunningLocally } from "../../shared/vscode/utils";
+import { config } from "../config";
 
 
 export function getFormatterArgs(logger: Logger) {
@@ -17,7 +17,7 @@ export function getFormatterArgs(logger: Logger) {
 	);*/
 	//TODO: for now use binaries for each platform.
 	// see if we can use dill and get a dart sdk path.
-	const formatterPath = config.formatterPath || path.join(extensionPath, gformatterPath);
+	const formatterPath = config.formatterPath || path.join(extensionPath, cformatterPath);
 
 	// If the ssh host is set, then we are running the formatter on a remote machine, that same formatter
 	// might not exist on the local machine.

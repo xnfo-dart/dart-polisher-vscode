@@ -84,7 +84,7 @@ ${method ? "### Request\n\nServer was responding to request: `" + method + "`\n"
 ### Versions
 
 - ${env.appName} v${codeVersion}
-- Dart Custom Formatter v${extensionVersion}` +
+- Dart Formatter v${extensionVersion}` +
 //- ${flutterSdkVersion ? `Flutter SDK v${flutterSdkVersion}` : `Dart SDK v${sdkVersion}`}
 `
 ### Formatter Info

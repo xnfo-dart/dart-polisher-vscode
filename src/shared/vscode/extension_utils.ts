@@ -1,10 +1,9 @@
 import * as fs from "fs";
 import * as path from "path";
-import { extensions, MarkdownString, Uri } from "vscode";
-import { dartFormatterExtensionIdentifier } from "../constants";
-//import * as dartdoc from "../utils/dartdocs";
+import { extensions, MarkdownString } from "vscode";
+import { formatterExtensionIdentifier } from "../constants";
 
-export const extensionPath = extensions.getExtension(dartFormatterExtensionIdentifier)!.extensionPath;
+export const extensionPath = extensions.getExtension(formatterExtensionIdentifier)!.extensionPath;
 export const extensionVersion = getExtensionVersion();
 export const vsCodeVersionConstraint = getVsCodeVersionConstraint();
 export const isPreReleaseExtension = checkIsPreReleaseExtension();

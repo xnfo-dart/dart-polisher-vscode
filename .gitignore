@@ -11,6 +11,7 @@ lib-cov
 *.ts1
 *.vsix
 
+vscode-profile*.*
 .DS_Store
 .dcud/
 .nyc_output/

@@ -1,6 +1,6 @@
 import * as fs from "fs";
 
-export const dartFormatterExtensionIdentifier = "xnfo.dart-formatter";
+export const formatterExtensionIdentifier = "xnfo.dart-formatter";
 
 export const isCI = !!process.env.CI;
 export const isWin = process.platform.startsWith("win");
@@ -15,17 +15,11 @@ export const platformEol = isWin ? "\r\n" : "\n";
 
 export const executableNames = {
 	dart: isWin ? "dart.exe" : "dart",
-	dartdoc: isWin ? "dartdoc.bat" : "dartdoc",
-	pub: isWin ? "pub.bat" : "pub",
-	cformatter: isWin ? "dartcfmt.exe" : isMac ? "dartcfmt_mac" : "dartcfmt",
+	dartFormatter: isWin ? "dartcfmt.exe" : isMac ? "dartcfmt_mac" : "dartcfmt",
 };
 export const getExecutableName = (cmd: string) => (executableNames as { [key: string]: string | undefined })[cmd] ?? cmd;
 export const dartVMPath = "bin/" + executableNames.dart;
-export const dartDocPath = "bin/" + executableNames.dartdoc;
-export const gformatterPath = "bin/" + executableNames.cformatter;
-export const pubPath = "bin/" + executableNames.pub;
-export const pubSnapshotPath = "bin/snapshots/pub.dart.snapshot";
-export const analyzerSnapshotPath = "bin/snapshots/analysis_server.dart.snapshot";
+export const formatterPath = "bin/" + executableNames.dartFormatter;
 
 export const stopLoggingAction = "Stop Logging";
 export const showLogAction = "Show Log";

@@ -1,6 +1,6 @@
 import * as child_process from "child_process";
 import * as path from "path";
-import { dartVMPath, isWin, pubPath } from "./constants";
+import { dartVMPath, isWin} from "./constants";
 import { LogCategory } from "./enums";
 import { Logger, SpawnedProcess } from "./interfaces";
 import { logProcess } from "./logging";

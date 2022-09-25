@@ -1,9 +1,9 @@
 {
 	"name": "dart-formatter",
-	"displayName": "Dart Formatter",
-	"description": "[dev-beta] Customizable Dart formatter, indents, custom styles, based on Dart Style",
+	"displayName": "Xnfo Format",
+	"description": "[dev-beta] Customizable `Dart` formatter, indents, custom styles, based on Dart Style",
 	"repository": "https://github.com/tekert/dart-format-vscode",
-	"version": "0.8.9-dev",
+	"version": "0.9.0-dev",
 	"publisher": "xnfo",
 	"engines": {
 		"vscode": "^1.70.0"
@@ -38,14 +38,14 @@
 					"when": "dart-formatter:anyProjectLoaded"
 				},
 				{
-					"command": "dart-formatter.restartFormattingServer",
+					"command": "dart-formatter.restartFormatterServer",
 					"when": "dart-formatter:anyProjectLoaded"
 				}
 			]
 		},
 		"commands": [
 			{
-				"command": "dart-formatter.restartFormattingServer",
+				"command": "dart-formatter.restartFormatterServer",
 				"title": "Restart Dart Formatter Server",
 				"category": "Dart Formatter Server"
 			},
@@ -70,7 +70,7 @@
 				"title": "Formatter",
 				"order": 1,
 				"properties": {
-					"dart-formatter.enableCustomFormatter": {
+					"dart-formatter.enableFormatter": {
 						"type": "boolean",
 						"default": true,
 						"markdownDescription": "Whether to enable the [dart_formatter] (https://github.com/tekert/dart-formatter) for Dart code.",
