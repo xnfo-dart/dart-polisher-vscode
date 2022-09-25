@@ -1,79 +1,94 @@
-# Dart Formatter (vscode-extension)
+# Xnfo Dart Formatter
 
-TODO: desc
+A less opitionated code formatter for `Dart`.<br>
+For people who want a customizable formatting experience.<br>
+The server uses a modified version of the oficial dart formatter TODO:LINK`dart_style` package.
 
-Inside your `settings.json` write
+
+## Initial Configuration
+
+IMAGE
+
+Inside your `settings.json`
 ```json
 "[dart]": {
 		"editor.defaultFormatter": "xnfo.dart-formatter",
-		"editor.formatOnSave": true,
-		"editor.formatOnType": true,
+		"editor.formatOnSave": true, // optional
+		"editor.formatOnType": true, // optional
 }
 ```
+> Works on ranges too.
+----
 ## Features
+TODO: MEGAGIF
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+### **Uses editor indent sizes when formatting:**
+```json
+"[dart]": {
+		"editor.tabSize": 4,
+		"editor.insertSpaces": false // use Tab indents
+}
+```
+> The formatter internally works with space indents, `dart-formatter.blockIndent` or `editor.tabSize` will be used for tab conversion, in that order.
 
+<br>
+
+### **Unlocked indent sizes:**
+```json
+{
+	// The number of spaces in a single level of expression nesting.
+	"dart-formatter.expressionIndent": 4,
+
+	// The number of spaces in a block or collection body.
+	"dart-formatter.blockIndent": 4,
+
+	// How much wrapped cascade sections indent.
+	"dart-formatter.cascadeIndent": 4,
+
+	// The ":" on a wrapped constructor initialization list.
+	"dart-formatter.constructorInitializerIndent": 4
+}
+```
+> These are all defaulted to `editor.tabSize` if not set.
+
+<br>
+
+### **Code Styles**
+```json
+{
+	// Dart style (default) is the original dart style
+	//   but with customizable indent sizes.
+	"dart-formatter.codeStyle": "Dart Style",
+
+	// Expanded style is inspired by an outer braces style
+	//   on block-like sintax.
+	"dart-formatter.codeStyle": "Expanded Style",
+}
+```
+----
+
+
+<br>
+<br>
 For example if there is an image subfolder under your extension project workspace:
 
 \!\[feature X\]\(images/feature-x.png\)
 
 > Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
 
+## Installation
+Search for `xnfo formatter` in the [VS Code Extension Gallery](https://code.visualstudio.com/docs/editor/extension-marketplace) and install it!
+
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+Works only on local installations of VScode.
 
-## Extension Settings
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+Beta version.
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+Please check CHANGELOG.md TODO: link

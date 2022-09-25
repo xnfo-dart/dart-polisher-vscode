@@ -16,7 +16,9 @@
 		"formatter",
 		"format",
 		"dart format",
-		"dart formatter"
+		"dart formatter",
+		"dart xnfo format",
+		"dart xnfo"
 	],
 	"activationEvents": [
 		"onLanguage:dart"
