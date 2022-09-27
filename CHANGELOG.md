@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ----------
 ### [Unreleased]
 
+----------
+### [0.9.0] - 2022-09-20
+
 - Supports for tab and space indents.
 - `Ontype` formatting now working properly.
 ----------
@@ -23,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial verion
 - Cloning only the most usdefault files from Dart-Code
 
-[Unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v0.8.9...HEAD
 
-[0.8.9]: https://github.com/olivierlacan/keep-a-changelog/releases/tag/v0.8.9
+[Unreleased]: https://github.com/xnfo-dart/dart-polisher-vscode/compare/v0.9.0...HEAD
+[0.9.0]: https://github.com/olivierlacan/dart-polisher-vscode/releases/tag/v0.9.0
+[0.8.9]: https://github.com/olivierlacan/dart-polisher-vscode/releases/tag/v0.8.9
