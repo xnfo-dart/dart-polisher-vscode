@@ -2,7 +2,7 @@
 	"name": "dart-polisher",
 	"displayName": "Polisher - Dart Formatter",
 	"description": "`Dart` formatter, indents, style tweaks, based on Dart style",
-	"repository": "https://github.com/xnfo-dart/dart-format-vscode",
+	"repository": "https://github.com/xnfo-dart/dart-polisher-vscode",
 	"version": "0.9.0-dev",
 	"publisher": "xnfo",
 	"engines": {

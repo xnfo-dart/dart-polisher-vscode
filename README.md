@@ -1,10 +1,10 @@
 # VSCode Dart polisher 
-[![VScode Formatter](https://shields.io/badge/dart-VScode_Formatter-blue?logo=dart&style=flat-square)](https://github.com/xnfo-dart/vscode-dart-polisher)
+[![VScode Formatter](https://shields.io/badge/dart-VScode_Formatter-blue?logo=dart&style=flat-square)](https://github.com/xnfo-dart/dart-polisher-vscode)
 
 Last Version: v0.9.0
 
 A code formatter for [Dart](https://dart.dev/).<br>
-Uses a forked version from the official `dart_style` as the [formatter](https://github.com/xnfo-dart/xnfo_formatter).<br>
+Uses a forked version from the official `dart_style` as the [formatter](https://github.com/xnfo-dart/dart_polisher).<br>
 
 A nice GIF is better than text:
 
