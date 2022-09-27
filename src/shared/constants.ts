@@ -15,7 +15,7 @@ export const platformEol = isWin ? "\r\n" : "\n";
 
 export const executableNames = {
 	dart: isWin ? "dart.exe" : "dart",
-	dartFormatter: isWin ? "dartcfmt-windows.exe" : isMac ? "dartcfmt-mac" : "dartcfmt-linux",
+	dartFormatter: isWin ? "dartpolishd-windows.exe" : isMac ? "dartpolishd-mac" : "dartpolishd-linux",
 };
 export const getExecutableName = (cmd: string) => (executableNames as { [key: string]: string | undefined })[cmd] ?? cmd;
 export const dartVMPath = "bin/" + executableNames.dart;

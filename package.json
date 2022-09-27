@@ -79,7 +79,7 @@
 					"dart-polisher.enableFormatter": {
 						"type": "boolean",
 						"default": true,
-						"markdownDescription": "Whether to enable the [dart_formatter] (https://github.com/xnfo-dart/dart-polisher) for Dart code.",
+						"markdownDescription": "Whether to enable the [Dart Polisher](https://github.com/xnfo-dart/dart-polisher) for Dart code.",
 						"scope": "window"
 					},
 					"dart-polisher.doNotFormat": {
