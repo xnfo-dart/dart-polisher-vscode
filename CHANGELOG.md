@@ -1,10 +1,7 @@
 # Changelog
-> **Dart** Custom Formatter Extension based on the Oficial Dart Formatter.
+> **Dart** Formatter VSCode Extension based on the Oficial "Dart Style" Formatter.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-----------
 ### [Unreleased]
 
 ----------
@@ -27,6 +24,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Cloning only the most usdefault files from Dart-Code
 
 
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
 [Unreleased]: https://github.com/xnfo-dart/dart-polisher-vscode/compare/v0.9.0...HEAD
-[0.9.0]: https://github.com/olivierlacan/dart-polisher-vscode/releases/tag/v0.9.0
-[0.8.9]: https://github.com/olivierlacan/dart-polisher-vscode/releases/tag/v0.8.9
+[0.9.0]: https://github.com/xnfo-dart/dart-polisher-vscode/releases/tag/v0.9.0
+[0.8.9]: https://github.com/xnfo-dart/dart-polisher-vscode/releases/tag/v0.8.9
