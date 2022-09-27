@@ -26,7 +26,7 @@ import { addToLogHeader, clearLogHeader, getExtensionLogPath, getLogHeader } fro
 
 let previousSettings: string;
 
-const PROJECT_LOADED = "dart-formatter:anyProjectLoaded";
+const PROJECT_LOADED = "dart-polisher:anyProjectLoaded";
 export const DART_MODE = { language: "dart", scheme: "file" };
 
 let formatter: DfsFormatter;
@@ -69,7 +69,7 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 	buildLogHeaders(logger);
 
 	// Wire up a reload command that will re-initialise everything.
-	context.subscriptions.push(vs.commands.registerCommand("_dart-formatter.reloadExtension", async () => {
+	context.subscriptions.push(vs.commands.registerCommand("_dart-polisher.reloadExtension", async () => {
 		logger.info("Performing silent extension reload...");
 		await deactivate(true);
 		disposeAll(context.subscriptions);

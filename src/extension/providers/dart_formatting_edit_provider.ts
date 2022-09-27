@@ -4,7 +4,6 @@ import { LogCategory } from "../../shared/enums";
 import * as fs from "../../shared/formatter_server_types";
 import { CodeStyle, TabSize } from "../../shared/formatter_server_types";
 import { IAmDisposable, Logger } from "../../shared/interfaces";
-import { UnknownResponse } from "../../shared/services/interfaces";
 import { disposeAll } from "../../shared/utils";
 import { fsPath } from "../../shared/utils/fs";
 import { fromRange } from "../../shared/vscode/utils";
@@ -15,7 +14,7 @@ import { DfsFormatterClient } from "../formatter/formatter_dfs";
 export class DartFormattingEditProvider implements DocumentFormattingEditProvider, OnTypeFormattingEditProvider, DocumentRangeFormattingEditProvider, IAmDisposable {
 	constructor(private readonly logger: Logger, private readonly formatter: DfsFormatterClient, private readonly context: Context) {
 		workspace.onDidChangeConfiguration((e) => {
-			if (e.affectsConfiguration("dart-formatter.enableFormatter")) {
+			if (e.affectsConfiguration("dart-polisher.enableFormatter")) {
 				if (config.enableFormatter)
 					this.registerAllFormatters();
 				else
@@ -160,7 +159,7 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 				window.showInformationMessage("The Xnfo Dart Formatter will not run if the file has syntax errors");
 			}
 		} else if (error.code === "FORMAT_RANGE_ERROR") {
-			const message : string = error.message;
+			const message: string = error.message;
 			window.showInformationMessage("Error: The Xnfo Dart Formatter will not run if the selected range is invalid: " + message);
 		}
 		return undefined;

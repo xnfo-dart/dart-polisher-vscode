@@ -17,11 +17,11 @@ export class LoggingCommands implements vs.Disposable {
 
 	constructor(private readonly logger: EmittingLogger, private extensionLogPath: string) {
 		this.disposables.push(
-			vs.commands.registerCommand("dart-formatter.startLogging", this.startLoggingViaPicker, this),
-			//	vs.commands.registerCommand("dart-formatter.startLoggingFormatServer", this.startLoggingFormatServer, this),
-			//	vs.commands.registerCommand("dart-formatter.startLoggingExtensionOnly", this.startLoggingExtensionOnly, this),
-			vs.commands.registerCommand("dart-formatter.openExtensionLog", this.openExtensionLog, this),
-			vs.commands.registerCommand("dart-formatter.stopLogging", this.stopLogging, this),
+			vs.commands.registerCommand("dart-polisher.startLogging", this.startLoggingViaPicker, this),
+			//	vs.commands.registerCommand("dart-polisher.startLoggingFormatServer", this.startLoggingFormatServer, this),
+			//	vs.commands.registerCommand("dart-polisher.startLoggingExtensionOnly", this.startLoggingExtensionOnly, this),
+			vs.commands.registerCommand("dart-polisher.openExtensionLog", this.openExtensionLog, this),
+			vs.commands.registerCommand("dart-polisher.stopLogging", this.stopLogging, this),
 		);
 	}
 

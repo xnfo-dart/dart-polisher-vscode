@@ -17,17 +17,17 @@ class Config {
 				this.dartSdkFormatterEnabled = getAppliedConfig("dart", "enableSdkFormatter", false);
 			}
 			// A default formatter string got changed.
-			if (e.affectsConfiguration("editor.defaultFormatter", {languageId: "dart"})) {
+			if (e.affectsConfiguration("editor.defaultFormatter", { languageId: "dart" })) {
 				this.dartDefaultFormatter = getAppliedConfig("editor", "defaultFormatter", false);
 			}
 		});
 
-		this.config = workspace.getConfiguration("dart-formatter");
+		this.config = workspace.getConfiguration("dart-polisher");
 		setupToolEnv(this.env);
 	}
 
 	private reloadConfig() {
-		this.config = workspace.getConfiguration("dart-formatter");
+		this.config = workspace.getConfiguration("dart-polisher");
 		setupToolEnv(this.env);
 	}
 
@@ -73,7 +73,7 @@ export class ResourceConfig {
 
 	constructor(uri?: Uri) {
 		this.uri = uri;
-		this.config = workspace.getConfiguration("dart-formatter", this.uri);
+		this.config = workspace.getConfiguration("dart-polisher", this.uri);
 	}
 
 	private getConfig<T>(key: string, defaultValue: T): NullAsUndefined<T> {

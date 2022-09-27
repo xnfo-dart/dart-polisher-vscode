@@ -1,6 +1,6 @@
 import * as fs from "fs";
 
-export const formatterExtensionIdentifier = "xnfo.dart-formatter";
+export const formatterExtensionIdentifier = "xnfo.dart-polisher";
 
 export const isCI = !!process.env.CI;
 export const isWin = process.platform.startsWith("win");
@@ -15,7 +15,7 @@ export const platformEol = isWin ? "\r\n" : "\n";
 
 export const executableNames = {
 	dart: isWin ? "dart.exe" : "dart",
-	dartFormatter: isWin ? "dartcfmt.exe" : isMac ? "dartcfmt_mac" : "dartcfmt",
+	dartFormatter: isWin ? "dartcfmt-windows.exe" : isMac ? "dartcfmt-mac" : "dartcfmt-linux",
 };
 export const getExecutableName = (cmd: string) => (executableNames as { [key: string]: string | undefined })[cmd] ?? cmd;
 export const dartVMPath = "bin/" + executableNames.dart;
@@ -24,5 +24,5 @@ export const formatterPath = "bin/" + executableNames.dartFormatter;
 export const stopLoggingAction = "Stop Logging";
 export const showLogAction = "Show Log";
 
-export const FORMATTER_IS_CAPTURING_LOGS_CONTEXT = "dart-formatter:isCapturingLogs";
-export const IS_RUNNING_LOCALLY_CONTEXT = "dart-formatter:isRunningLocally";
+export const FORMATTER_IS_CAPTURING_LOGS_CONTEXT = "dart-polisher:isCapturingLogs";
+export const IS_RUNNING_LOCALLY_CONTEXT = "dart-polisher:isRunningLocally";
