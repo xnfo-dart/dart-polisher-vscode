@@ -1,4 +1,4 @@
-# VSCode Dart polisher 
+# VSCode Dart Polisher Extension
 [![VScode Formatter](https://shields.io/badge/dart-VScode_Formatter-blue?logo=dart&style=flat-square)](https://github.com/xnfo-dart/dart-polisher-vscode)
 
 Last Version: v0.9.0
