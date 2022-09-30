@@ -24,6 +24,7 @@
 		"format dart",
 		"dart polisher"
 	],
+	"icon": "media/dart_polisher.png",
 	"activationEvents": [
 		"onLanguage:dart"
 	],

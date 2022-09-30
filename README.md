@@ -3,13 +3,12 @@
 
 Last Version: v0.9.0
 
+<br>
+
 A code formatter for [Dart](https://dart.dev/).<br>
 Uses a forked version from the official `dart_style` as the [formatter](https://github.com/xnfo-dart/dart_polisher).<br>
 
-A nice GIF is better than text:
-
-TODO: MEGAGIF
-
+----
 ## Initial Configuration
 
 Inside your `settings.json`
@@ -91,4 +90,4 @@ Beta version.
 
 ## Release Notes
 
-Please check CHANGELOG.md TODO: link
+Please check CHANGELOG tab
