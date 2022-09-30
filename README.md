@@ -77,7 +77,7 @@ Inside your `settings.json`
 <br>
 
 ## Installation
-Search for `dart polisher` in the [VS Code Extension Gallery](https://code.visualstudio.com/docs/editor/extension-marketplace) and install it!
+Search for `dart polisher` in the [VS Code Extension Marketplace](https://code.visualstudio.com/docs/editor/extension-marketplace) and install it!
 
 ## Requirements
 
