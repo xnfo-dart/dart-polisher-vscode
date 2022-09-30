@@ -29,12 +29,11 @@ Inside your `settings.json`
 ```json
 "[dart]": {
 		"editor.tabSize": 4,
-		"editor.insertSpaces": false // optional: use Tab indents
+		"editor.insertSpaces": false // optional: use Tab as indent
 }
 ```
 > The formatter internally works with space indents, `dart-polisher.blockIndent` or `editor.tabSize` will be used for tab conversion, in that order.
 
->*Uneven indents will be filled with spaces.
 
 <br>
 
@@ -55,6 +54,8 @@ Inside your `settings.json`
 }
 ```
 > These are all defaulted to `editor.tabSize` if not set.
+
+> NOTE: when using tabs uneven indent sizes will be filled with spaces.
 
 <br>
 
