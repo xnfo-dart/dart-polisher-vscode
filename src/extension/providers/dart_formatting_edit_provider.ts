@@ -21,6 +21,7 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 					this.unregisterAllFormatters();
 			}
 		});
+		//TODO(tekert): Use dart_polisher js compilation as an alternative over stdio.
 	}
 
 	private readonly registeredFormatters: IAmDisposable[] = [];
@@ -156,11 +157,11 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 		if (error.code === "FORMAT_WITH_ERRORS") {
 			if (!this.context.hasWarnedAboutFormatterSyntaxLimitation) {
 				this.context.hasWarnedAboutFormatterSyntaxLimitation = true;
-				window.showInformationMessage("The Xnfo Dart Formatter will not run if the file has syntax errors");
+				window.showInformationMessage("Dart Polisher formatter will not run if the file has syntax errors");
 			}
 		} else if (error.code === "FORMAT_RANGE_ERROR") {
 			const message: string = error.message;
-			window.showInformationMessage("Error: The Xnfo Dart Formatter will not run if the selected range is invalid: " + message);
+			window.showInformationMessage("Error: Dart Polisher formatter will not run if the selected range is invalid: " + message);
 		}
 		return undefined;
 	}
