@@ -1,6 +1,6 @@
 import * as path from "path";
 import * as vs from "vscode";
-import { FORMATTER_IS_CAPTURING_LOGS_CONTEXT } from "../../shared/constants";
+import { captureLogsMaxLineLength, FORMATTER_IS_CAPTURING_LOGS_CONTEXT } from "../../shared/constants";
 import { LogCategory } from "../../shared/enums";
 import { captureLogs, EmittingLogger } from "../../shared/logging";
 import { PromiseCompleter } from "../../shared/utils";
@@ -58,7 +58,7 @@ export class LoggingCommands implements vs.Disposable {
 
 		const allLoggedCategories = [LogCategory.General].concat(categoriesToLog);
 
-		const logger = captureLogs(this.logger, fsPath(logUri), getLogHeader(), config.maxLogLineLength, allLoggedCategories);
+		const logger = captureLogs(this.logger, fsPath(logUri), getLogHeader(), captureLogsMaxLineLength, allLoggedCategories);
 		isLogging = true;
 		this.disposables.push(logger);
 		vs.commands.executeCommand("setContext", FORMATTER_IS_CAPTURING_LOGS_CONTEXT, true);

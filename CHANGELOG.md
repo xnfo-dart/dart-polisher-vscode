@@ -2,24 +2,25 @@
 > **Dart** Formatter VSCode Extension based on the Oficial "Dart Style" Formatter.
 
 
-### [Unreleased]
-
+## [Unreleased]
+### Upstream fixes from Dart-Code:
+- [Dart-Code #4134](https://github.com/Dart-Code/Dart-Code/issues/4134): When using the Dart: Capture Logs commands, long lines are no longer truncated. Logs written to disk using the related settings are still truncated based on the dart.maxLogLineLength setting.
 ----------
-### [0.9.0] - 2022-09-20
+## [0.9.0] - 2022-09-20
 
 - Supports for tab and space indents.
 - `Ontype` formatting now working properly.
 ----------
-### [0.8.9] - 2022-09-20
+## [0.8.9] - 2022-09-20
 
 - Better error reporting, log files options, and catch errors in responses from formatter server.
 ----------
-### [0.8.8] - 2022-09-14
+## [0.8.8] - 2022-09-14
 
 - New configurable indents (`tab size`) for different expressions.
 - `Ontype` formatting not working for now until i change protocol to use content changes.
 ----------
-### [0.0.1] - 2014-05-31
+## [0.0.1] - 2014-05-31
 - Initial verion
 - Cloning only the most usdefault files from Dart-Code
 

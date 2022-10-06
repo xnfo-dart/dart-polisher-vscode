@@ -23,6 +23,7 @@ export const formatterPath = "bin/" + executableNames.dartFormatter;
 
 export const stopLoggingAction = "Stop Logging";
 export const showLogAction = "Show Log";
+export const captureLogsMaxLineLength = 999999999;
 
 export const FORMATTER_IS_CAPTURING_LOGS_CONTEXT = "dart-polisher:isCapturingLogs";
 export const IS_RUNNING_LOCALLY_CONTEXT = "dart-polisher:isRunningLocally";
