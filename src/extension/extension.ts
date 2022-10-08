@@ -39,7 +39,7 @@ const logger = new EmittingLogger();
 // user when something crashed even if they don't have disk-logging enabled.
 export const ringLog: RingLog = new RingLog(200);
 
-// TODO: Log General Information, its empty now if the user selects logging.
+// TODO(tekert): Log General Information, its empty now if the user selects logging.
 export function activate(context: vs.ExtensionContext, isRestart: boolean = false) {
 
 	// Ring logger is only set up once and presist over silent restarts.
@@ -53,20 +53,20 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 	vs.commands.executeCommand("setContext", IS_RUNNING_LOCALLY_CONTEXT, isRunningLocally);
 
 	buildLogHeaders();
-	// Captures General log mesages to a file.
-	setupLog(getExtensionLogPath(), LogCategory.General);
+	// Captures General log mesages to a file. (use commands for quick logging)
+	setupLog(getExtensionLogPath(), [LogCategory.General]);
 
 	const extContext = Context.for(context);
 
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "Xnfo Format" is now active!');
+	console.log('Congratulations, your extension "Dart Polisher" is now active!');
 
-	// Set up log files.
-	//setupLog(config.formatterServerLogFile, LogCategory.Formatter);
+	// Set up log files. (redirect category logs to these files)
+	setupLog(config.polisherLogFile, [LogCategory.Formatter]);
 
 	// Build log headers now we know formatter type.
-	buildLogHeaders(logger);
+	//buildLogHeaders(logger);
 
 	// Wire up a reload command that will re-initialise everything.
 	context.subscriptions.push(vs.commands.registerCommand("_dart-polisher.reloadExtension", async () => {
@@ -107,7 +107,7 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 		// never set up the formatter
 		const handleOpenFile = (d: vs.TextDocument) => {
 			if (d.languageId === "dart" && d.uri.scheme === "file") {
-				// TODO (tekert): check then remove this if not necessary
+				// TODO(tekert): check then remove this if not necessary
 				// vs.window.showWarningMessage("For full Dart language support, please open a folder containing your Dart files instead of individual loose files");
 			}
 		};
@@ -116,16 +116,16 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 		vs.window.visibleTextEditors.forEach((e) => handleOpenFile(e.document));
 
 		// Setup that requires formatter server version/capabilities.
-		// TODO (tekert): for future support.
+		// TODO(tekert): for future support.
 		/*if (dfsClient.capabilities.hasCustomFormatTest) {
 		}*/
 	});
 
 	// Important: Watch editor changes to send updated contents,
-	// to send incremental changes and to format to work on unsaved files.
+	// sends incremental changes for "format" to work on unsaved files (server uses an overlay).
 	context.subscriptions.push(new FileChangeHandler(dfsClient));
 
-	// For debugging purposes
+	// For debugging and error reporting. (logs selectable categories on vscode temp dir and shows it after)
 	context.subscriptions.push(new LoggingCommands(logger, context.logUri.fsPath));
 
 	// Handle config changes so we can act if necessary.
@@ -134,13 +134,12 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 	// Turn on all the commands.
 	setCommandVisiblity(true);
 
-
-	// TODO (tekert) return API for other extensions.
+	// TODO(tekert): return API for other extensions.
 }
 
-function setupLog(logFile: string | undefined, category: LogCategory) {
+function setupLog(logFile: string | undefined, category: LogCategory[]) {
 	if (logFile)
-		loggers.push(captureLogs(logger, logFile, getLogHeader(), config.maxLogLineLength, [category]));
+		loggers.push(captureLogs(logger, logFile, getLogHeader(), config.maxLogLineLength, category));
 }
 
 function buildLogHeaders(logger?: Logger) {
@@ -181,11 +180,12 @@ function getSettingsThatRequireRestart() {
 	// activation time will also need to be included.
 	return "CONF-"
 		//	+ config.sdkPath
-		//	+ config.sdkPaths?.length // TODO: or take from dart extension
-		+ config.formatterPath
+		//	+ config.sdkPaths?.length // TODO(tekert): or take from dart extension (if we use dills)
+		+ config.formatterServerPath
 		+ config.formatterInstrumentationLogFile
 		+ config.formatterAdditionalArgs
-		+ config.extensionLogFile;
+		+ config.extensionLogFile
+		+ config.polisherLogFile;
 }
 
 // this method is called when your extension is deactivated

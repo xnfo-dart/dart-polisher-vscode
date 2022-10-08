@@ -2,7 +2,7 @@
 export enum LogCategory {
 	General,
 	Formatter,
-	CommandProcesses,
+	//CommandProcesses, //TODO (tekert): not used.
 }
 
 export enum LogSeverity {

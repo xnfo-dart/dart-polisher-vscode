@@ -11,9 +11,10 @@ export function getExtensionLogPath() {
 	extensionLogPath = extensionLogPath || config.extensionLogFile || path.join(process.env.DP_TEST_LOGS || os.tmpdir(), `dart-polisher-startup-log-${getRandomInt(0x1000, 0x10000).toString(16)}.txt`);
 	return extensionLogPath;
 }
+// General Category is already included when using this.
 export const userSelectableLogCategories: { [key: string]: LogCategory } = {
 	"Formatter": LogCategory.Formatter,
-	"Command Processes": LogCategory.CommandProcesses,
+	//"Command Processes": LogCategory.CommandProcesses, // TODO (tekert): not used.
 };
 /*
 export const formatServerLogCategories = [

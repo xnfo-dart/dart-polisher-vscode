@@ -27,6 +27,7 @@ function quoteAndEscapeArg(arg: string) {
 	return `"${escaped}"`;
 }
 
+/*
 export class RunProcessResult {
 	constructor(public readonly exitCode: number | undefined, public readonly stdout: string, public readonly stderr: string) { }
 }
@@ -55,3 +56,4 @@ export interface ExecutionInfo {
 	cwd?: string;
 	env?: { [key: string]: string };
 }
+*/

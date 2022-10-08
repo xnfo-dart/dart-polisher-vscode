@@ -4,7 +4,7 @@ import * as vs from "vscode";
 import { LogCategory } from "../../shared/enums";
 import { IAmDisposable, Logger } from "../../shared/interfaces";
 import { CategoryLogger } from "../../shared/logging";
-import { PromiseCompleter, versionIsAtLeast, disposeAll } from "../../shared/utils";
+import { disposeAll, PromiseCompleter, versionIsAtLeast } from "../../shared/utils";
 import { config } from "../config";
 import { escapeShell } from "../utils";
 import { reportCFormatterTerminatedWithError } from "../utils/misc";
@@ -28,7 +28,7 @@ class FormatterCapabilities {
 
 // Formatter Server Daemon
 export class DfsFormatter implements IAmDisposable {
-	protected readonly logger : Logger;
+	protected readonly logger: Logger;
 	protected disposables: IAmDisposable[] = [];
 	public readonly client: DfsFormatterClient;
 
@@ -86,7 +86,7 @@ export class DfsFormatterClient extends FormatterGen {
 		//TODO (tekert):  test this
 		if (config.formatterSshHost) {
 			binaryPath = "ssh";
-			//processArgs.unshift(fullDartFormatterPath); //NOTE: enable when using dartvm
+			//processArgs.unshift(fullDartformatterServerPath); //NOTE: enable when using dartvm
 			processArgs = [
 				// SSH quiet mode, which prevents SSH from interfering with the STDOUT/STDIN communication
 				// with the analysis server.

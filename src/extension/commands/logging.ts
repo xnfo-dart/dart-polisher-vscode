@@ -69,7 +69,7 @@ export class LoggingCommands implements vs.Disposable {
 			{
 				cancellable: true,
 				location: vs.ProgressLocation.Notification,
-				title: `Dart Formatter logs are being captured. Reproduce your issue then click Cancel.`,
+				title: `Dart Polisher logs are being captured. Reproduce your issue then click Cancel.`,
 			},
 			(_, token) => {
 				token.onCancellationRequested(() => completer.resolve());
@@ -100,7 +100,7 @@ export class LoggingCommands implements vs.Disposable {
 		const pad = (s: string | number) => `0${s.toString()}`.slice(-2);
 		const now = new Date();
 		const formattedDate = `${now.getFullYear()}-${pad(now.getMonth())}-${pad(now.getDay())} ${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
-		return `Dart-Formatter-Log-${formattedDate}.txt`;
+		return `Dart-Polisher-Log-${formattedDate}.txt`;
 	}
 
 	public dispose(): any {

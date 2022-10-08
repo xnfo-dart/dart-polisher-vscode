@@ -1,9 +1,9 @@
 {
 	"name": "dart-polisher",
 	"displayName": "Polisher - Dart Formatter",
-	"description": "`Dart` formatter, indents, style tweaks, based on dart_style",
+	"description": "Dart formatter, indents, style tweaks, based on dart_style",
 	"repository": "https://github.com/xnfo-dart/dart-polisher-vscode",
-	"version": "0.9.0-dev",
+	"version": "0.9.1-beta2",
 	"publisher": "xnfo",
 	"engines": {
 		"vscode": "^1.70.0"
@@ -80,7 +80,7 @@
 					"dart-polisher.enableFormatter": {
 						"type": "boolean",
 						"default": true,
-						"markdownDescription": "Whether to enable the [Dart Polisher](https://github.com/xnfo-dart/dart-polisher) for Dart code.",
+						"markdownDescription": "Whether to enable the [Dart Polisher](https://github.com/xnfo-dart/dart-polisher) for Dart.",
 						"scope": "window"
 					},
 					"dart-polisher.doNotFormat": {
@@ -92,7 +92,7 @@
 						},
 						"scope": "resource"
 					},
-					"dart-polisher.formatterPath": {
+					"dart-polisher.formatterServerPath": {
 						"type": [
 							"null",
 							"string"
@@ -206,7 +206,8 @@
 						"type": "number",
 						"default": 2000,
 						"description": "The maximum length of a line in the log file. Lines longer than this will be truncated and suffixed with an ellipsis.",
-						"scope": "window"
+						"scope": "window",
+						"order": 30
 					},
 					"dart-polisher.extensionLogFile": {
 						"type": [
@@ -215,7 +216,18 @@
 						],
 						"default": null,
 						"description": "The path to a low-traffic log file for basic extension and editor issues.",
-						"scope": "machine-overridable"
+						"scope": "machine-overridable",
+						"order": 10
+					},
+					"dart-polisher.polisherLogFile": {
+						"type": [
+							"null",
+							"string"
+						],
+						"default": null,
+						"description": "The path to a log file for communication between VSCode Extension and the Polisher server handler.",
+						"scope": "machine-overridable",
+						"order": 20
 					},
 					"dart.formatterInstrumentationLogFile": {
 						"type": [
@@ -223,8 +235,9 @@
 							"string"
 						],
 						"default": null,
-						"description": "The path to a log file for very detailed logging in the Dart Formatter Server that may be useful when trying to diagnose Formatter Server issues.",
-						"scope": "machine-overridable"
+						"description": "The path to a log file for very detailed logging in the Formatter server that may be useful when trying to diagnose issues.",
+						"scope": "machine-overridable",
+						"order": 40
 					}
 				}
 			}

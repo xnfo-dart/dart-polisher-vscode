@@ -45,12 +45,13 @@ class Config {
 	// Server settings
 	get enableFormatter(): boolean { return this.getConfig<boolean>("enableFormatter", true); }
 	get formatterSshHost(): undefined | string { return this.getConfig<null | string>("formatterSshHost", null); }
-	get formatterPath(): undefined | string { return resolvePaths(this.getConfig<null | string>("formatterPath", null)); }
+	get formatterServerPath(): undefined | string { return resolvePaths(this.getConfig<null | string>("formatterServerPath", null)); }
 	get formatterAdditionalArgs(): string[] { return this.getConfig<string[]>("formatterAdditionalArgs", []); }
 	get notifyFormatterErrors(): boolean { return this.getConfig<boolean>("notifyFormatterErrors", true); }
 
 	// Logging
 	get extensionLogFile(): undefined | string { return createFolderForFile(resolvePaths(this.getConfig<null | string>("extensionLogFile", null))); }
+	get polisherLogFile(): undefined | string { return createFolderForFile(resolvePaths(this.getConfig<null | string>("polisherLogFile", null))); }
 	get maxLogLineLength(): number { return this.getConfig<number>("maxLogLineLength", 2000); }
 	get formatterInstrumentationLogFile(): undefined | string { return createFolderForFile(resolvePaths(this.getConfig<null | string>("formatterInstrumentationLogFile", null))); }
 
@@ -81,6 +82,7 @@ export class ResourceConfig {
 	}
 
 	get extensionLogFile(): undefined | string { return createFolderForFile(resolvePaths(this.getConfig<null | string>("extensionLogFile", null))); }
+	get polisherLogFile(): undefined | string { return createFolderForFile(resolvePaths(this.getConfig<null | string>("polisherLogFile", null))); }
 
 	// Extension
 	get doNotFormat(): string[] { return this.getConfig<string[]>("doNotFormat", []); }

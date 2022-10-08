@@ -1,10 +1,11 @@
 # Changelog
-> **Dart** Formatter VSCode Extension based on the Oficial "Dart Style" Formatter.
+> **Dart** Polisher - Code formatter - VSCode Extension based on the Oficial "Dart Style" formatter.
 
 
 ## [Unreleased]
 ### Upstream fixes from Dart-Code:
 - [Dart-Code #4134](https://github.com/Dart-Code/Dart-Code/issues/4134): When using the Dart: Capture Logs commands, long lines are no longer truncated. Logs written to disk using the related settings are still truncated based on the dart.maxLogLineLength setting.
+- New setting for logging verbose comunication between the extension and the formatting server.
 ----------
 ## [0.9.0] - 2022-09-20
 
