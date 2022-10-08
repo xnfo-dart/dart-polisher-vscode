@@ -8,7 +8,7 @@ import { config } from "../config";
 
 let extensionLogPath: string;
 export function getExtensionLogPath() {
-	extensionLogPath = extensionLogPath || config.extensionLogFile || path.join(process.env.DC_TEST_LOGS || os.tmpdir(), `dart-polisher-startup-log-${getRandomInt(0x1000, 0x10000).toString(16)}.txt`);
+	extensionLogPath = extensionLogPath || config.extensionLogFile || path.join(process.env.DP_TEST_LOGS || os.tmpdir(), `dart-polisher-startup-log-${getRandomInt(0x1000, 0x10000).toString(16)}.txt`);
 	return extensionLogPath;
 }
 export const userSelectableLogCategories: { [key: string]: LogCategory } = {
