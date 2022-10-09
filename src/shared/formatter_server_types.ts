@@ -1,4 +1,19 @@
 /**
+ * Return the version number of the analysis server.
+ */
+export interface ServerGetVersionResponse {
+	/**
+	 * The version number of the analysis server.
+	 */
+	version: string;
+
+	/**
+	 * The version number of the API Protocol used in the formatter server
+	 */
+	protocol: string;
+}
+
+/**
  * The absolute, normalized path of a file.
  *
  * If the format of a file path in a request is not valid, e.g. the path is

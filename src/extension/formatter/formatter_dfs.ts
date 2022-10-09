@@ -44,12 +44,6 @@ export class DfsFormatter implements IAmDisposable {
 		// Extension -> DfsFormatter -> DfsFormatterClient -> FormatterGen -> StdIOService
 		this.client = new DfsFormatterClient(this.logger);
 		this.disposables.push(this.client);
-
-		//TODO (tekert): delete this, its not needed anymore.
-		const connectedEvent = this.client.registerForServerConnected((sc) => {
-			//this.onReadyCompleter.resolve();
-			connectedEvent.dispose();
-		});
 	}
 
 	public dispose(): void | Promise<void> {
@@ -61,9 +55,14 @@ export class DfsFormatter implements IAmDisposable {
 export class DfsFormatterClient extends FormatterGen {
 	private launchArgs: string[];
 	private version?: string;
+	public formatterServerVersion : string = "";
+	public formatterServerProtocol : string = "";
 	private isFormatting = false;
 	private currentFormatCompleter?: PromiseCompleter<void>;
 	public serverCapabilities: FormatterCapabilities = FormatterCapabilities.empty;
+
+	private readonly onReadyCompleter = new PromiseCompleter<void>();
+	public readonly onReady = this.onReadyCompleter.promise;
 
 	constructor(logger: Logger) {
 		super(logger, config.maxLogLineLength);
@@ -71,7 +70,16 @@ export class DfsFormatterClient extends FormatterGen {
 		this.launchArgs = getFormatterArgs(logger);
 
 		// Register to get version from formatter server.
-		this.registerForServerConnected((e) => { this.version = e.version; this.serverCapabilities.version = this.version; });
+		this.registerForServerConnected(async (e) => {
+			this.version = e.version;
+			this.serverCapabilities.version = this.version;
+
+			const version = await this.serverGetVersion();
+			this.formatterServerProtocol = version.protocol;
+			this.formatterServerVersion = version.version;
+			// For checking is the server succefuly started and responded. this.onReady will complete.
+			this.onReadyCompleter.resolve();
+		 });
 
 		//const fullDartVmPath = path.join(sdks.dart, dartVMPath);
 		//let binaryPath = fullDartVmPath;

@@ -48,6 +48,25 @@ export abstract class FormatterGen extends StdIOService<UnknownNotification> {
 	}
 
 	/**
+		Return the version number of the formatter server.
+	*/
+	serverGetVersion(): Promise<as.ServerGetVersionResponse> {
+		return this.sendRequest("server.getVersion");
+	}
+
+	/**
+		Cleanly shutdown the formatter server. Requests that are
+		received after this request will not be processed. Requests
+		that were received before this request, but for which a
+		response has not yet been sent, will not be responded to. No
+		further responses or notifications will be sent after the
+		response to this request has been sent.
+	*/
+	serverShutdown(): Promise<UnknownResponse> {
+		return this.sendRequest("server.shutdown");
+	}
+
+	/**
 		Reports that an unexpected error has occurred while
 		executing the server. This notification is not used for
 		problems with specific requests (which are returned as part

@@ -39,7 +39,6 @@ const logger = new EmittingLogger();
 // user when something crashed even if they don't have disk-logging enabled.
 export const ringLog: RingLog = new RingLog(200);
 
-// TODO(tekert): Log General Information, its empty now if the user selects logging.
 export function activate(context: vs.ExtensionContext, isRestart: boolean = false) {
 
 	// Ring logger is only set up once and presist over silent restarts.
@@ -82,6 +81,13 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 	const dfsFormatter = formatter;
 	const dfsClient = dfsFormatter.client;
 	context.subscriptions.push(formatter);
+
+	formatter.client.onReady.then(() => {
+		// Log and register version returned from server.
+		logger.info(`Sucess: connected to local formatter server.`);
+		logger.info(`Server version: ${formatter.client.formatterServerVersion}`);
+		logger.info(`Protocol version: ${formatter.client.formatterServerProtocol}`);
+	});
 
 	// VsCode Command for the formatter service
 	const formatCommands = new FormatServerCommands(context, logger);
