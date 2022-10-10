@@ -8,3 +8,37 @@ vsc-extension-quickstart.md
 **/.eslintrc.json
 **/*.map
 **/*.ts
+
+# build, git, doc files.
+*.cpuprofile
+.eslintrc.js
+webpack.config.js
+tsconfig.*.json
+package-lock.json
+*.vsix
+CONTRIBUTING.md
+*.log
+**/.git
+**/.gitattributes
+.gitmodules
+.gitattributes
+**/*.map
+.github/
+
+# Random test dirs
+.dart_code_test_data_dir/**
+.dcud/**
+.dart_code_test_logs/**
+.test_results/**
+
+# We are using webpack, ts compiled files are not needed
+node_modules/**
+out/src/**
+out/test/**
+out/tool/**
+
+# Utilities
+coverage/**
+lints/**
+logs/**
+tool/**

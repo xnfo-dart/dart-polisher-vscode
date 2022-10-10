@@ -12,9 +12,9 @@
 			"args": [
 				"--extensionDevelopmentPath=${workspaceFolder}"
 			],
-			//"outFiles": [
-			//	"${workspaceFolder}/out/**/*.js"
-			//],
+			"outFiles": [
+				"${workspaceFolder}/out/**/*.js"
+			],
 			"preLaunchTask": "${defaultBuildTask}",
 			"smartStep": true,
 			"skipFiles": [
@@ -27,11 +27,11 @@
 			"request": "launch",
 			"args": [
 				"--extensionDevelopmentPath=${workspaceFolder}",
-				"--extensionTestsPath=${workspaceFolder}/out/test/suite/index"
+				"--extensionTestsPath=${workspaceFolder}/out/src/test/suite/index"
 			],
-			//"outFiles": [
-			//	"${workspaceFolder}/out/test/**/*.js"
-			//],
+			"outFiles": [
+				"${workspaceFolder}/out/src/test/**/*.js"
+			],
 			"preLaunchTask": "${defaultBuildTask}"
 		}
 	]

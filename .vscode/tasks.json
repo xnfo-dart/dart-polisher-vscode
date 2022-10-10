@@ -3,6 +3,8 @@
 {
 	"version": "2.0.0",
 	"tasks": [
+		// We are using webpack now, this watcher is not used.
+		// Change "main" entry in package.json to out/src/extension/extension.js if using this.
 		{
 			"type": "npm",
 			"script": "watch",
@@ -13,10 +15,38 @@
 			},
 			"group": {
 				"kind": "build",
-				"isDefault": true
+			//	"isDefault": true
 			},
 			"label": "npm: watch",
 			"detail": "tsc -watch -p ./"
+		},
+		{
+			"type": "npm",
+			"script": "webpack-watch",
+			"problemMatcher": "$ts-webpack-watch",
+			"isBackground": true,
+			"presentation": {
+				"reveal": "never"
+			},
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"label": "npm: webpack-watch",
+			"detail": "webpack --mode development --watch",
+			"dependsOn": [
+				"npm: watch-ext"
+			]
+		},
+		// For testing and debugging purposes
+		{
+			"type": "npm",
+			"script": "watch-ext",
+			"problemMatcher": "$tsc-watch",
+			"isBackground": true,
+			"presentation": {
+				"reveal": "never"
+			},
 		}
 	]
 }
