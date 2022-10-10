@@ -77,7 +77,7 @@ export class DfsFormatterClient extends FormatterGen {
 			const version = await this.serverGetVersion();
 			this.formatterServerProtocol = version.protocol;
 			this.formatterServerVersion = version.version;
-			// For checking is the server succefuly started and responded. this.onReady will complete.
+			// For checking if the server succefuly started and responded. this.onReady will complete.
 			this.onReadyCompleter.resolve();
 		});
 

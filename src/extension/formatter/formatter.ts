@@ -45,7 +45,7 @@ function buildFormatterArgs(formatterServerPath: string) {
 	formatterArgs.push(`--client-version=${extensionVersion}`);
 
 	// The format server supports a verbose instrumentation log file.
-	// its doesn't do much, only 1 or 2 exeptions are logged server side.
+	// its doesn't do much, only 1 or 2 exceptions are logged server side.
 	if (config.formatterInstrumentationLogFile)
 		formatterArgs.push(`--instrumentation-log-file=${config.formatterInstrumentationLogFile}`);
 

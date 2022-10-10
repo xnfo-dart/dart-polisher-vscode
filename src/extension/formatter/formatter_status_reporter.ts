@@ -84,9 +84,9 @@ ${method ? "### Request\n\nServer was responding to request: `" + method + "`\n"
 ### Versions
 
 - ${env.appName} v${codeVersion}
-- Dart Formatter v${extensionVersion}` +
-//- ${flutterSdkVersion ? `Flutter SDK v${flutterSdkVersion}` : `Dart SDK v${sdkVersion}`}
-`
+- Dart Polisher extension v${extensionVersion}
+- Dart Formatter Server / Protocol v${this.formatter.formatterServerVersion} / v${this.formatter.formatterServerProtocol}
+
 ### Formatter Info
 
 The formatter server was launched using the arguments:
