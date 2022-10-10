@@ -1,8 +1,6 @@
 # VSCode Dart Polisher Extension
 [![VScode Formatter](https://shields.io/badge/dart-VScode_Formatter-blue?logo=dart&style=flat-square)](https://github.com/xnfo-dart/dart-polisher-vscode)
 
-Last Version: v0.9.0
-
 <br>
 
 A code formatter for [Dart](https://dart.dev/).<br>
@@ -17,7 +15,6 @@ Inside your `settings.json`
 		"editor.defaultFormatter": "xnfo.dart-polisher",
 		"editor.formatOnSave": true, // optional
 		"editor.formatOnType": true, // optional
-		...
 }
 ```
 > Works on ranges too.
@@ -80,7 +77,8 @@ Search for `dart polisher` in the [VS Code Extension Marketplace](https://code.v
 
 ## Requirements
 
-Works on Windows, Linux and Mac versions of local installations of VScode.
+Works on Windows, Linux and Mac versions of local installations of VScode.  
+*Web version on the works.*
 
 
 

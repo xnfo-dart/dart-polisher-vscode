@@ -103,6 +103,8 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 	// Report to the user exceptions and errors from server.
 	if (dfsClient)
 		new FormatterStatusReporter(logger, dfsClient);
+	else
+		logger.error("Dart Formatter client not instantiated");
 
 	// Things to do when we succefully connect to the server.
 	const serverConnected = dfsClient.registerForServerConnected((sc) => {
@@ -140,6 +142,7 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 	// Turn on all the commands.
 	setCommandVisiblity(true);
 
+	logger.info("Dart Polisher Extension finished loading.");
 	// TODO(tekert): return API for other extensions.
 }
 

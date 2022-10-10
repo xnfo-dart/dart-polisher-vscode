@@ -18,8 +18,8 @@ export class FormatterStatusReporter {
 	constructor(private readonly logger: Logger, private readonly formatter: DfsFormatterClient) {
 		// TODO: Should these go in disposables?
 		// If so, do we need to worry about server cleaning them up if it disposes first?
-		formatter.registerForServerError((e: ServerErrorNotification) => this.handleServerError(e)); // SERVER_ERROR notification from server, caused by exeptions.
-		formatter.registerForRequestError((e: RequestError) => this.handleRequestError(e)); // Is notified when a response.error = RequestError.code = SERVER_ERROR
+		formatter.registerForServerError((e: ServerErrorNotification) => this.handleServerError(e)); // SERVER_ERROR notification (server.error) from server, caused by exceptions.
+		formatter.registerForRequestError((e: RequestError) => this.handleRequestError(e)); // Is notified when a response.error == (RequestError.code == SERVER_ERROR)
 		formatter.registerForServerTerminated(() => this.handleServerTerminated()); // Fires when process is terminated
 
 		if (sendFakeErrorAtStartup) {

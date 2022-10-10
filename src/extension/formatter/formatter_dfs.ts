@@ -7,7 +7,7 @@ import { CategoryLogger } from "../../shared/logging";
 import { disposeAll, PromiseCompleter, versionIsAtLeast } from "../../shared/utils";
 import { config } from "../config";
 import { escapeShell } from "../utils";
-import { reportCFormatterTerminatedWithError } from "../utils/misc";
+import { reportFormatterServerTerminatedWithError } from "../utils/misc";
 import { getToolEnv } from "../utils/processes";
 import { getFormatterArgs } from "./formatter";
 import { FormatterGen } from "./formatter_gen";
@@ -55,8 +55,8 @@ export class DfsFormatter implements IAmDisposable {
 export class DfsFormatterClient extends FormatterGen {
 	private launchArgs: string[];
 	private version?: string;
-	public formatterServerVersion : string = "";
-	public formatterServerProtocol : string = "";
+	public formatterServerVersion: string = "";
+	public formatterServerProtocol: string = "";
 	private isFormatting = false;
 	private currentFormatCompleter?: PromiseCompleter<void>;
 	public serverCapabilities: FormatterCapabilities = FormatterCapabilities.empty;
@@ -79,7 +79,7 @@ export class DfsFormatterClient extends FormatterGen {
 			this.formatterServerVersion = version.version;
 			// For checking is the server succefuly started and responded. this.onReady will complete.
 			this.onReadyCompleter.resolve();
-		 });
+		});
 
 		//const fullDartVmPath = path.join(sdks.dart, dartVMPath);
 		//let binaryPath = fullDartVmPath;
@@ -88,10 +88,10 @@ export class DfsFormatterClient extends FormatterGen {
 		let binaryPath = this.launchArgs.shift()!;
 		let processArgs = this.launchArgs.slice();
 
-		// Since we communicate with the analysis server over STDOUT/STDIN, it is trivial for us
+		// Since we communicate with the formatter server over STDOUT/STDIN, it is trivial for us
 		// to support launching it on a remote machine over SSH. This can be useful if the codebase
 		// is being modified remotely over SSHFS.
-		//TODO (tekert):  test this
+		//TODO (tekert): formatting is low traffic, unless we open tons of files to overlay. Test this.
 		if (config.formatterSshHost) {
 			binaryPath = "ssh";
 			//processArgs.unshift(fullDartformatterServerPath); //NOTE: enable when using dartvm
@@ -106,33 +106,23 @@ export class DfsFormatterClient extends FormatterGen {
 
 		this.createProcess(undefined, binaryPath, processArgs, { toolEnv: getToolEnv() });
 		this.process?.on("exit", (code, signal) => {
-			this.handleFormatterTerminated(!!code);
+			this.handleFormatterServerTerminated(!!code);
 		});
-	}
-
-	private resolvedPromise = Promise.resolve();
-	public get currentFormatting(): Promise<void> {
-		if (!this.isFormatting)
-			return this.resolvedPromise;
-
-		if (!this.currentFormatCompleter)
-			this.currentFormatCompleter = new PromiseCompleter<void>();
-		return this.currentFormatCompleter.promise;
 	}
 
 	protected sendMessage<T>(json: string) {
 		try {
 			super.sendMessage(json);
 		} catch (e) {
-			this.handleFormatterTerminated(true);
+			this.handleFormatterServerTerminated(true);
 			throw e;
 		}
 	}
 
-	private handleFormatterTerminated(withError: boolean) {
+	private handleFormatterServerTerminated(withError: boolean) {
 		const serverHasStarted = !!this.version;
 		if (withError)
-			reportCFormatterTerminatedWithError(!serverHasStarted);
+			reportFormatterServerTerminatedWithError(!serverHasStarted);
 		this.notify(this.serverTerminatedSubscriptions, undefined);
 	}
 
@@ -140,16 +130,6 @@ export class DfsFormatterClient extends FormatterGen {
 		return (message.startsWith("{") && message.endsWith("}"))
 			|| (message.startsWith("[{") && message.endsWith("}]"));
 	}
-	/*
-	private async requestDiagnosticsUpdate() {
-		this.lastDiagnostics = undefined;
-
-		if (!this.capabilities.supportsDiagnostics)
-			return;
-
-		this.lastDiagnostics = (await this.diagnosticGetDiagnostics()).contexts;
-	}
-	*/
 
 	public getFormatterLaunchArgs(): string[] {
 		return this.launchArgs;

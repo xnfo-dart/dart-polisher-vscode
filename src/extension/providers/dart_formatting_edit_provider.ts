@@ -28,15 +28,24 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 	private readonly formatterRegisterFuncs: Array<() => void> = [];
 
 	public registerDocumentFormatter(filter: DocumentSelector): void {
-		this.registerFormatter(() => languages.registerDocumentFormattingEditProvider(filter, this));
+		this.registerFormatter(() => {
+			this.logger.info("Document Formatting Edit Provider registered.");
+			return languages.registerDocumentFormattingEditProvider(filter, this);
+		});
 	}
 
 	public registerTypingFormatter(filter: DocumentSelector, firstTriggerCharacter: string, ...moreTriggerCharacters: string[]): void {
-		this.registerFormatter(() => languages.registerOnTypeFormattingEditProvider(filter, this, firstTriggerCharacter, ...moreTriggerCharacters));
+		this.registerFormatter(() => {
+			this.logger.info("On Type Formatting Edit Provider registered.");
+			return languages.registerOnTypeFormattingEditProvider(filter, this, firstTriggerCharacter, ...moreTriggerCharacters);
+		});
 	}
 
 	public registerDocumentRangeFormatter(filter: DocumentSelector): void {
-		this.registerFormatter(() => languages.registerDocumentRangeFormattingEditProvider(filter, this));
+		this.registerFormatter(() => {
+			this.logger.info("Range Formatting Edit Provider registered.");
+			return languages.registerDocumentRangeFormattingEditProvider(filter, this);
+		});
 	}
 
 	private registerFormatter(reg: () => IAmDisposable) {
@@ -81,7 +90,7 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 			//range = document.lineAt(position).range;
 		}
 
-		// TODO (tekert): matching {}
+		// TODO (tekert): matching {
 		// eslint-disable-next-line no-empty
 		if (ch === "}") { }
 

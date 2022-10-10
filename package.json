@@ -1,9 +1,9 @@
 {
 	"name": "dart-polisher",
-	"displayName": "Polisher - Dart Formatter",
-	"description": "Dart formatter, indents, style tweaks, based on dart_style",
+	"displayName": "Dart Polisher - Formatter",
+	"description": "Dart formatter, custom indents and styles, based on dart_style",
 	"repository": "https://github.com/xnfo-dart/dart-polisher-vscode",
-	"version": "0.9.1-beta2",
+	"version": "0.9.1-beta3",
 	"publisher": "xnfo",
 	"engines": {
 		"vscode": "^1.70.0"
