@@ -1,0 +1,108 @@
+# TODO: move to formatter_server workflow when its public to ease maintenance
+name: Build Dependencies
+
+# Controls when the workflow will run
+on:
+  workflow_call:
+
+  # Allows you to run this workflow manually from the Actions tab (for testing)
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to build (defaults to default branch)'
+        required: false
+      polisher_branch:
+        description: 'Dart Polisher branch to use when building (defaults to stable branch)'
+        required: false
+        default: 'stable'
+
+# run action will be from this dir
+defaults:
+  run:
+    working-directory: ./formatter_server
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on:  ${{ matrix.os }}
+
+    # https://docs.github.com/en/actions/using-jobs/using-a-matrix-for-your-jobs
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+        include:
+          - os: ubuntu-latest
+            output-name: dartpolishd-linux
+          - os: macOS-latest
+            output-name: dartpolishd-mac
+          - os: windows-latest
+            output-name: dartpolishd-windows.exe
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+
+
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      # https://github.com/actions/checkout
+      - name: "Checkout formatter_server repository"
+        uses: actions/checkout@v3
+        with:
+          repository: xnfo-dart/formatter_server
+          path: formatter_server
+          token: ${{ secrets.GH_PAT }} # TODO: delete this line when going open source.
+          ref: ${{ inputs.branch }} # gets default branch of input is not given.
+
+      - name: "Checkout formatter_server last release tag"
+        shell: bash
+        run: |
+
+          echo "Getting formatter_server last release tag"
+          LAST_RELEASE_TAG=$(git tag --sort=-creatordate | awk 'match($0, /^v[0-9]+\.[0-9]+\.[0-9]+$/)' | head -n 1)
+          if [[ "$LAST_RELEASE_TAG" == "" ]]; then
+             echo "No release tag found in formatter_server"
+             exit 1
+          fi
+          echo "LAST_RELEASE_TAG=$LAST_RELEASE_TAG" >> $GITHUB_ENV
+          echo "Using $LAST_RELEASE_TAG for formatter_server checkout"
+
+          echo "Check wich branch to use for dart_polish"
+          DART_POLISHER_CHECKOUT_BRANCH="stable"
+          if [[ "${{ github.event.inputs.polisher_branch }}" != "" ]]; then
+              DART_POLISHER_CHECKOUT_BRANCH=${{ github.event.inputs.polisher_branch }}
+          fi
+          echo "DART_POLISHER_CHECKOUT_BRANCH=$DART_POLISHER_CHECKOUT_BRANCH" >> $GITHUB_ENV
+          echo "Using $DART_POLISHER_CHECKOUT_BRANCH brach for dart_polish"
+
+          echo "Checking out formatter_server $LAST_RELEASE_TAG tag"
+          git checkout $LAST_RELEASE_TAG
+
+      # TODO: delete this when going open source and pubspec has this repo as a git dependency.
+      - name: "Checkout Local Dart Polisher package"
+        uses: actions/checkout@v3
+        with:
+          repository: xnfo-dart/dart_polisher
+          path: dart_polisher
+          token: ${{ secrets.GH_PAT }} # TODO: delete this line when going open source.
+          ref: ${{ env.DART_POLISHER_CHECKOUT_BRANCH }}
+
+      # Uses https://github.com/dart-lang/setup-dart to get dart
+      - name: "Dowload dart-sdk"
+        uses: dart-lang/setup-dart@v1.3
+
+      - name: Install pub dependencies
+        run: dart pub get
+
+      # Build (TODO: create dart grinder task for this particular build method)
+      - name: "Create build dir"
+        run: mkdir build
+      - name : "Compile"
+        run: dart compile exe bin/listen.dart -v -o build/${{ matrix.output-name }}
+
+      # https://github.com/actions/upload-artifact#zipped-artifact-downloads
+      - name: "Upload Zipped Artifacts"
+        uses: actions/upload-artifact@v3.1.0
+        with:
+          name: native-executables
+          path: formatter_server/build
