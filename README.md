@@ -77,7 +77,7 @@ Search for `dart polisher` in the [VS Code Extension Marketplace](https://code.v
 
 ## Requirements
 
-Works on Windows, Linux and Mac versions of local installations of VScode.  
+Works on Windows x64, Linux and Mac versions of local installations of VScode.  
 *Web version on the works.*
 
 
