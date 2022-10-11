@@ -84,7 +84,7 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 
 	formatter.client.onReady.then(() => {
 		// Log and register version returned from server.
-		logger.info(`Sucess: connected to local formatter server.`);
+		logger.info(`[CONNECTED] Server responded with:`);
 		logger.info(`Server version: ${formatter.client.formatterServerVersion}`);
 		logger.info(`Protocol version: ${formatter.client.formatterServerProtocol}`);
 	});
@@ -104,19 +104,18 @@ export function activate(context: vs.ExtensionContext, isRestart: boolean = fals
 	if (dfsClient)
 		new FormatterStatusReporter(logger, dfsClient);
 	else
-		logger.error("Dart Formatter client not instantiated");
+		logger.error("Dart Formatter client start error");
 
-	// Things to do when we succefully connect to the server.
+	// Things to do when we succefully connect to the server, in case we need the context.
 	const serverConnected = dfsClient.registerForServerConnected((sc) => {
 		serverConnected.dispose();
 		//vs.workspace.workspaceFolders;
 
-		// Set up a handler to warn the user if they open a Dart file and we
-		// never set up the formatter
+		// Set up a handler for opened files.
 		const handleOpenFile = (d: vs.TextDocument) => {
 			if (d.languageId === "dart" && d.uri.scheme === "file") {
 				// TODO(tekert): check then remove this if not necessary
-				// vs.window.showWarningMessage("For full Dart language support, please open a folder containing your Dart files instead of individual loose files");
+				// vs.window.showWarningMessage("");
 			}
 		};
 		context.subscriptions.push(vs.workspace.onDidOpenTextDocument((d) => handleOpenFile(d)));
