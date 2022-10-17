@@ -42,3 +42,4 @@ coverage/**
 lints/**
 logs/**
 tool/**
+build/**

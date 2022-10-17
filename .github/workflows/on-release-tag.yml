@@ -1,0 +1,223 @@
+name: Build on Tag
+
+run-name: "${{ github.workflow }}: [on ${{ inputs.buildref == '' && github.ref_type || 'worflow_dispatch' }}] [target: ${{ inputs.tag || github.ref_name }}] [ref: ${{ github.ref_name }}]"
+
+# Only on release tags.
+on:
+  push:
+    # Release tags only
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+-*
+      - v[0-9]+.[0-9]+.[0-9]+
+
+  # Allows you to run this workflow manually from the Actions tab (for testing)
+  workflow_dispatch:
+    inputs:
+       tag:
+        description: "'--last-release' (use the last tag release) | '<tag>' | '' or null (use caller <ref>)"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+
+  setup:
+    name: "Validate version"
+    runs-on: ubuntu-latest
+
+    outputs:
+      status: ${{ steps.validated.conclusion }}
+      buildRef: ${{ steps.validated.outputs.BUILD_REF_TAG }}
+      packageVersion: ${{ steps.validated.outputs.PACKAGE_VERSION }}
+
+    steps:
+
+      - name: "Checkout local @master repository"
+        uses: actions/checkout@v3
+        with:
+          ref: master # If empty it uses the github.ref_name (note: it uses the caller ref if called externally).
+                      # We use master to select a tag/branch/commit on a central place below.
+
+
+      # workflow_run | workflow_dispatch : ${{github.event_name}}; workflow_call : ${{(PARENT)github.event_name}};
+      # Means github.event_name on a workflow_call its not an individual event, its the caller event, (its better to just check if the inputs are not null).
+      - name: "Setup ref TAG variable"
+        shell: bash
+        run: |
+          # Setup build ref from event type
+          echo "Getting tags..."
+          git fetch --tags -f
+
+          echo "Github event: ${{ github.event_name }}"
+          echo "Getting repo name... ${GITHUB_REPOSITORY#*/}"
+          REPO_NAME=${GITHUB_REPOSITORY#*/}
+
+          echo "Parsing $REPO_NAME build ref..."
+          BUILD_REF=${{ github.ref_name }}
+
+          # if this is a workflow_dispatch then
+          if [[ "${{ inputs.tag }}" != "" ]]; then
+              if [[ "${{ inputs.tag }}" == "--last-release" ]]; then
+                  # Gets the last tag release name.
+                  BUILD_REF=$(git tag --sort=-creatordate | awk 'match($0, /^v[0-9]+\.[0-9]+\.[0-9]+$/)' | head -n 1)
+              else
+                  BUILD_REF=${{ inputs.tag }}
+              fi
+          fi
+          echo "BUILD_REF=$BUILD_REF" >> $GITHUB_ENV
+          echo "Using $REPO_NAME@$BUILD_REF for checkout"
+
+          # turn the detached message off
+          git config --global advice.detachedHead false
+          git checkout $BUILD_REF
+
+      # Version in package.json has to be the same as the ref TAG that fired this workflow.
+      - name: Validate TAG and PACKAGE versions
+        id: validated
+        run: |
+          PACKAGE_VERSION=$(node -p -e "require('./package.json').version")
+          # BUILD_REF will always be a tag in this workflow, if not, error.
+          BUILD_REF_TAG=${{env.BUILD_REF}}
+
+          echo "PACKAGE_VERSION=$PACKAGE_VERSION"
+          echo "GITHUB_REF_NAME=$GITHUB_REF_NAME"
+          echo "BUILD_REF_TAG=$BUILD_REF_TAG"
+
+          # skip check if this is a test tag.
+          if [[ "$BUILD_REF_TAG" != "v0.0.0" ]]; then
+              if [[ "$BUILD_REF_TAG" != "v$PACKAGE_VERSION" ]]; then
+                  echo "Package and tag version mismatch"
+                  exit 1
+              fi
+          fi
+
+          echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_OUTPUT
+          echo "BUILD_REF_TAG=$BUILD_REF_TAG" >> $GITHUB_OUTPUT
+
+        shell: bash
+
+  # Build release version of formatter_server
+  build_formatter_server:
+    needs: setup
+    if: needs.setup.outputs.status == 'success'
+
+    name: "Build Formatter Server last released version"
+    uses: xnfo-dart/formatter_server/.github/workflows/build.yml@master
+    with:
+      target: --last-release
+    secrets: inherit
+
+  # Build vscode extension with formatter_server native daemons
+  build_extension:
+    needs: [setup, build_formatter_server]
+    if: needs.setup.outputs.status == 'success'
+
+    name: "Build Dart Polisher extension for release"
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: "Setup build variables"
+        run: |
+          BUILD_REF_TAG=${{needs.setup.outputs.buildRef}}
+          PACKAGE_VERSION=${{needs.setup.outputs.packageVersion}}
+
+          echo "BUILD_REF_TAG=$BUILD_REF_TAG" >> $GITHUB_ENV
+          echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
+
+          echo "BUILD_REF_TAG=$BUILD_REF_TAG"
+          echo "PACKAGE_VERSION=$PACKAGE_VERSION"
+
+      # checkout first or it deletes dir contents
+      # https://github.com/actions/checkout/issues/430
+      # Important, clean: false only works on existing git dir
+      - name: "Checkout local repository"
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ env.BUILD_REF_TAG }}
+
+      # Formatter server build artifacts are ready for deployment (no rename needed).
+      - name: Download formatter_server artifacts
+        id: download-artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: native-executables
+          path: bin
+
+      - name: Display structure of downloaded files
+        run: |
+          ls -R
+          echo 'Echo download path'
+          echo ${{steps.download-artifacts.outputs.download-path}}
+        working-directory: bin
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: install vscode package tool
+        run: npm install -g vsce
+
+      - name: npm install
+        run: npm install
+
+      - name: npm lint
+        run: npm run lint
+
+      # TODO: tests
+
+      # TODO: vsix architectures packages. --target to reduce download size.
+
+      - name: vsce package
+        run: vsce package
+
+      - name: Store vsix
+        uses: actions/upload-artifact@v3
+        with:
+          name: dart-polisher-v${{env.PACKAGE_VERSION}}-vsix
+          path: "*.vsix"
+          retention-days: 5
+
+      - name: Generate release data using Markdown
+        run: |
+          echo '### Build' >> $GITHUB_STEP_SUMMARY
+          echo 'Packaged from git ref: `${{ env.BUILD_REF_TAG }}`' >> $GITHUB_STEP_SUMMARY
+          printf 'Package version:\n```\n${{ env.PACKAGE_VERSION }}\n```\n' >> $GITHUB_STEP_SUMMARY
+
+          echo '' >> $GITHUB_STEP_SUMMARY
+
+          echo '### Workflow' >> $GITHUB_STEP_SUMMARY
+          echo 'Event name: `${{ github.event_name }}`' >> $GITHUB_STEP_SUMMARY
+          echo 'Workflow file: `on-release-tag.yml`' >> $GITHUB_STEP_SUMMARY
+          echo 'From repository: `xnfo-dart/dart-polisher-vscode`' >> $GITHUB_STEP_SUMMARY
+          echo 'Workflow files ref: `${{ github.ref_type }} : ${{ github.ref }}`' >> $GITHUB_STEP_SUMMARY
+          echo 'Called from workflow: `${{ github.workflow }}`' >> $GITHUB_STEP_SUMMARY
+          echo 'Called from workflow file: `${{ github.event.workflow }}`' >> $GITHUB_STEP_SUMMARY
+          echo 'Called from repository: `${{ github.repository }}`' >> $GITHUB_STEP_SUMMARY
+
+          echo '' >> $GITHUB_STEP_SUMMARY
+
+          echo '### Inputs' >> $GITHUB_STEP_SUMMARY
+          printf 'Inputs:\n```json\n${{ toJSON(inputs) }}\n```\n' >> $GITHUB_STEP_SUMMARY
+          printf 'Inputs: (Caller)\n```json\n${{ toJSON(github.event.inputs) }}\n```\n' >> $GITHUB_STEP_SUMMARY
+        shell: bash
+
+      - name: Upload extension build-data
+        run: |
+          mkdir -p ./build-data
+          echo '${{ env.BUILD_REF_TAG }}' >> ./build-data/ref
+          echo '${{ env.PACKAGE_VERSION }}' >> ./build-data/package_version
+      - uses: actions/upload-artifact@v3.1.0
+        with:
+          name: extension-build-data
+          path:  build-data/
+          retention-days: 5
+
+      # delete temporary artifacts
+      - uses: geekyeggo/delete-artifact@v2
+        with:
+          name: |
+            native-executables

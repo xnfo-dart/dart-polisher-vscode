@@ -1,0 +1,188 @@
+name: Release
+
+###
+#  Makes a github draft release when 'Build on Tag' finishes.
+#    Or if manually triggered there is input for draft mode and build ref from caller.
+#  Uses CHANGELOG notes between 2nd Header and 3rd Header for release. (dev: there is an optional code to pick specific version notes)
+#  Gets artifacts from caller workflow run_number.
+#    If manually triggered there is a 'buildBranch' input to get the (successful) <ref> run from on-release-tag.yml and download it's artifacts.
+#  Finally outputs a release with changelog notes.
+#
+
+# https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_run
+# https://docs.github.com/en/developers/webhooks-and-events/webhooks/webhook-events-and-payloads#workflow_run
+run-name: "${{ github.workflow }}: [event: ${{ github.event_name }}] [from: ${{ github.event.workflow.name || 'manual' }}] [on: '${{ github.event.workflow_run.event || 'input' }}': ${{ github.event.workflow_run.head_branch || inputs.buildBranch }}] [ref: ${{ github.ref_name }}]"
+
+on:
+
+  #! NOTE: This event will only trigger a workflow run if the workflow file is on the default branch.
+  workflow_run:
+    workflows: [Build on Tag]
+    branches:
+      # Only run when parent workflow was run on push tags
+      - v[0-9]+.[0-9]+.[0-9]+
+    types:
+      - completed
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      buildBranch:
+        description: 'Git branch/tag (preferably a tag ie: v5.5.0) from a successful workflow run of "Build on Tag"'
+        required: true
+        type: string
+      workflowRun:
+        description: 'Workflow number of a succeful run of release_on_tag.yml", can be ommited if run was done on a tag'
+        required: false
+        type: string
+      isDraft:
+        description: 'Should we create a draft release?'
+        required: false
+        default: true
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+
+  release:
+    # Run if this was fired from a success worflow_run or workflow_dispatch (in wich case workflow_run.conclusion would be empty)
+    if: ${{ contains(fromJson('["success", ""]'), github.event.workflow_run.conclusion) || (github.event_name == 'workflow_dispatch') }}
+
+    runs-on:  ubuntu-latest
+
+    steps:
+
+      # Worflow runs are run on master HEAD, and sometimes with master TAG, so when we want to get a workflow_run with only a TAG we have a problem.
+      # There is no info on the workflow run itseld about what was built, but the annotations or summary can be scanned one by one to selecet the correct run.
+      # Another way is to ask for a tag and a run number and just try wich one gets the artifact (currently using this method).
+
+      # Alternative on https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_run
+      # Download artifacts from the succeful <ref> of on-release-tag (cleaner method)
+      # Do not specify pr, commit, branch, run_id together or workflow_conclusion and run_id together. Pick just one of each or none.
+      - name: Download artifact
+        id: download-artifacts
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: on-release-tag.yml
+          workflow_conclusion: success
+          #github_token: ${{secrets.GH_PAT}} # TODO: remove when going open source.
+          #run_id: ${{ inputs.workflowID }} # workflow_conclusion is already defined.
+          run_number: ${{ github.event.workflow_run.run_number }} # (caller run number) if null, default is to take the last successful run
+          branch: ${{ github.event.workflow_run.head_branch || inputs.buildBranch }}
+          path: releases
+          skip_unpack: true
+          if_no_artifact_found: warn
+
+      - name: "Workflow run not found, trying with input workflow number..."
+        if: steps.download-artifacts.outputs.found_artifact == 'false'
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: on-release-tag.yml
+          workflow_conclusion: success
+          #github_token: ${{secrets.GH_PAT}} # TODO: remove when going open source.
+          #run_id: ${{ inputs.workflowID }} # workflow_conclusion is already defined.
+          run_number: ${{ inputs.workflowRun || 'INPUT_NOT_FOUND' }} # (caller run number) if null, default is to take the last successful run
+          path: releases
+          skip_unpack: true
+
+      - name: "DEBUG"
+        run: |
+          echo "${{ toJSON(steps.download-artifacts) }}"
+          echo "steps.download-artifacts.outputs.found_artifact = ${{steps.download-artifacts.outputs.found_artifact }}"
+
+      - name: Display structure of downloaded files
+        run: ls -R
+
+      # We need the extension-build-data to get the correct CHANGELOG notes from built vsix version.
+      - name: Expand extension-build-data
+        run: |
+          unzip ./releases/extension-build-data.zip -d ./extension-build-data
+          rm ./releases/extension-build-data.zip
+          rm ./releases/build-data.zip
+
+          BUILD_REF=$(cat ./extension-build-data/ref)
+          BUILD_PACKAGE_VERSION=$(cat ./extension-build-data/package_version)
+
+          echo "BUILD_REF=$BUILD_REF" >> $GITHUB_ENV
+          echo "BUILD_PACKAGE_VERSION=$BUILD_PACKAGE_VERSION" >> $GITHUB_ENV
+
+          echo "BUILD_REF=$BUILD_REF"
+          echo "BUILD_PACKAGE_VERSION=$BUILD_PACKAGE_VERSION"
+
+      # workflow_run | workflow_dispatch : ${{github.event_name}}
+      - name: "Setup release variables"
+        shell: bash
+        run: |
+          # Parent workflow is on an push tag event, so this head_branch will be a version.
+          if [[ "${{github.event_name}}" == "workflow_run" ]]; then
+              CHECKOUT_TAG=${{ env.BUILD_REF }}
+              RELEASE_IS_DRAFT=true
+          fi
+          if [[ "${{github.event_name}}" == "workflow_dispatch" ]]; then
+              CHECKOUT_TAG=${{ inputs.buildBranch }}
+              RELEASE_IS_DRAFT=${{ inputs.isDraft }}
+          fi
+          if [[ "$CHECKOUT_TAG" == "" ]]; then
+              echo "CHECKOUT_TAG is null, something when wront when selecting a git tag from event: ${{github.event_name}}"
+              exit 1
+          fi
+          echo "CHECKOUT_TAG=$CHECKOUT_TAG" >> $GITHUB_ENV
+          echo "Using $CHECKOUT_TAG as tag to checkout ${GITHUB_REPOSITORY#*/}"
+          echo "RELEASE_IS_DRAFT=$RELEASE_IS_DRAFT" >> $GITHUB_ENV
+          echo "Releasing a draft?: '$RELEASE_IS_DRAFT'"
+
+      # To have access to CHANGELOG.md
+      # https://github.com/actions/checkout/issues/430
+      # Important, clean only works on existing git dir, checkout in a subdir.
+      - name: "Checkout local repository"
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ env.CHECKOUT_TAG }}
+          path: repo
+
+      - name: Display structure of files
+        run: ls -R
+
+      # Extracts text between 2nd H2 - 3rd H2
+      - name: Extract release notes
+        id: extract-release-notes
+        uses: ffurrer2/extract-release-notes@v1
+        with:
+          changelog_file: repo/CHANGELOG.md
+
+      # https://github.com/yashanand1910/standard-release-notes
+      #- name: Extract release notes
+      #  uses: yashanand1910/standard-release-notes@v1.2.1
+      #  id: extract-release-notes
+      #  with:
+      #    changelog_path: ./CHANGELOG.md # Optional
+      #    version: ${{ env.CHECKOUT_TAG }} # Required
+
+      # https://github.com/softprops/action-gh-release
+      # Requires content write permission
+      - name: Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Dart Polisher (VScode extension) v${{ env.BUILD_PACKAGE_VERSION }}
+          tag_name: ${{ env.CHECKOUT_TAG }}
+          draft: ${{ env.RELEASE_IS_DRAFT }}
+          prerelease: false
+          body: ${{ steps.extract-release-notes.outputs.release_notes }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          files: |
+            releases/**
+
+      # steps.create_release.outputs.upload_url   has the URL
+      - name: Generate release data using Markdown
+        run: |
+          echo "### :rocket: Release data:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Release url: ${{ steps.create_release.outputs.url }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Release ID: ${{ steps.create_release.outputs.id }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Upload url: ${{ steps.create_release.outputs.upload_url }}" >> $GITHUB_STEP_SUMMARY
+# TODO: BUILD_COMPILED_VERSION ?
+
+# TODO: send to discord
