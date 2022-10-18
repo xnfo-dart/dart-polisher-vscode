@@ -1,13 +1,13 @@
 name: Build on Tag
 
-run-name: "${{ github.workflow }}: [on ${{ github.event_name != 'worflow_dispatch' && github.ref_type || 'worflow_dispatch' }}] [ref: ${{ github.ref_name }}]"
+run-name: "${{ github.workflow }}: [on ${{ github.event_name != 'workflow_dispatch' && github.ref_type || 'workflow_dispatch' }}] [ref: ${{ github.ref_name }}]"
 
 # Only on release tags.
 on:
   push:
     # Release tags only
     tags:
-      - v[0-9]+.[0-9]+.[0-9]+-*
+#      - v[0-9]+.[0-9]+.[0-9]+-*
       - v[0-9]+.[0-9]+.[0-9]+
 
   # Allows you to run this workflow manually from the Actions tab (for testing)
@@ -62,7 +62,7 @@ jobs:
 
         shell: bash
 
-  # Build release version of formatter_server
+  # Build the last tagged release version of formatter_server
   build_formatter_server:
     needs: setup
     if: needs.setup.outputs.status == 'success'
