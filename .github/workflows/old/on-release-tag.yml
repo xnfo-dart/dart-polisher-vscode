@@ -1,6 +1,6 @@
 name: Build on Tag
 
-run-name: "${{ github.workflow }}: [on ${{ github.event_name != 'worflow_dispatch' && github.ref_type || 'worflow_dispatch' }}] [ref: ${{ github.ref_name }}]"
+run-name: "${{ github.workflow }}: [on ${{ inputs.buildref == '' && github.ref_type || 'worflow_dispatch' }}] [target: ${{ inputs.tag || github.ref_name }}] [ref: ${{ github.ref_name }}]"
 
 # Only on release tags.
 on:
@@ -12,6 +12,11 @@ on:
 
   # Allows you to run this workflow manually from the Actions tab (for testing)
   workflow_dispatch:
+    inputs:
+       tag:
+        description: "'--last-release' (use the last tag release) | '<tag>' | '' or null (use caller <ref>)"
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -31,28 +36,59 @@ jobs:
 
       - name: "Checkout local @master repository"
         uses: actions/checkout@v3
-        # checkouts $GITHUB_REF_NAME
+        with:
+          ref: master # If empty it uses the github.ref_name (note: it uses the caller ref if called externally).
+                      # We use master to select a tag/branch/commit on a central place below.
+
+
+      # workflow_run | workflow_dispatch : ${{github.event_name}}; workflow_call : ${{(PARENT)github.event_name}};
+      # Means github.event_name on a workflow_call its not an individual event, its the caller event, (its better to just check if the inputs are not null).
+      - name: "Setup ref TAG variable"
+        shell: bash
+        run: |
+          # Setup build ref from event type
+          echo "Getting tags..."
+          git fetch --tags -f
+
+          echo "Github event: ${{ github.event_name }}"
+          echo "Getting repo name... ${GITHUB_REPOSITORY#*/}"
+          REPO_NAME=${GITHUB_REPOSITORY#*/}
+
+          echo "Parsing $REPO_NAME build ref..."
+          BUILD_REF=${{ github.ref_name }}
+
+          # if this is a workflow_dispatch then
+          if [[ "${{ inputs.tag }}" != "" ]]; then
+              if [[ "${{ inputs.tag }}" == "--last-release" ]]; then
+                  # Gets the last tag release name.
+                  BUILD_REF=$(git tag --sort=-creatordate | awk 'match($0, /^v[0-9]+\.[0-9]+\.[0-9]+$/)' | head -n 1)
+              else
+                  BUILD_REF=${{ inputs.tag }}
+              fi
+          fi
+          echo "BUILD_REF=$BUILD_REF" >> $GITHUB_ENV
+          echo "Using $REPO_NAME@$BUILD_REF for checkout"
+
+          # turn the detached message off
+          git config --global advice.detachedHead false
+          git checkout $BUILD_REF
 
       # Version in package.json has to be the same as the ref TAG that fired this workflow.
       - name: Validate TAG and PACKAGE versions
         id: validated
         run: |
-          echo "Github event: ${{ github.event_name }}"
-          echo "Using ${GITHUB_REPOSITORY#*/} @$GITHUB_REF_NAME for build"
-
           PACKAGE_VERSION=$(node -p -e "require('./package.json').version")
-          # GITHUB_REF_NAME will always be a semantic version tag in this workflow, if not, error.
-          BUILD_REF_TAG=${{ github.ref_name }}
+          # BUILD_REF will always be a tag in this workflow, if not, error.
+          BUILD_REF_TAG=${{env.BUILD_REF}}
 
           echo "PACKAGE_VERSION=$PACKAGE_VERSION"
+          echo "GITHUB_REF_NAME=$GITHUB_REF_NAME"
           echo "BUILD_REF_TAG=$BUILD_REF_TAG"
 
-          # skip exit if this is a test tag or workflow_dispatch.
-          if [[ "$BUILD_REF_TAG" != "v$PACKAGE_VERSION" ]]; then
-              if [[ ("$BUILD_REF_TAG" == "v0.0.0") || ("$GITHUB_EVENT_NAME" == "workflow_dispatch") ]]; then
-                  echo "::warning title="Version mismatch skiped"::Package: 'v$PACKAGE_VERSION' and tag: '$BUILD_REF_TAG' version mismatch"
-              else
-                  echo "::error title="Version mismatch"::Package: 'v$PACKAGE_VERSION' and tag: '$BUILD_REF_TAG' version mismatch!"
+          # skip check if this is a test tag.
+          if [[ "$BUILD_REF_TAG" != "v0.0.0" ]]; then
+              if [[ "$BUILD_REF_TAG" != "v$PACKAGE_VERSION" ]]; then
+                  echo "Package and tag version mismatch"
                   exit 1
               fi
           fi
@@ -70,10 +106,10 @@ jobs:
     name: "Build Formatter Server last released version"
     uses: xnfo-dart/formatter_server/.github/workflows/build.yml@master
     with:
-      last_release: true
+      target: --last-release
     secrets: inherit
 
-  # Build vscode extension formatter_server native daemons
+  # Build vscode extension with formatter_server native daemons
   build_extension:
     needs: [setup, build_formatter_server]
     if: needs.setup.outputs.status == 'success'
@@ -85,8 +121,8 @@ jobs:
 
       - name: "Setup build variables"
         run: |
-          BUILD_REF_TAG=${{ needs.setup.outputs.buildRef }}
-          PACKAGE_VERSION=${{ needs.setup.outputs.packageVersion }}
+          BUILD_REF_TAG=${{needs.setup.outputs.buildRef}}
+          PACKAGE_VERSION=${{needs.setup.outputs.packageVersion}}
 
           echo "BUILD_REF_TAG=$BUILD_REF_TAG" >> $GITHUB_ENV
           echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
@@ -141,15 +177,15 @@ jobs:
       - name: Store vsix
         uses: actions/upload-artifact@v3
         with:
-          name: dart-polisher-v${{ env.PACKAGE_VERSION }}-vsix
+          name: dart-polisher-v${{env.PACKAGE_VERSION}}-vsix
           path: "*.vsix"
           retention-days: 5
 
       - name: Generate release data using Markdown
         run: |
           echo '### Build' >> $GITHUB_STEP_SUMMARY
-          echo 'Built from git ref: `${{ env.BUILD_REF_TAG }}`' >> $GITHUB_STEP_SUMMARY
-          printf 'Build package version:\n```\n${{ env.PACKAGE_VERSION }}\n```\n' >> $GITHUB_STEP_SUMMARY
+          echo 'Packaged from git ref: `${{ env.BUILD_REF_TAG }}`' >> $GITHUB_STEP_SUMMARY
+          printf 'Package version:\n```\n${{ env.PACKAGE_VERSION }}\n```\n' >> $GITHUB_STEP_SUMMARY
 
           echo '' >> $GITHUB_STEP_SUMMARY
 
@@ -169,14 +205,12 @@ jobs:
           printf 'Inputs: (Caller)\n```json\n${{ toJSON(github.event.inputs) }}\n```\n' >> $GITHUB_STEP_SUMMARY
         shell: bash
 
-      - name: Setup build data
+      - name: Upload extension build-data
         run: |
           mkdir -p ./build-data
           echo '${{ env.BUILD_REF_TAG }}' >> ./build-data/ref
           echo '${{ env.PACKAGE_VERSION }}' >> ./build-data/package_version
-
-      - name: Upload build data
-        uses: actions/upload-artifact@v3.1.0
+      - uses: actions/upload-artifact@v3.1.0
         with:
           name: extension-build-data
           path:  build-data/

@@ -28,11 +28,11 @@ on:
   workflow_dispatch:
     inputs:
       buildBranch:
-        description: 'Git tag/branch (tag ie: v5.5.0 for releases, "master" for dev builds) from a successful workflow run of "Build on Tag"'
+        description: 'Git branch/tag (preferably a tag ie: v5.5.0) from a successful workflow run of "Build on Tag"'
         required: true
         type: string
       workflowRun:
-        description: 'Workflow number of a succeful run of release_on_tag.yml", can be ommited if run <ref> was done on a tag/branch'
+        description: 'Workflow number of a succeful run of release_on_tag.yml", can be ommited if run was done on a tag'
         required: false
         type: string
       isDraft:
@@ -54,7 +54,9 @@ jobs:
 
     steps:
 
-      # If workflow run cannot be located by tag/branch name, input run_number of the workflow where release artifacts are.
+      # Worflow runs are run on master HEAD, and sometimes with master TAG, so when we want to get a workflow_run with only a TAG we have a problem.
+      # There is no info on the workflow run itseld about what was built, but the annotations or summary can be scanned one by one to selecet the correct run.
+      # Another way is to ask for a tag and a run number and just try wich one gets the artifact (currently using this method).
 
       # Alternative on https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_run
       # Download artifacts from the succeful <ref> of on-release-tag (cleaner method)
@@ -65,7 +67,8 @@ jobs:
         with:
           workflow: on-release-tag.yml
           workflow_conclusion: success
-          #run_id: ${{ github.event.workflow_run.id }} # workflow_conclusion is already defined.
+          #github_token: ${{secrets.GH_PAT}} # TODO: remove when going open source.
+          #run_id: ${{ inputs.workflowID }} # workflow_conclusion is already defined.
           run_number: ${{ github.event.workflow_run.run_number }} # (caller run number) if null, default is to take the last successful run
           branch: ${{ github.event.workflow_run.head_branch || inputs.buildBranch }}
           path: releases
@@ -78,12 +81,15 @@ jobs:
         with:
           workflow: on-release-tag.yml
           workflow_conclusion: success
+          #github_token: ${{secrets.GH_PAT}} # TODO: remove when going open source.
+          #run_id: ${{ inputs.workflowID }} # workflow_conclusion is already defined.
           run_number: ${{ inputs.workflowRun || 'INPUT_NOT_FOUND' }} # (caller run number) if null, default is to take the last successful run
           path: releases
           skip_unpack: true
 
       - name: "DEBUG"
         run: |
+          echo "${{ toJSON(steps.download-artifacts) }}"
           echo "steps.download-artifacts.outputs.found_artifact = ${{steps.download-artifacts.outputs.found_artifact }}"
 
       - name: Display structure of downloaded files
@@ -110,13 +116,18 @@ jobs:
         shell: bash
         run: |
           # Parent workflow is on an push tag event, so this head_branch will be a version.
-          CHECKOUT_TAG=${{ env.BUILD_REF }}
-          RELEASE_IS_DRAFT=true
+          if [[ "${{github.event_name}}" == "workflow_run" ]]; then
+              CHECKOUT_TAG=${{ env.BUILD_REF }}
+              RELEASE_IS_DRAFT=true
+          fi
           if [[ "${{github.event_name}}" == "workflow_dispatch" ]]; then
               CHECKOUT_TAG=${{ inputs.buildBranch }}
               RELEASE_IS_DRAFT=${{ inputs.isDraft }}
           fi
-
+          if [[ "$CHECKOUT_TAG" == "" ]]; then
+              echo "CHECKOUT_TAG is null, something when wront when selecting a git tag from event: ${{github.event_name}}"
+              exit 1
+          fi
           echo "CHECKOUT_TAG=$CHECKOUT_TAG" >> $GITHUB_ENV
           echo "Using $CHECKOUT_TAG as tag to checkout ${GITHUB_REPOSITORY#*/}"
           echo "RELEASE_IS_DRAFT=$RELEASE_IS_DRAFT" >> $GITHUB_ENV
@@ -146,7 +157,7 @@ jobs:
       #  uses: yashanand1910/standard-release-notes@v1.2.1
       #  id: extract-release-notes
       #  with:
-      #    changelog_path: ./repo/CHANGELOG.md # Optional
+      #    changelog_path: ./CHANGELOG.md # Optional
       #    version: ${{ env.CHECKOUT_TAG }} # Required
 
       # https://github.com/softprops/action-gh-release
