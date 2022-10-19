@@ -62,20 +62,9 @@ jobs:
 
         shell: bash
 
-  # Build the last tagged release version of formatter_server
-  build_formatter_server:
-    needs: setup
-    if: needs.setup.outputs.status == 'success'
-
-    name: "Build Formatter Server last released version"
-    uses: xnfo-dart/formatter_server/.github/workflows/build.yml@master
-    with:
-      last_release: true
-    secrets: inherit
-
-  # Build vscode extension formatter_server native daemons
+  # Build vscode extension with formatter_server native daemons
   build_extension:
-    needs: [setup, build_formatter_server]
+    needs: [setup]
     if: needs.setup.outputs.status == 'success'
 
     name: "Build Dart Polisher extension for release"
@@ -102,19 +91,32 @@ jobs:
         with:
           ref: ${{ env.BUILD_REF_TAG }}
 
-      # Formatter server build artifacts are ready for deployment (no rename needed).
-      - name: Download formatter_server artifacts
-        id: download-artifacts
-        uses: actions/download-artifact@v3
+      # Alternative: https://github.com/dsaltares/fetch-gh-release-asset
+      - name: "Download formatter_server release"
+        uses: robinraju/release-downloader@v1.5
         with:
-          name: native-executables
-          path: bin
+          repository: "xnfo-dart/formatter_server"
+          latest: true
+          #tag: "v1.0.0" #TODO: use tags after >1.0.0
+          #fileName: "dartpolishd-*.zip"
+          out-file-path: "bin"
 
-      - name: Display structure of downloaded files
+      - name: Rename releases files to extension format
         run: |
           ls -R
-          echo 'Echo download path'
-          echo ${{steps.download-artifacts.outputs.download-path}}
+          BIN_NAME="dartpolishd"
+          OS_ARRAY="linux windows mac"
+          for OS in $OS_ARRAY
+          do
+              unzip -o "${BIN_NAME}-$OS"
+              rm "${BIN_NAME}-${OS}.zip"
+              if [[ "$OS" == "windows" ]]; then
+                  mv ${BIN_NAME}.exe "${BIN_NAME}-$OS.exe"
+              else
+                  mv $BIN_NAME "${BIN_NAME}-$OS"
+              fi
+          done
+          ls -R
         working-directory: bin
 
       - name: Setup Node
@@ -133,7 +135,7 @@ jobs:
 
       # TODO: tests
 
-      # TODO: vsix architectures packages. --target to reduce download size.
+      # TODO: vsix architectures packages. --target to reduce download size. (use matrix strategy)
 
       - name: vsce package
         run: vsce package
