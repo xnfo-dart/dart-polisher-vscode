@@ -156,13 +156,18 @@ jobs:
           echo '' >> $GITHUB_STEP_SUMMARY
 
           echo '### Workflow' >> $GITHUB_STEP_SUMMARY
-          echo 'Event name: `${{ github.event_name }}`' >> $GITHUB_STEP_SUMMARY
-          echo 'Workflow file: `on-release-tag.yml`' >> $GITHUB_STEP_SUMMARY
-          echo 'From repository: `xnfo-dart/dart-polisher-vscode`' >> $GITHUB_STEP_SUMMARY
-          echo 'Workflow files ref: `${{ github.ref_type }} : ${{ github.ref }}`' >> $GITHUB_STEP_SUMMARY
-          echo 'Called from workflow: `${{ github.workflow }}`' >> $GITHUB_STEP_SUMMARY
-          echo 'Called from workflow file: `${{ github.event.workflow }}`' >> $GITHUB_STEP_SUMMARY
-          echo 'Called from repository: `${{ github.repository }}`' >> $GITHUB_STEP_SUMMARY
+          echo 'Event: `${{ github.event_name }}`' >> $GITHUB_STEP_SUMMARY
+          echo 'REF: `${{ github.ref_type }} : ${{ github.ref }}`' >> $GITHUB_STEP_SUMMARY
+          echo 'SHA: $GITHUB_SHA' >> $GITHUB_STEP_SUMMARY
+          echo 'File: `on-release-tag.yml`' >> $GITHUB_STEP_SUMMARY
+          echo 'Repository: `xnfo-dart/dart-polisher-vscode`' >> $GITHUB_STEP_SUMMARY
+
+          echo '' >> $GITHUB_STEP_SUMMARY
+
+          echo '#### Workflow (Called from)' >> $GITHUB_STEP_SUMMARY
+          echo 'Workflow name: `${{ github.workflow }}`' >> $GITHUB_STEP_SUMMARY
+          echo 'Workflow file: `${{ github.event.workflow }}`' >> $GITHUB_STEP_SUMMARY
+          echo 'Repository: `${{ github.repository }}`' >> $GITHUB_STEP_SUMMARY
 
           echo '' >> $GITHUB_STEP_SUMMARY
 
