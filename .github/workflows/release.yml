@@ -94,7 +94,7 @@ jobs:
         run: |
           unzip ./releases/extension-build-data.zip -d ./extension-build-data
           rm ./releases/extension-build-data.zip
-          rm ./releases/build-data.zip
+          [ -f ./releases/build-data.zip ] && rm ./releases/build-data.zip
 
           BUILD_REF=$(cat ./extension-build-data/ref)
           BUILD_PACKAGE_VERSION=$(cat ./extension-build-data/package_version)

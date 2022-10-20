@@ -8,9 +8,7 @@
 
 ### Fixed
 - Improved logging.
-
-### Fixes from upstream:
-- [Dart-Code #4134](https://github.com/Dart-Code/Dart-Code/issues/4134): When using the Dart: Capture Logs commands, long lines are no longer truncated. Logs written to disk using the related settings are still truncated based on the polisher.maxLogLineLength setting.
+- When using the Dart: Capture Logs commands, long lines are no longer truncated. Logs written to disk using the related settings are still truncated based on the polisher.maxLogLineLength setting.
 
 ----------
 ## [0.9.0] - 2022-09-20
