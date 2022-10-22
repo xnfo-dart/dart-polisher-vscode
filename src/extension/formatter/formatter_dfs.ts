@@ -97,7 +97,7 @@ export class DfsFormatterClient extends FormatterGen {
 			//processArgs.unshift(fullDartformatterServerPath); //NOTE: enable when using dartvm
 			processArgs = [
 				// SSH quiet mode, which prevents SSH from interfering with the STDOUT/STDIN communication
-				// with the analysis server.
+				// with the formatter server.
 				"-q",
 				config.formatterSshHost,
 				escapeShell(processArgs),

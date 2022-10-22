@@ -28,7 +28,7 @@
 	"activationEvents": [
 		"onLanguage:dart"
 	],
-	"main-node": "./out/src/extension/extension.js",
+	"main-ts": "./out/src/extension/extension.js",
 	"main": "./out/dist/extension.js",
 	"contributes": {
 		"menus": {
@@ -252,7 +252,7 @@
 		"pretest": "npm run compile && npm run lint",
 		"lint": "eslint src --ext ts",
 		"test": "node ./out/src/test/runTest.js",
-		
+
 		"vscode:prepublish": "npm run package",
 		"webpack": "webpack --mode development",
 		"webpack-watch": "webpack --mode development --watch",
