@@ -11,8 +11,10 @@ import { Context } from "../../shared/vscode/workspace";
 import { config } from "../config";
 import { DfsFormatterClient } from "../formatter/formatter_dfs";
 
+import * as jspolisher from "dart-polisher";
+
 export class DartFormattingEditProvider implements DocumentFormattingEditProvider, OnTypeFormattingEditProvider, DocumentRangeFormattingEditProvider, IAmDisposable {
-	constructor(private readonly logger: Logger, private readonly formatter: DfsFormatterClient, private readonly context: Context) {
+	constructor(private readonly logger: Logger, private readonly formatter: DfsFormatterClient | undefined, private readonly context: Context) {
 		workspace.onDidChangeConfiguration((e) => {
 			if (e.affectsConfiguration("dart-polisher.enableFormatter")) {
 				if (config.enableFormatter)
@@ -21,7 +23,21 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 					this.unregisterAllFormatters();
 			}
 		});
+
+
 		//TODO(tekert): Use dart_polisher js compilation as an alternative over stdio.
+		const ind : jspolisher.FIndent = {block: 9, cascade: 9,  expression: 9, constructorInitializer: 9};
+		const opt : jspolisher.FOptions = {style: 1, tabSizes: ind, indent: 0, pageWidth: 80, insertSpaces: true};
+		const result1 = jspolisher.formatCode("void a(){int a;}", opt);
+
+		const i = {block: 9, cascade: 9,  expression: 9, constructorInitializer: 9};
+    	const o = {style: 1, tabSizes: i, indent: 0, pageWidth: 80, insertSpaces: true};
+		const result = jspolisher.formatCode("void a(){int a;}", o);
+
+		const i2 = {block: 3, cascade: 3,  expression: 3, constructorInitializer: 3};
+    	const o2 = {style: 1, tabSizes: i2, indent: 6, pageWidth: 180, insertSpaces: false};
+		const result2 = jspolisher.formatCode("void a(){int a;}", o2);
+		const a2 = result;
 	}
 
 	private readonly registeredFormatters: IAmDisposable[] = [];
@@ -71,7 +87,7 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 
 	public async provideDocumentFormattingEdits(document: TextDocument, options: FormattingOptions, token: CancellationToken): Promise<TextEdit[] | undefined> {
 		try {
-			return await this.doFormat(document, true, options); // await is important for catch to work.
+			return await this.doFormat(document, true, options, undefined); // await is important for catch to work.
 		} catch (e) {
 			this.showErrorMesages(e);
 			return undefined;
@@ -111,7 +127,7 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 		}
 	}
 
-	private async doFormat(document: TextDocument, doLogError = true, options: FormattingOptions, range?: Range | undefined)
+	private async doFormat(document: TextDocument, doLogError = true, options: FormattingOptions, range: Range | undefined)
 		: Promise<TextEdit[] | undefined> {
 
 		if (!this.shouldFormat(document))
@@ -138,8 +154,28 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 			const style: CodeStyle = new CodeStyle();
 			style.code = config.for(document.uri).codeStyleCode;
 
+			// Use web version if we dont have a formatter server.
+			// TODO (tekert): experiment, do error checking etc.
+			if (this.formatter === undefined) {
+				if (range === undefined) {
+					const start = new Position(0, 0);
+					const end = new Position(document.lineCount - 1, document.lineAt(document.lineCount - 1).text.length);
+					range = new Range(start, end);
+				}
+				const content = document.getText(range);
+				const r: TextEdit[] = [];
+
+				const ind : jspolisher.FIndent = {block: 9, cascade: 9,  expression: 9, constructorInitializer: 9};
+				const opt : jspolisher.FOptions = {style: 1, tabSizes: ind, indent: 0, pageWidth: 80, insertSpaces: true};
+				const result = jspolisher.formatCode(content, opt);
+				if (!result.error) {
+					r.push(new TextEdit(range, result.code!));
+				}
+				return r;
+			}
+
 			// Send edit.format request (undefined params are just discarded) and await for response.
-			const resp = await this.formatter.editFormat({
+			const resp = await this.formatter?.editFormat({
 				file: fsPath(document.uri),
 				lineLength: config.for(document.uri).lineLength,
 				selectionLength: offsets.end - offsets.start, // API needs this to be 0 instead of null.
@@ -149,10 +185,10 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 				tabSize: tabSizes,
 				codeStyle: style,
 			});
-			if (resp.edits.length === 0)
+			if (resp?.edits.length === 0)
 				return undefined;
 			else {
-				return resp.edits.map((e) => this.convertData(document, e));
+				return resp?.edits.map((e) => this.convertData(document, e));
 			}
 
 		} catch (e) {

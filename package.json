@@ -2,11 +2,21 @@
 	"name": "dart-polisher",
 	"displayName": "Dart Polisher - Formatter",
 	"description": "Dart formatter, custom indents and styles, based on dart_style",
-	"repository": "https://github.com/xnfo-dart/dart-polisher-vscode",
 	"version": "0.9.1-beta3",
 	"publisher": "xnfo",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/xnfo-dart/dart-polisher-vscode.git"
+	},
 	"engines": {
 		"vscode": "^1.70.0"
+	},
+	"capabilities": {
+		"virtualWorkspaces": true
+	},
+	"license": "SEE LICENSE IN LICENSE",
+	"bugs": {
+		"url": "https://github.com/xnfo-dart/dart-polisher-vscode/issues"
 	},
 	"categories": [
 		"Formatters"
@@ -30,24 +40,25 @@
 	],
 	"main-ts": "./out/src/extension/extension.js",
 	"main": "./out/dist/extension.js",
+	"browser": "./out/dist/extension-web.js",
 	"contributes": {
 		"menus": {
 			"commandPalette": [
 				{
 					"command": "dart-polisher.startLogging",
-					"when": "dart-polisher:anyProjectLoaded"
+					"when": "dart-polisher:anyProjectLoaded && !isWeb"
 				},
 				{
 					"command": "dart-polisher.stopLogging",
-					"when": "dart-polisher:anyProjectLoaded && dart-polisher:isCapturingLogs"
+					"when": "dart-polisher:anyProjectLoaded && dart-polisher:isCapturingLogs && !isWeb"
 				},
 				{
 					"command": "dart-polisher.openExtensionLog",
-					"when": "dart-polisher:anyProjectLoaded"
+					"when": "dart-polisher:anyProjectLoaded && !isWeb"
 				},
 				{
 					"command": "dart-polisher.restartFormatterServer",
-					"when": "dart-polisher:anyProjectLoaded"
+					"when": "dart-polisher:anyProjectLoaded && !isWeb"
 				}
 			]
 		},
@@ -252,12 +263,12 @@
 		"pretest": "npm run compile && npm run lint",
 		"lint": "eslint src --ext ts",
 		"test": "node ./out/src/test/runTest.js",
-
 		"vscode:prepublish": "npm run package",
 		"webpack": "webpack --mode development",
 		"webpack-watch": "webpack --mode development --watch",
 		"package": "webpack --mode production --devtool hidden-source-map",
-		"test-compile": "tsc -p ./"
+		"test-compile": "tsc -p ./",
+		"open-in-browser": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. E:\\Sources\\dart\\test\\test_dart_console"
 	},
 	"dependencies": {
 		"minimatch": "^5.1.0",
@@ -272,6 +283,8 @@
 		"@typescript-eslint/eslint-plugin": "^5.31.0",
 		"@typescript-eslint/parser": "^5.31.0",
 		"@vscode/test-electron": "^2.1.5",
+		"@vscode/test-web": "*",
+		"dart-polisher": "file:dart-polisher-0.9.3-dev.tgz",
 		"eslint": "^8.20.0",
 		"glob": "^8.0.3",
 		"mocha": "^10.0.0",

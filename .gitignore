@@ -10,6 +10,7 @@ lib-cov
 
 *.ts1
 *.vsix
+*.tgz
 
 vscode-profile*.*
 .DS_Store
@@ -18,6 +19,7 @@ vscode-profile*.*
 .packages
 .test_results/
 .vscode-test/
+.vscode-test-web/
 #.vscode/
 .vscode/.browse.VC.db*
 *.log
@@ -30,3 +32,5 @@ out/
 dartcfmt.exe
 Generated.xcconfig
 vsc-extension-quickstart.md
+src/js/*
+#!src/js/index.js

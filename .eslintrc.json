@@ -6,7 +6,7 @@
 		"plugin:@typescript-eslint/recommended-requiring-type-checking"
 	],
     "parserOptions": {
-        "ecmaVersion": 6,
+        "ecmaVersion": 11,
 		"project": "tsconfig.json",
         "sourceType": "module"
     },

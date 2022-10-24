@@ -12,6 +12,7 @@ vsc-extension-quickstart.md
 # build, git, doc files.
 *.cpuprofile
 .eslintrc.js
+.eslintignore
 webpack.config.js
 tsconfig.*.json
 package-lock.json
