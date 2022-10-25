@@ -4,7 +4,7 @@
 <br>
 
 A code formatter for [Dart](https://dart.dev/).<br>
-Uses a forked version from the official `dart_style` as the [formatter](https://github.com/xnfo-dart/dart_polisher).<br>
+Forked version from the official `dart_style` [formatter](https://github.com/xnfo-dart/dart_polisher).<br>
 
 ----
 ## Initial Configuration
@@ -74,13 +74,13 @@ Inside your `settings.json`
 
 ## Installation
 Search for `dart polisher` in the [VS Code Extension Marketplace](https://code.visualstudio.com/docs/editor/extension-marketplace) and install it!
+or  
+Install latests vsix manually from [Github Releases](https://github.com/xnfo-dart/dart-polisher-vscode/releases)
 
 ## Requirements
 
-Works on Windows x64, Linux and Mac versions of local installations of VScode.  
-*Web version on the works.*
-
-
+Works on Windows x64, Linux and Mac versions of VScode.  
+Compatible with web version of [vscode](https://vscode.dev)
 
 ## Known Issues
 

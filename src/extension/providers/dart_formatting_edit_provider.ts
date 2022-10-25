@@ -11,8 +11,6 @@ import { Context } from "../../shared/vscode/workspace";
 import { config } from "../config";
 import { DfsFormatterClient } from "../formatter/formatter_dfs";
 
-import * as jspolisher from "dart-polisher";
-
 export class DartFormattingEditProvider implements DocumentFormattingEditProvider, OnTypeFormattingEditProvider, DocumentRangeFormattingEditProvider, IAmDisposable {
 	constructor(private readonly logger: Logger, private readonly formatter: DfsFormatterClient | undefined, private readonly context: Context) {
 		workspace.onDidChangeConfiguration((e) => {
@@ -23,21 +21,6 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 					this.unregisterAllFormatters();
 			}
 		});
-
-
-		//TODO(tekert): Use dart_polisher js compilation as an alternative over stdio.
-		const ind : jspolisher.FIndent = {block: 9, cascade: 9,  expression: 9, constructorInitializer: 9};
-		const opt : jspolisher.FOptions = {style: 1, tabSizes: ind, indent: 0, pageWidth: 80, insertSpaces: true};
-		const result1 = jspolisher.formatCode("void a(){int a;}", opt);
-
-		const i = {block: 9, cascade: 9,  expression: 9, constructorInitializer: 9};
-    	const o = {style: 1, tabSizes: i, indent: 0, pageWidth: 80, insertSpaces: true};
-		const result = jspolisher.formatCode("void a(){int a;}", o);
-
-		const i2 = {block: 3, cascade: 3,  expression: 3, constructorInitializer: 3};
-    	const o2 = {style: 1, tabSizes: i2, indent: 6, pageWidth: 180, insertSpaces: false};
-		const result2 = jspolisher.formatCode("void a(){int a;}", o2);
-		const a2 = result;
 	}
 
 	private readonly registeredFormatters: IAmDisposable[] = [];
@@ -144,44 +127,28 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 			}
 
 			// Space Indent sizes, if config is not set, use editor's default.
+			const insertSpaces = options.insertSpaces;
+			const editorTabSize = options.tabSize;
 			const tabSizes = new TabSize();
-			tabSizes.block = config.for(document.uri).blockIndent ?? options.tabSize;
-			tabSizes.cascade = config.for(document.uri).cascadeIndent ?? options.tabSize;
-			tabSizes.expression = config.for(document.uri).expressionIndent ?? options.tabSize;
-			tabSizes.constructorInitializer = config.for(document.uri).constructorInitializerIndent ?? options.tabSize;
+			tabSizes.block = config.for(document.uri).blockIndent ?? editorTabSize;
+			tabSizes.cascade = config.for(document.uri).cascadeIndent ?? editorTabSize;
+			tabSizes.expression = config.for(document.uri).expressionIndent ?? editorTabSize;
+			tabSizes.constructorInitializer = config.for(document.uri).constructorInitializerIndent ?? editorTabSize;
 
 			// Get selected code style
 			const style: CodeStyle = new CodeStyle();
 			style.code = config.for(document.uri).codeStyleCode;
 
-			// Use web version if we dont have a formatter server.
-			// TODO (tekert): experiment, do error checking etc.
-			if (this.formatter === undefined) {
-				if (range === undefined) {
-					const start = new Position(0, 0);
-					const end = new Position(document.lineCount - 1, document.lineAt(document.lineCount - 1).text.length);
-					range = new Range(start, end);
-				}
-				const content = document.getText(range);
-				const r: TextEdit[] = [];
-
-				const ind : jspolisher.FIndent = {block: 9, cascade: 9,  expression: 9, constructorInitializer: 9};
-				const opt : jspolisher.FOptions = {style: 1, tabSizes: ind, indent: 0, pageWidth: 80, insertSpaces: true};
-				const result = jspolisher.formatCode(content, opt);
-				if (!result.error) {
-					r.push(new TextEdit(range, result.code!));
-				}
-				return r;
-			}
+			const pageWidth = config.for(document.uri).lineLength;
 
 			// Send edit.format request (undefined params are just discarded) and await for response.
 			const resp = await this.formatter?.editFormat({
 				file: fsPath(document.uri),
-				lineLength: config.for(document.uri).lineLength,
+				lineLength: pageWidth,
 				selectionLength: offsets.end - offsets.start, // API needs this to be 0 instead of null.
 				selectionOffset: offsets.start,
 				selectionOnly: selectionOnly,
-				insertSpaces: options.insertSpaces,
+				insertSpaces: insertSpaces,
 				tabSize: tabSizes,
 				codeStyle: style,
 			});
@@ -209,17 +176,6 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 			window.showInformationMessage("Error: Dart Polisher formatter will not run if the selected range is invalid: " + message);
 		}
 		return undefined;
-	}
-
-	private async saveSyncDocument(document: TextDocument): Promise<boolean> {
-		if (document.isDirty) {
-			const result = await document.save();
-			if (!result) {
-				this.logger.error(`Could not save file: ${document.uri}`, LogCategory.General);
-				return false;
-			}
-		}
-		return true;
 	}
 
 	private shouldFormat(document: TextDocument): boolean {

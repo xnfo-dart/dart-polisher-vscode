@@ -15,7 +15,7 @@ const webConfig = /** @type WebpackConfig */ {
 	mode: "none", // this leaves the source code as close as possible to the original (when packaging we set this to 'production')
 	target: "webworker", // web extensions run in a webworker context
 	entry: {
-		"extension-web": "./src/extension/web/extension.ts", // source of the web extension main file
+		"extension-web": "./src/extensionweb/extension.ts", // source of the web extension main file
 		//"test/suite/index-web": "./src/test/suite/index-web.ts", // source of the web extension test runner
 	},
 	output: {
@@ -72,7 +72,8 @@ const webConfig = /** @type WebpackConfig */ {
 	performance: {
 		hints: false,
 	},
-	devtool: "nosources-source-map", // create a source map that points to the original source file
+	//devtool: "nosources-source-map", // create a source map that points to the original source file
+	devtool: "source-map",
 };
 
 const nodeConfig = {

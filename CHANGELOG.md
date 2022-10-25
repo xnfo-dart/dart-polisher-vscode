@@ -6,6 +6,9 @@
 ### New
 - New setting for logging verbose comunication between the extension and the local polisher server.
 
+### Web 
+- Web compatible (using dart2js, formatter server is not used), functionality is limited.
+
 ### Fixed
 - Improved logging.
 - When using the Dart: Capture Logs commands, long lines are no longer truncated. Logs written to disk using the related settings are still truncated based on the polisher.maxLogLineLength setting.
