@@ -1,0 +1,52 @@
+import * as jspolisher from "dart-polisher";
+
+/*
+	Dart2js Exceptions are wrapped in javascript Error objects.
+	An aditional dartException property is defined in the Error object.
+	This is defined in dart-polisher typings in the Dart namespace as 'interface Exception'.
+
+	So an thrown object from Dart looks like this: (extends from Error)
+	interface Exception {
+		name: string, 		// inherited from Error
+		message: string, 	// inherited from Error
+		stack?: string, 	// inherited from Error
+		dartException: any
+	}
+
+	'dartException: any' can be a DartPolisher FException wich looks like this:
+	interface FException
+	{
+		code: string;
+		message: string;
+		originalException: any;
+	}
+*/
+
+// Checks if the error is a valid Dart Exception.
+export function isDartException(error: unknown) {
+	return (
+		typeof error === "object" &&
+		error !== null &&
+		"dartException" in error &&
+		typeof (error as jspolisher.Dart.Exception).dartException === "object"
+	  );
+}
+
+// Converts a valid error to a Dart Exception type, returns undefined is its not a Dart Exception.
+export function getDartException(error: unknown) : jspolisher.Dart.Exception | undefined {
+	if (isDartException(error))
+		return (error as jspolisher.Dart.Exception);
+
+	return undefined;
+}
+
+// Converts a valid error to a Dart Polisher Formatter Exception type, returns undefined if is not a Formatter Exception
+export function getPolisherException(error: unknown) : jspolisher.FException | undefined {
+	const dartError = getDartException(error);
+	if (dartError) {
+		const ferror = dartError.dartException as jspolisher.FException;
+		if (ferror.code)
+			return ferror;
+	}
+	return undefined;
+}

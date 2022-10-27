@@ -3,6 +3,8 @@ import { CancellationToken, DocumentFormattingEditProvider, DocumentRangeFormatt
 import { CodeStyle, TabSize } from "../../shared/formatter_server_types";
 import { Context } from "../../shared/vscode/workspace";
 import { config } from "../config";
+import { getPolisherException } from "../dart-polisher/exceptions";
+import { getErrorMessage } from "../utils";
 
 export interface IAmDisposable {
 	dispose(): void | Promise<void>;
@@ -24,17 +26,12 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 	constructor(private readonly logger: undefined, private readonly formatter: undefined, private readonly context: Context) {
 		workspace.onDidChangeConfiguration((e) => {
 			if (e.affectsConfiguration("dart-polisher.enableFormatter")) {
-				if (true)
+				if (config.enableFormatter)
 					this.registerAllFormatters();
 				else
 					this.unregisterAllFormatters();
 			}
 		});
-
-		const ind: jsdartpolisher.FIndent = { block: 9, cascade: 9, expression: 9, constructorInitializer: 9 };
-		const opt: jsdartpolisher.FOptions = { style: 1, tabSizes: ind, indent: 0, pageWidth: 80, insertSpaces: true };
-		const result1 = jsdartpolisher.formatCode("void a(){int a;}", opt);
-		const a = 1;
 
 		console.log("DartFormattingEditProvider instanced.\n");
 	}
@@ -67,10 +64,8 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 		const registerAndTrack = () => this.registeredFormatters.push(reg());
 
 		// Register the formatter immediately if enabled.
-		//if (config.enableFormatter)
-		registerAndTrack();
-
-		console.log("Registered: " + registerAndTrack.name + "\n");
+		if (config.enableFormatter)
+			registerAndTrack();
 
 		// Add it to our list so we can re-register later..
 		this.formatterRegisterFuncs.push(registerAndTrack);
@@ -131,19 +126,20 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 	private async doFormat(document: TextDocument, doLogError = true, options: FormattingOptions, range: Range | undefined)
 		: Promise<TextEdit[] | undefined> {
 
-		console.log("[STATUS] doFormat called\n");
-		console.log("[STATUS] File uri fspath: " + document.uri.fsPath + "\n");
-		console.log("[STATUS] Scheme: " + document.uri.scheme + "\n");
+		console.log("[STATUS] doFormat called: ");
+		console.log("Document uri.fspath: " + document.uri.fsPath + " ");
+		console.log("uri.scheme: " + document.uri.scheme + "\n");
 
 		try {
 
-			let selectionOnly = false;
-			let offsets = { start: 0, end: 0 }; // [start, end] zero-based
-			if (range) {
+			// NOTE: offsets not used for now.
+			// let selectionOnly = false;
+			// let offsets = { start: 0, end: 0 }; // [start, end] zero-based
+			// if (range) {
 
-				offsets = this.fromRange(document, range);
-				selectionOnly = true;
-			}
+			// 	offsets = this.fromRange(document, range);
+			// 	selectionOnly = true;
+			// }
 
 			// Space Indent sizes, if config is not set, use editor's default.
 			const insertSpaces = options.insertSpaces;
@@ -163,8 +159,6 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 			const ind: jsdartpolisher.FIndent = { block: tabSizes.block, cascade: tabSizes.cascade, expression: tabSizes.expression, constructorInitializer: tabSizes.constructorInitializer };
 			const opt: jsdartpolisher.FOptions = { style: style.code, tabSizes: ind, indent: 0, pageWidth: pageWidth, insertSpaces: insertSpaces };
 
-			// Use web version if we dont have a formatter server.
-			// TODO (tekert): experiment, do error checking etc.
 			if (range === undefined) {
 				const start = new Position(0, 0);
 				const end = new Position(document.lineCount - 1, document.lineAt(document.lineCount - 1).text.length);
@@ -175,39 +169,45 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 			const content = document.getText(range);
 			const r: TextEdit[] = [];
 
-			// TODO(tekert): sections, ranges.
+			//if (range) throw Object;
+
 			const result = jsdartpolisher.formatCode(content, opt);
-			if (!result.error) {
-				r.push(new TextEdit(range, result.code!));
-			} else {
-				console.log("[ERROR] Dart Polisher formatter will not run if the file has syntax errors.\n");
-				throw result.error;
-			}
+			r.push(new TextEdit(range, result.code));
+
 			console.log("[STATUS] Format edits: " + r.length.toString() + "\n");
+			if (false) {
+				console.log("[STATUS] Format content: '" + content + "'\n");
+				console.log("[STATUS] Format result.code: '" + result.code + "'\n");
+			}
 			return r;
 
 		} catch (e) {
-			console.log(e);
+			const perror = getPolisherException(e);
+
+			if (perror && doLogError)
+				console.log(perror.message, "\n");
+
+			if (perror === undefined) {
+				console.log("[UNKNOWN ERROR] ", e, "\n");
+				return undefined;
+			}
+
 			throw e;
 		}
 	}
 
-	private showErrorMesages(error: any) {
-		if (!this.context.hasWarnedAboutFormatterSyntaxLimitation) {
-			this.context.hasWarnedAboutFormatterSyntaxLimitation = true;
-			window.showInformationMessage("Dart Polisher formatter will not run if the file has syntax errors");
-		}
-		/*
-		if (error.code === "FORMAT_WITH_ERRORS") {
+	private showErrorMesages(perror: any) {
+		if (perror.code === "FORMAT_WITH_ERRORS") {
 			if (!this.context.hasWarnedAboutFormatterSyntaxLimitation) {
 				this.context.hasWarnedAboutFormatterSyntaxLimitation = true;
 				window.showInformationMessage("Dart Polisher formatter will not run if the file has syntax errors");
+				console.log("[ERROR] Dart Polisher formatter will not run if the file has syntax errors.\n");
 			}
-		} else if (error.code === "FORMAT_RANGE_ERROR") {
-			const message: string = error.message;
+		} else if (perror.code === "FORMAT_RANGE_ERROR") {
+			const message: string = perror.message;
 			window.showInformationMessage("Error: Dart Polisher formatter will not run if the selected range is invalid: " + message);
+			console.log("[ERROR]" + "Error: Dart Polisher formatter will not run if the selected range is invalid: " + message + "\n");
 		}
-		*/
 		return undefined;
 	}
 

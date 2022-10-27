@@ -12,7 +12,13 @@
 		"vscode": "^1.70.0"
 	},
 	"capabilities": {
-		"virtualWorkspaces": true
+		"virtualWorkspaces": {
+			"supported": "limited",
+			"description": "Some functionality may be limited for remote files in virtual workspaces."
+		},
+		"untrustedWorkspaces": {
+			"supported": true
+		}
 	},
 	"license": "SEE LICENSE IN LICENSE",
 	"bugs": {
