@@ -39,6 +39,7 @@ const webConfig = /** @type WebpackConfig */ {
 			//os: require.resolve('os-browserify/browser'),
 			//fs: false,
 			//child_process: false,
+			//process: require.resolve('process/browser'),
 		},
 	},
 	ignoreWarnings: [
@@ -62,9 +63,9 @@ const webConfig = /** @type WebpackConfig */ {
 		],
 	},
 	plugins: [
-		//   new webpack.ProvidePlugin({
+		// new webpack.ProvidePlugin({
 		// 	process: "process/browser", // provide a shim for the global `process` variable
-		//   }),
+		// }),
 	],
 	externals: {
 		vscode: "commonjs vscode", // ignored because it doesn't exist

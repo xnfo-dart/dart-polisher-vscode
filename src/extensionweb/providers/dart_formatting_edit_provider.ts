@@ -1,6 +1,5 @@
 import * as dp from "dart-polisher";
 import { CancellationToken, DocumentFormattingEditProvider, DocumentRangeFormattingEditProvider, DocumentSelector, FormattingOptions, languages, OnTypeFormattingEditProvider, Position, Range, TextDocument, TextEdit, window, workspace } from "vscode";
-import { CodeStyle, TabSize } from "../../shared/formatter_server_types";
 import { Context } from "../../shared/vscode/workspace";
 import { config } from "../config";
 import { getPolisherException } from "../dart-polisher/exceptions";
@@ -126,9 +125,12 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 	private async doFormat(document: TextDocument, doLogError = true, options: FormattingOptions, range: Range | undefined)
 		: Promise<TextEdit[] | undefined> {
 
-		console.log("[STATUS] doFormat called: ");
-		console.log("Document uri.fspath: " + document.uri.fsPath + " ");
-		console.log("uri.scheme: " + document.uri.scheme + "\n");
+		const perfLog = false; // set to true for debugging.
+		const formatStartTime = new Date();
+		if (perfLog) console.time("Format time");
+		console.log("[DEBUG] doFormat called: ");
+		console.log("[DEBUG] Document uri.fspath: " + document.uri.fsPath + " ");
+		console.log("[DEBUG] uri.scheme: " + document.uri.scheme + "\n");
 
 		// NOTE: there are two ways to do this:
 		// A: Format by sending the substring to be formatted and let vscode edit the range.
@@ -141,11 +143,10 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 
 		try {
 
-			// If formatting whole text set compilationUnit
+			// If we are formatting whole document set compilationUnit
 			let isCompilationUnit: boolean = false;
-			const start = new Position(0, 0);
-			const end = new Position(document.lineCount - 1, document.lineAt(document.lineCount - 1).text.length);
-			const documentRange = new Range(start, end);
+			const lineCount = document.lineCount - 1;
+			const documentRange = new Range(0,0, lineCount, document.lineAt(lineCount).text.length);
 			// set range to cover whole document if undefined.
 			if (range === undefined)
 				range = documentRange;
@@ -156,56 +157,58 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 				isCompilationUnit = true;
 
 			// Range from {start, end} zero based offsets.
-			const offsets = { start: document.offsetAt(range.start), end: document.offsetAt(range.end) };
+			const offsets = {
+				start: document.offsetAt(range.start),
+				end: document.offsetAt(range.end),
+			};
 
-			// Space Indent sizes, if config is not set, use editor's default.
-			const insertSpaces = options.insertSpaces;
-			const editorTabSize = options.tabSize;
-			const tabSizes = new TabSize();
-			tabSizes.block = config.for(document.uri).blockIndent ?? editorTabSize;
-			tabSizes.cascade = config.for(document.uri).cascadeIndent ?? editorTabSize;
-			tabSizes.expression = config.for(document.uri).expressionIndent ?? editorTabSize;
-			tabSizes.constructorInitializer = config.for(document.uri).constructorInitializerIndent ?? editorTabSize;
-
-			// Get selected code style
-			const style: CodeStyle = new CodeStyle();
-			style.code = config.for(document.uri).codeStyleCode;
-
-			// Max page width from configured setting.
-			const pageWidth = config.for(document.uri).lineLength;
+			if (!options)
+				options = { insertSpaces: true, tabSize: 4 };
 
 			// Set formatting settings
+			const editorTabSize = options.tabSize;
 			let frange: dp.FRange | undefined;
 			if (!optA) frange = { offset: offsets.start, length: offsets.end - offsets.start };
-			const findents: dp.FIndent = { block: tabSizes.block, cascade: tabSizes.cascade, expression: tabSizes.expression, constructorInitializer: tabSizes.constructorInitializer };
-			const foptions: dp.FOptions = { style: style.code, tabSizes: findents, indent: 0, pageWidth: pageWidth, insertSpaces: insertSpaces, selection: frange };
+			const findents: dp.FIndent = {
+				block: config.for(document.uri).blockIndent ?? editorTabSize,
+				cascade: config.for(document.uri).cascadeIndent ?? editorTabSize,
+				expression: config.for(document.uri).expressionIndent ?? editorTabSize,
+				constructorInitializer: config.for(document.uri).constructorInitializerIndent ?? editorTabSize,
+			};
+			const foptions: dp.FOptions = {
+				style: config.for(document.uri).codeStyleCode,
+				tabSizes: findents,
+				indent: 0,
+				pageWidth: config.for(document.uri).lineLength,
+				insertSpaces: options.insertSpaces,
+				selection: frange,
+			};
 
 			// Format whole text or just part of it.
-			let content : string;
-			if (optA)
-				content = document.getText(range);
-			else
-				content = document.getText();
+			const content = optA ?  document.getText(range) : document.getText();
 
-			console.log("[STATUS] Formatting...\n");
+			console.log("[DEBUG] Formatting...\n");
+			if (perfLog) console.timeLog("Format time", "Before formatCode()");
 			const result = dp.formatCode(content, foptions, isCompilationUnit);
+			if (perfLog) console.timeLog("Format time", "After formatCode()");
 
 			const r: TextEdit[] = [];
 			if (optA)
 				r.push(new TextEdit(range, result.code));
 			else {
 				if (result.selection.offset === undefined || result.selection.length === undefined)
-					throw Error("Selection result is null, check if selection was given in formatter 'FOptions'");
-				const formattedRange = result.code.substring(result.selection.offset, result.selection.offset + result.selection.length);
+					throw Error("Selection result is null, check if selection was given in 'FOptions'");
+				const formattedRange = result.code.substring(result.selection.offset,
+					result.selection.offset + result.selection.length);
 				r.push(new TextEdit(range, formattedRange));
 			}
 
-			console.log("[STATUS] Source Code formatted succesfully.\n");
+			console.log("[DEBUG] Source Code formatted succesfully.\n");
 
-			if (false) console.log("[STATUS] Format edits: ", r.length, "\n");
+			if (false) console.log("[DEBUG] Format edits: ", r.length, "\n");
 			if (false) {
-				console.log("[STATUS] Format content: '", content, "'\n");
-				console.log("[STATUS] Format result.code: '", result.code, "'\n");
+				console.log("[DEBUG] Format content: '", content, "'\n");
+				console.log("[DEBUG] Format result.code: '", result.code, "'\n");
 			}
 			return r;
 
@@ -220,21 +223,44 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 			}
 
 			throw perror;
+
+		} finally {
+			const formatEndTime = new Date();
+			console.log("[DEBUG] Format performance: " +
+				(formatEndTime.getTime() - formatStartTime.getTime()).toString() + " ms\n");
+			if (perfLog) console.timeEnd("Format time");
+			// Chrome: 10k lines file took ~850-1150ms (best-worst) on DEV-PC1 using: dart-polisher 0.9.3/Dart 2.18
+			// Node-FServer: 10k lines file took ~390-410ms (best-worst) on DEV-PC1 using: dart-polisher 0.9.3/Dart 2.18
 		}
 	}
+	/*
+	private pad(str: string, length: number) {
+		while (str.length < length)
+			str = "0" + str;
+		return str;
+	}
 
+	private logTime = (start: bigint, taskFinished?: string) => {
+		const end = process.hrtime.bigint();
+		console.log(`${this.pad((end - start).toString(), 15)} ${taskFinished ? "<== " + taskFinished : ""}`);
+	};
+*/
 	private showErrorMesages(perror: any) {
 		if (perror.code === "FORMAT_WITH_ERRORS") {
+			const info = "Dart Polisher formatter will not run if the file has syntax errors";
 			if (!this.context.hasWarnedAboutFormatterSyntaxLimitation) {
 				this.context.hasWarnedAboutFormatterSyntaxLimitation = true;
-				window.showInformationMessage("Dart Polisher formatter will not run if the file has syntax errors");
-				console.log("[ERROR] Dart Polisher formatter will not run if the file has syntax errors.\n");
+				window.showInformationMessage(info);
 			}
+			console.log(info, "\n");
 		} else if (perror.code === "FORMAT_RANGE_ERROR") {
+			const info = "Error: Dart Polisher formatter will not run if the selected range is invalid: ";
 			const message: string = perror.message;
-			window.showInformationMessage("Error: Dart Polisher formatter will not run if the selected range is invalid: " + message);
-			console.log("[ERROR]" + "Error: Dart Polisher formatter will not run if the selected range is invalid: " + message + "\n");
-		}
+			window.showInformationMessage(info + message);
+			console.log("[ERROR]" + info + message + "\n");
+		} else if (!perror.code)
+			console.log("[UNKNOWN ERROR] ", perror, "\n");
+
 		return undefined;
 	}
 

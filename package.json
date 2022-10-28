@@ -2,7 +2,7 @@
 	"name": "dart-polisher",
 	"displayName": "Dart Polisher - Formatter",
 	"description": "Dart formatter, custom indents and styles, based on dart_style",
-	"version": "0.9.1-beta3",
+	"version": "0.9.5-dev",
 	"publisher": "xnfo",
 	"repository": {
 		"type": "git",
