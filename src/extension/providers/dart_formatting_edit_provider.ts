@@ -116,12 +116,13 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 		if (!this.shouldFormat(document))
 			return undefined;
 
+		const formatStartTime = new Date();
+
 		try {
 
 			let selectionOnly = false;
 			let offsets = { start: 0, end: 0 }; // [start, end] zero-based
 			if (range) {
-
 				offsets = fromRange(document, range);
 				selectionOnly = true;
 			}
@@ -162,6 +163,11 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 			if (doLogError)
 				this.logger.error(e);
 			throw e;
+
+		} finally {
+			const formatEndTime = new Date();
+			this.logger.info("Format performance: " +
+				(formatEndTime.getTime() - formatStartTime.getTime()).toString() + " ms\n");
 		}
 	}
 
