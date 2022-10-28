@@ -1,4 +1,4 @@
-import * as jspolisher from "dart-polisher";
+import {FException, Dart} from "dart-polisher";
 
 /*
 	Dart2js Exceptions are wrapped in javascript Error objects.
@@ -22,29 +22,29 @@ import * as jspolisher from "dart-polisher";
 	}
 */
 
-// Checks if the error is a valid Dart Exception.
+// Checks if error is a valid Dart Exception.
 export function isDartException(error: unknown) {
 	return (
 		typeof error === "object" &&
 		error !== null &&
 		"dartException" in error &&
-		typeof (error as jspolisher.Dart.Exception).dartException === "object"
+		typeof (error as Dart.Exception).dartException === "object"
 	  );
 }
 
-// Converts a valid error to a Dart Exception type, returns undefined is its not a Dart Exception.
-export function getDartException(error: unknown) : jspolisher.Dart.Exception | undefined {
+// Converts error to a wrapped dart exception type, returns undefined is error type is invalid.
+export function getDartException(error: unknown) : Dart.Exception | undefined {
 	if (isDartException(error))
-		return (error as jspolisher.Dart.Exception);
+		return (error as Dart.Exception);
 
 	return undefined;
 }
 
-// Converts a valid error to a Dart Polisher Formatter Exception type, returns undefined if is not a Formatter Exception
-export function getPolisherException(error: unknown) : jspolisher.FException | undefined {
+// Converts error to a fromatter exception type from a wrapped dart exeption, returns undefined is error type is invalid.
+export function getPolisherException(error: unknown) : FException | undefined {
 	const dartError = getDartException(error);
 	if (dartError) {
-		const ferror = dartError.dartException as jspolisher.FException;
+		const ferror = dartError.dartException as FException;
 		if (ferror.code)
 			return ferror;
 	}

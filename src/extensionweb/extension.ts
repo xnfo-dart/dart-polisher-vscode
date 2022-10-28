@@ -15,6 +15,7 @@ export function activate(context: vs.ExtensionContext) {
 	console.log("CONSOLE: Extension Started\n");
 
 	const extContext = Context.for(context);
+	extContext.hasWarnedAboutFormatterSyntaxLimitation = false;
 	// Setup formatting providers.
 	const activeFileFilters: vs.DocumentFilter[] = [DART_MODE];
 	const formattingEditProvider = new DartFormattingEditProvider(undefined, undefined, extContext);

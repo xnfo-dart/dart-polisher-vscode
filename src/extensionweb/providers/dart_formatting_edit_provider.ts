@@ -1,4 +1,4 @@
-import * as jsdartpolisher from "dart-polisher";
+import * as dp from "dart-polisher";
 import { CancellationToken, DocumentFormattingEditProvider, DocumentRangeFormattingEditProvider, DocumentSelector, FormattingOptions, languages, OnTypeFormattingEditProvider, Position, Range, TextDocument, TextEdit, window, workspace } from "vscode";
 import { CodeStyle, TabSize } from "../../shared/formatter_server_types";
 import { Context } from "../../shared/vscode/workspace";
@@ -130,16 +130,33 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 		console.log("Document uri.fspath: " + document.uri.fsPath + " ");
 		console.log("uri.scheme: " + document.uri.scheme + "\n");
 
+		// NOTE: there are two ways to do this:
+		// A: Format by sending the substring to be formatted and let vscode edit the range.
+		// B: Format by sending the whole document and use selection offsets to edit the formatted range.
+		//
+		// Option B let you format any range but needs to format the whole page on every selection format.
+		// Option A will throw errors when formatting substrings that are not complete blocks, but its a bit faster.
+		// Using option A for now.
+		const optA = true; // set to false to use option B.
+
 		try {
 
-			// NOTE: offsets not used for now.
-			// let selectionOnly = false;
-			// let offsets = { start: 0, end: 0 }; // [start, end] zero-based
-			// if (range) {
+			// If formatting whole text set compilationUnit
+			let isCompilationUnit: boolean = false;
+			const start = new Position(0, 0);
+			const end = new Position(document.lineCount - 1, document.lineAt(document.lineCount - 1).text.length);
+			const documentRange = new Range(start, end);
+			// set range to cover whole document if undefined.
+			if (range === undefined)
+				range = documentRange;
+			if (optA) {
+				if (range.isEqual(documentRange))
+					isCompilationUnit = true;
+			} else
+				isCompilationUnit = true;
 
-			// 	offsets = this.fromRange(document, range);
-			// 	selectionOnly = true;
-			// }
+			// Range from {start, end} zero based offsets.
+			const offsets = { start: document.offsetAt(range.start), end: document.offsetAt(range.end) };
 
 			// Space Indent sizes, if config is not set, use editor's default.
 			const insertSpaces = options.insertSpaces;
@@ -154,45 +171,55 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 			const style: CodeStyle = new CodeStyle();
 			style.code = config.for(document.uri).codeStyleCode;
 
+			// Max page width from configured setting.
 			const pageWidth = config.for(document.uri).lineLength;
 
-			const ind: jsdartpolisher.FIndent = { block: tabSizes.block, cascade: tabSizes.cascade, expression: tabSizes.expression, constructorInitializer: tabSizes.constructorInitializer };
-			const opt: jsdartpolisher.FOptions = { style: style.code, tabSizes: ind, indent: 0, pageWidth: pageWidth, insertSpaces: insertSpaces };
+			// Set formatting settings
+			let frange: dp.FRange | undefined;
+			if (!optA) frange = { offset: offsets.start, length: offsets.end - offsets.start };
+			const findents: dp.FIndent = { block: tabSizes.block, cascade: tabSizes.cascade, expression: tabSizes.expression, constructorInitializer: tabSizes.constructorInitializer };
+			const foptions: dp.FOptions = { style: style.code, tabSizes: findents, indent: 0, pageWidth: pageWidth, insertSpaces: insertSpaces, selection: frange };
 
-			if (range === undefined) {
-				const start = new Position(0, 0);
-				const end = new Position(document.lineCount - 1, document.lineAt(document.lineCount - 1).text.length);
-				range = new Range(start, end);
-			}
-			console.log("[STATUS] Formatting...");
+			// Format whole text or just part of it.
+			let content : string;
+			if (optA)
+				content = document.getText(range);
+			else
+				content = document.getText();
 
-			const content = document.getText(range);
+			console.log("[STATUS] Formatting...\n");
+			const result = dp.formatCode(content, foptions, isCompilationUnit);
+
 			const r: TextEdit[] = [];
+			if (optA)
+				r.push(new TextEdit(range, result.code));
+			else {
+				if (result.selection.offset === undefined || result.selection.length === undefined)
+					throw Error("Selection result is null, check if selection was given in formatter 'FOptions'");
+				const formattedRange = result.code.substring(result.selection.offset, result.selection.offset + result.selection.length);
+				r.push(new TextEdit(range, formattedRange));
+			}
 
-			//if (range) throw Object;
+			console.log("[STATUS] Source Code formatted succesfully.\n");
 
-			const result = jsdartpolisher.formatCode(content, opt);
-			r.push(new TextEdit(range, result.code));
-
-			console.log("[STATUS] Format edits: " + r.length.toString() + "\n");
+			if (false) console.log("[STATUS] Format edits: ", r.length, "\n");
 			if (false) {
-				console.log("[STATUS] Format content: '" + content + "'\n");
-				console.log("[STATUS] Format result.code: '" + result.code + "'\n");
+				console.log("[STATUS] Format content: '", content, "'\n");
+				console.log("[STATUS] Format result.code: '", result.code, "'\n");
 			}
 			return r;
 
 		} catch (e) {
 			const perror = getPolisherException(e);
-
 			if (perror && doLogError)
 				console.log(perror.message, "\n");
 
 			if (perror === undefined) {
-				console.log("[UNKNOWN ERROR] ", e, "\n");
+				console.log("[ERROR] ", e, "\n");
 				return undefined;
 			}
 
-			throw e;
+			throw perror;
 		}
 	}
 
@@ -209,11 +236,6 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 			console.log("[ERROR]" + "Error: Dart Polisher formatter will not run if the selected range is invalid: " + message + "\n");
 		}
 		return undefined;
-	}
-
-	// Range to {start, end} zero based offsets.
-	private fromRange(document: TextDocument, range: Range): { start: number, end: number } {
-		return { start: document.offsetAt(range.start), end: document.offsetAt(range.end) };
 	}
 
 	public dispose() {
