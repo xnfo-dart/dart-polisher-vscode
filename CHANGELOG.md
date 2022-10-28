@@ -5,9 +5,7 @@
 ## [Unreleased]
 ### New
 - New setting for logging verbose comunication between the extension and the local polisher server.
-
-### Web 
-- Web compatible (using dart2js, formatter server is not used), functionality is limited.
+- Web Extension! working (using dart2js, formatter server is not used), functionality is almost the same, (~3x slower, close to 1 second on most files).
 
 ### Fixed
 - Improved logging.
