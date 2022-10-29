@@ -1,8 +1,8 @@
 import * as dp from "dart-polisher";
-import { CancellationToken, DocumentFormattingEditProvider, DocumentRangeFormattingEditProvider, DocumentSelector, FormattingOptions, languages, OnTypeFormattingEditProvider, Position, Range, TextDocument, TextEdit, window, workspace } from "vscode";
+import { CancellationToken, DocumentFormattingEditProvider, DocumentRangeFormattingEditProvider, DocumentSelector, FormattingOptions, languages, OnTypeFormattingEditProvider, Position, Range, TextDocument, TextEdit, Uri, window, workspace } from "vscode";
 import { Context } from "../../shared/vscode/workspace";
 import { config } from "../config";
-import { isDartException, isPolisherException } from "../dart-polisher/exceptions";
+import { isDartException, isPolisherException, unwrapPolisherException } from "../dart-polisher/exceptions";
 import { isError } from "../utils";
 
 export interface IAmDisposable {
@@ -111,12 +111,15 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 	private async doFormat(document: TextDocument, doLogError = true, options: FormattingOptions, range: Range | undefined)
 		: Promise<TextEdit[] | undefined> {
 
-		const perfLog = false; // set to true for debugging.
+		console.log("[DEBUG] doFormat called:");
+		console.log("[DEBUG] Document uri: " + document.uri.toString());
+		console.log("[DEBUG] Document size: " + (await workspace.fs.stat(document.uri)).size.toString());
+		if (range)
+			console.log("[DEBUG] Selection: " + document.offsetAt(range.start).toString() + ":" + document.offsetAt(range.end).toString());
+
+		const perfToConsole = false; // set to true for debugging.
 		const formatStartTime = new Date();
-		if (perfLog) console.time("Format time");
-		console.log("[DEBUG] doFormat called: ");
-		console.log("[DEBUG] Document uri.fspath: " + document.uri.fsPath + " ");
-		console.log("[DEBUG] uri.scheme: " + document.uri.scheme + "\n");
+		if (perfToConsole) console.time("Format time");
 
 		// NOTE: there are two ways to do this:
 		// A: Format by sending the substring to be formatted and let vscode edit the range.
@@ -173,10 +176,10 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 			// Format whole text or just part of it.
 			const content = optA ? document.getText(range) : document.getText();
 
-			console.log("[DEBUG] Formatting...\n");
-			if (perfLog) console.timeLog("Format time", "Before formatCode()");
+			console.log("[DEBUG] Formatting...");
+			if (perfToConsole) console.timeLog("Format time", "Before formatCode()");
 			const result = dp.formatCode(content, foptions, isCompilationUnit);
-			if (perfLog) console.timeLog("Format time", "After formatCode()");
+			if (perfToConsole) console.timeLog("Format time", "After formatCode()");
 
 			const r: TextEdit[] = [];
 			if (optA)
@@ -189,25 +192,26 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 				r.push(new TextEdit(range, formattedRange));
 			}
 
-			console.log("[DEBUG] Source Code formatted succesfully.\n");
+			console.log("[DEBUG] Source Code formatted succesfully.");
 
-			if (false) console.log("[DEBUG] Format edits: ", r.length, "\n");
+			if (false) console.log("[DEBUG] Format edits: ", r.length);
 			if (false) {
-				console.log("[DEBUG] Format content: '", content, "'\n");
-				console.log("[DEBUG] Format result.code: '", result.code, "'\n");
+				console.log("[DEBUG] Format content: '", content);
+				console.log("[DEBUG] Format result.code: '", result.code);
 			}
 			return r;
 
 		} catch (e) {
 			if (isPolisherException(e) && doLogError) {
-				console.log("[FORMATTER ERROR] ", e.code, e.message, "\n");
-				this.showErrorMesages(e);
+				const perror = unwrapPolisherException(e);
+				console.log("[FORMATTER ERROR] ", perror!.message);
+				this.showErrorMesages(perror!);
 			} else if (isDartException(e)) {
-				console.log("[DART EXCEPTION] ", e.message, "\n"); // Dart2js hooks message => dartException.toString()
+				console.log("[DART EXCEPTION] ", e.message); // Dart2js hooks message => dartException.toString()
 			} else if (isError(e)) {
-				console.log("[JS ERROR] ", e, "\n");
+				console.log("[JS ERROR] ", e);
 			} else {
-				console.log("[UNKNOWN ERROR] ", e, "\n");
+				console.log("[UNKNOWN ERROR] ", e);
 				throw e;
 			}
 
@@ -216,8 +220,8 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 		} finally {
 			const formatEndTime = new Date();
 			console.log("[DEBUG] Format performance: " +
-				(formatEndTime.getTime() - formatStartTime.getTime()).toString() + " ms\n");
-			if (perfLog) console.timeEnd("Format time");
+				(formatEndTime.getTime() - formatStartTime.getTime()).toString() + " ms");
+			if (perfToConsole) console.timeEnd("Format time");
 			// Chrome: 10k lines file took ~850-1150ms (best-worst) on DEV-PC1 using: dart-polisher 0.9.3/Dart 2.18
 			// Node-FServer: 10k lines file took ~390-410ms (best-worst) on DEV-PC1 using: dart-polisher 0.9.3/Dart 2.18
 		}

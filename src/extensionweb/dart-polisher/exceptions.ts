@@ -32,11 +32,18 @@ export function isDartException(error: unknown) : error is Dart.Exception {
 	  );
 }
 
-export function isPolisherException(error: unknown) : error is FException {
+export function isPolisherException(error: unknown) : error is Dart.Exception {
 	return (
 		isDartException(error) &&
 		error.dartException !== null &&
 		"code" in error.dartException &&
 		typeof (error.dartException as FException).code === "string"
 	  );
+}
+
+export function unwrapPolisherException(error: Dart.Exception) : FException | undefined {
+	if (isPolisherException(error))
+		return error.dartException;
+
+	return undefined;
 }

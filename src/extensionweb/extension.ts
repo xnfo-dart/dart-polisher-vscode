@@ -12,7 +12,7 @@ export const DART_MODE = { language: "dart" };
 
 export function activate(context: vs.ExtensionContext) {
 
-	console.log("CONSOLE: Extension Started\n");
+	console.log("CONSOLE: Extension Started");
 
 	const extContext = Context.for(context);
 	extContext.hasWarnedAboutFormatterSyntaxLimitation = false;
