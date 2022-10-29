@@ -2,8 +2,8 @@ import * as dp from "dart-polisher";
 import { CancellationToken, DocumentFormattingEditProvider, DocumentRangeFormattingEditProvider, DocumentSelector, FormattingOptions, languages, OnTypeFormattingEditProvider, Position, Range, TextDocument, TextEdit, window, workspace } from "vscode";
 import { Context } from "../../shared/vscode/workspace";
 import { config } from "../config";
-import { getPolisherException } from "../dart-polisher/exceptions";
-import { getErrorMessage } from "../utils";
+import { isDartException, isPolisherException } from "../dart-polisher/exceptions";
+import { isError } from "../utils";
 
 export interface IAmDisposable {
 	dispose(): void | Promise<void>;
@@ -81,12 +81,7 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 	}
 
 	public async provideDocumentFormattingEdits(document: TextDocument, options: FormattingOptions, token: CancellationToken): Promise<TextEdit[] | undefined> {
-		try {
-			return await this.doFormat(document, true, options, undefined); // await is important for catch to work.
-		} catch (e) {
-			this.showErrorMesages(e);
-			return undefined;
-		}
+		return await this.doFormat(document, true, options, undefined); // await is important for catch to work.
 	}
 
 	// TODO (tekert): Use workspace settings to include or exclude formatting onType.
@@ -105,21 +100,12 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 		// eslint-disable-next-line no-empty
 		if (ch === "}") { }
 
-		try {
-			return await this.doFormat(document, false, options, range);
-		} catch {
-			return undefined;
-		}
+		return await this.doFormat(document, false, options, range);
 	}
 
 	public async provideDocumentRangeFormattingEdits(document: TextDocument, range: Range, options: FormattingOptions
 		, token: CancellationToken): Promise<TextEdit[] | undefined> {
-		try {
-			return await this.doFormat(document, true, options, range); // await is important for catch to work.
-		} catch (e) {
-			this.showErrorMesages(e);
-			return undefined;
-		}
+		return await this.doFormat(document, true, options, range); // await is important for catch to work.
 	}
 
 	private async doFormat(document: TextDocument, doLogError = true, options: FormattingOptions, range: Range | undefined)
@@ -146,7 +132,7 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 			// If we are formatting whole document set compilationUnit
 			let isCompilationUnit: boolean = false;
 			const lineCount = document.lineCount - 1;
-			const documentRange = new Range(0,0, lineCount, document.lineAt(lineCount).text.length);
+			const documentRange = new Range(0, 0, lineCount, document.lineAt(lineCount).text.length);
 			// set range to cover whole document if undefined.
 			if (range === undefined)
 				range = documentRange;
@@ -185,7 +171,7 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 			};
 
 			// Format whole text or just part of it.
-			const content = optA ?  document.getText(range) : document.getText();
+			const content = optA ? document.getText(range) : document.getText();
 
 			console.log("[DEBUG] Formatting...\n");
 			if (perfLog) console.timeLog("Format time", "Before formatCode()");
@@ -213,16 +199,19 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 			return r;
 
 		} catch (e) {
-			const perror = getPolisherException(e);
-			if (perror && doLogError)
-				console.log(perror.message, "\n");
-
-			if (perror === undefined) {
-				console.log("[ERROR] ", e, "\n");
-				return undefined;
+			if (isPolisherException(e) && doLogError) {
+				console.log("[FORMATTER ERROR] ", e.code, e.message, "\n");
+				this.showErrorMesages(e);
+			} else if (isDartException(e)) {
+				console.log("[DART EXCEPTION] ", e.message, "\n"); // Dart2js hooks message => dartException.toString()
+			} else if (isError(e)) {
+				console.log("[JS ERROR] ", e, "\n");
+			} else {
+				console.log("[UNKNOWN ERROR] ", e, "\n");
+				throw e;
 			}
 
-			throw perror;
+			return undefined;
 
 		} finally {
 			const formatEndTime = new Date();
@@ -245,21 +234,20 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 		console.log(`${this.pad((end - start).toString(), 15)} ${taskFinished ? "<== " + taskFinished : ""}`);
 	};
 */
-	private showErrorMesages(perror: any) {
-		if (perror.code === "FORMAT_WITH_ERRORS") {
-			const info = "Dart Polisher formatter will not run if the file has syntax errors";
-			if (!this.context.hasWarnedAboutFormatterSyntaxLimitation) {
-				this.context.hasWarnedAboutFormatterSyntaxLimitation = true;
-				window.showInformationMessage(info);
-			}
-			console.log(info, "\n");
-		} else if (perror.code === "FORMAT_RANGE_ERROR") {
-			const info = "Error: Dart Polisher formatter will not run if the selected range is invalid: ";
-			const message: string = perror.message;
-			window.showInformationMessage(info + message);
-			console.log("[ERROR]" + info + message + "\n");
-		} else if (!perror.code)
-			console.log("[UNKNOWN ERROR] ", perror, "\n");
+	private showErrorMesages(perror: dp.FException) {
+
+		switch (perror.code) {
+			case "FORMAT_WITH_ERRORS":
+				if (!this.context.hasWarnedAboutFormatterSyntaxLimitation) {
+					this.context.hasWarnedAboutFormatterSyntaxLimitation = true;
+					window.showInformationMessage("Dart Polisher formatter will not run if the file has syntax errors");
+				}
+				break;
+			case "FORMAT_RANGE_ERROR":
+				const message: string = perror.message;
+				window.showInformationMessage("Error: Dart Polisher formatter will not run if the selected range is invalid: " + message);
+				break;
+		}
 
 		return undefined;
 	}

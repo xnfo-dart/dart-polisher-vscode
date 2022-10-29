@@ -23,7 +23,7 @@ import {FException, Dart} from "dart-polisher";
 */
 
 // Checks if error is a valid Dart Exception.
-export function isDartException(error: unknown) {
+export function isDartException(error: unknown) : error is Dart.Exception {
 	return (
 		typeof error === "object" &&
 		error !== null &&
@@ -32,21 +32,11 @@ export function isDartException(error: unknown) {
 	  );
 }
 
-// Converts error to a wrapped dart exception type, returns undefined is error type is invalid.
-export function getDartException(error: unknown) : Dart.Exception | undefined {
-	if (isDartException(error))
-		return (error as Dart.Exception);
-
-	return undefined;
-}
-
-// Converts error to a fromatter exception type from a wrapped dart exeption, returns undefined is error type is invalid.
-export function getPolisherException(error: unknown) : FException | undefined {
-	const dartError = getDartException(error);
-	if (dartError) {
-		const ferror = dartError.dartException as FException;
-		if (ferror.code)
-			return ferror;
-	}
-	return undefined;
+export function isPolisherException(error: unknown) : error is FException {
+	return (
+		isDartException(error) &&
+		error.dartException !== null &&
+		"code" in error.dartException &&
+		typeof (error.dartException as FException).code === "string"
+	  );
 }
