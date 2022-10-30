@@ -3,12 +3,76 @@ on:
   issues:
     types: [opened]
   pull_request:
-    types: [opened]
+    types: [opened, edited]
+
+permissions:
+  pull-requests: write
+  issues: write
+
 jobs:
   run:
     runs-on: ubuntu-latest
     steps:
-      - uses: wow-actions/auto-assign@v1
+      - uses: wow-actions/auto-assign@v2
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CONFIG_FILE: .github/auto-assign.yml
+
+          # Set to true to add assignees to issues/PRs.
+          # Set to 'author' to add issue/PR's author as a assignee.
+          # Default: true
+          addAssignees: author
+
+          # Set to true to add reviewers to PRs.
+          # Default: true
+          addReviewers: true
+
+          # A list of reviewers(GitHub user name) to be added to PR.
+          # Default: []
+          # using the `org/team_slug` or `/team_slug`
+          # syntax to add git team as reviewers
+          reviewers: |
+            tekert
+          #  reviewer2
+          #  reviewer3
+          #  org/teamReviewerA
+          #  org/teamReviewerB
+          #  /teamReviewerC
+
+          # A list of assignees(GitHub user name) to be added
+          # to issue/PR. Uses reviewers if not set.
+          # Default: [reviewers]
+          assignees: |
+            tekert
+
+          # Number of reviewers added to the PR.
+          # Set 0 to add all the reviewers.
+          # Default: 0
+          numberOfReviewers: 1
+
+          # Number of assignees added to the PR.
+          # Set 0 to add all the assignees.
+          # Uses numberReviewers if not set.
+          # Default: 0
+          numberOfAssignees: 0
+
+          # Set to false to run on draft PRs.
+          # Default: true
+          skipDraft: true
+
+          # A list of keywords to be skipped the process
+          # if issue/PR's title include it.
+          # Default: []
+          skipKeywords: wip, draft
+
+          # Only to run when issue/PR has one of the label.
+          # Default: []
+          #includeLabels: []
+
+          # Not to run when issue/PR has one of the label.
+          # Default: []
+          excludeLabels:
+            # 'addAssignees: author' uses 'assignees: ["dependabot[bot]"]'
+            # action outputs 'Error: Not Found' if we don't ignore
+            # TODO: check if there is another way to fix it.
+            # https://docs.github.com/es/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file#labels
+            dependencies # dependabot sets this label by default
