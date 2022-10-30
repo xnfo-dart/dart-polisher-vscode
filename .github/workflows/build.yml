@@ -145,7 +145,7 @@ jobs:
           retention-days: 5
 
       # delete temporary artifacts
-      - uses: geekyeggo/delete-artifact@v2
-        with:
-          name: |
-            native-executables
+      # - uses: geekyeggo/delete-artifact@v2
+      #   with:
+      #     name: |
+      #       native-executables
