@@ -110,11 +110,11 @@ jobs:
 
           echo '' >> $GITHUB_STEP_SUMMARY
 
-          echo '### Workflow' >> $GITHUB_STEP_SUMMARY
+          echo '### Workflow (Data)' >> $GITHUB_STEP_SUMMARY
           echo 'Event: `${{ github.event_name }}`' >> $GITHUB_STEP_SUMMARY
           echo 'REF: `${{ github.ref_type }} : ${{ github.ref }}`' >> $GITHUB_STEP_SUMMARY
           echo 'SHA: ${{ env.GITHUB_SHA }}' >> $GITHUB_STEP_SUMMARY
-          echo 'File: `on-release-tag.yml`' >> $GITHUB_STEP_SUMMARY
+          echo 'File: `build.yml`' >> $GITHUB_STEP_SUMMARY
           echo 'Repository: `xnfo-dart/dart-polisher-vscode`' >> $GITHUB_STEP_SUMMARY
 
           echo '' >> $GITHUB_STEP_SUMMARY
