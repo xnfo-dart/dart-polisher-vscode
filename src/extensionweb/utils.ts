@@ -5,6 +5,10 @@ export function nullToUndefined<T>(value: T): NullAsUndefined<T> {
 	return (value === null ? undefined : value) as NullAsUndefined<T>;
 }
 
+export function isDefined<T>(value: T | undefined | null): value is T {
+	return <T>value !== undefined && <T>value !== null;
+}
+
 interface ErrorWithMessage {
 	message: string
 }

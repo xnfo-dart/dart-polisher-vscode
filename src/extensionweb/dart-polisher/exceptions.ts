@@ -1,6 +1,8 @@
 import {FException, Dart} from "dart-polisher";
 
 /*
+	From dart-polisher typings: (copied here for visibility)
+
 	Dart2js Exceptions are wrapped in javascript Error objects.
 	An aditional dartException property is defined in the Error object.
 	This is defined in dart-polisher typings in the Dart namespace as 'interface Exception'.
@@ -12,6 +14,9 @@ import {FException, Dart} from "dart-polisher";
 		stack?: string, 	// inherited from Error
 		dartException: any
 	}
+
+	Exception.message is hooked to dartException.toString() method.
+	If the Dart Exception has no defined toString method, message will return an object type only.
 
 	'dartException: any' can be a DartPolisher FException wich looks like this:
 	interface FException
@@ -32,18 +37,11 @@ export function isDartException(error: unknown) : error is Dart.Exception {
 	  );
 }
 
-export function isPolisherException(error: unknown) : error is Dart.Exception {
+export function isPolisherException(dartException: any) : dartException is FException {
 	return (
-		isDartException(error) &&
-		error.dartException !== null &&
-		"code" in error.dartException &&
-		typeof (error.dartException as FException).code === "string"
+		typeof dartException === "object" &&
+		dartException !== null &&
+		"code" in dartException &&
+		typeof (dartException as FException).code === "string"
 	  );
-}
-
-export function unwrapPolisherException(error: Dart.Exception) : FException | undefined {
-	if (isPolisherException(error))
-		return error.dartException;
-
-	return undefined;
 }
