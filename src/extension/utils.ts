@@ -58,7 +58,7 @@ export function isFormattable(file: { uri: Uri, isUntitled?: boolean, languageId
 	const formattableFileExtensions = ["dart", "htm", "html"]; // .concat(config.additionalAnalyzerFileExtensions); // TODO (tekert): Check if we enable this option
 
 	const extName = path.extname(fsPath(file.uri));
-	const extension = extName ? extName.substr(1) : undefined;
+	const extension = extName ? extName.substring(1) : undefined;
 
 	return (file.languageId && formattableLanguages.indexOf(file.languageId) >= 0)
 		|| formattableFilenames.indexOf(path.basename(fsPath(file.uri))) >= 0

@@ -15,11 +15,11 @@ export const platformEol = isWin ? "\r\n" : "\n";
 
 export const executableNames = {
 	dart: isWin ? "dart.exe" : "dart",
-	dartFormatter: isWin ? "dartpolishd-windows.exe" : isMac ? "dartpolishd-mac" : "dartpolishd-linux",
+	dartPolishDaemon: isWin ? "dartpolishd-windows.exe" : isMac ? "dartpolishd-mac" : "dartpolishd-linux",
 };
 export const getExecutableName = (cmd: string) => (executableNames as { [key: string]: string | undefined })[cmd] ?? cmd;
 export const dartVMPath = "bin/" + executableNames.dart;
-export const formatterServerPath = "bin/" + executableNames.dartFormatter;
+export const formatterServerPath = "bin/" + executableNames.dartPolishDaemon;
 
 export const stopLoggingAction = "Stop Logging";
 export const showLogAction = "Show Log";

@@ -73,7 +73,7 @@ export class FormatterStatusReporter {
 	}
 
 	private showErrorLog(error: ServerErrorNotification, method?: string) {
-		//TODO: (tekert): enable when we can detect sdk.
+		// TODO(tekert): enable when we can detect sdk.
 		//const sdkVersion = this.workspaceContext.sdks.dartVersion;
 		//const flutterSdkVersion = this.workspaceContext.sdks.flutterVersion;
 

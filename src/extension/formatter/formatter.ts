@@ -15,8 +15,8 @@ export function getFormatterArgs(logger: Logger) {
 			? "language-server"
 			: path.join(sdks.dart, formatterSnapshotPath)
 	);*/
-	//TODO: for now use binaries for each platform.
-	// see if we can use dill and get a dart sdk path.
+	// TODO(tekert): for now use binaries for each platform.
+	// see if we can use dill (too big) and get a dart sdk path (from Dart-Code API).
 	const formatterServerPath = config.formatterServerPath || path.join(extensionPath, cformatterServerPath);
 
 	// If the ssh host is set, then we are running the formatter on a remote machine, that same formatter
@@ -45,7 +45,6 @@ function buildFormatterArgs(formatterServerPath: string) {
 	formatterArgs.push(`--client-version=${extensionVersion}`);
 
 	// The format server supports a verbose instrumentation log file.
-	// its doesn't do much, only 1 or 2 exceptions are logged server side.
 	if (config.formatterInstrumentationLogFile)
 		formatterArgs.push(`--instrumentation-log-file=${config.formatterInstrumentationLogFile}`);
 

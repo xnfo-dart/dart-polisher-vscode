@@ -57,8 +57,6 @@ export class DfsFormatterClient extends FormatterGen {
 	private version?: string;
 	public formatterServerVersion: string = "";
 	public formatterServerProtocol: string = "";
-	private isFormatting = false;
-	private currentFormatCompleter?: PromiseCompleter<void>;
 	public serverCapabilities: FormatterCapabilities = FormatterCapabilities.empty;
 
 	private readonly onReadyCompleter = new PromiseCompleter<void>();
@@ -77,7 +75,7 @@ export class DfsFormatterClient extends FormatterGen {
 			const version = await this.serverGetVersion();
 			this.formatterServerProtocol = version.protocol;
 			this.formatterServerVersion = version.version;
-			// For checking if the server succefuly started and responded. this.onReady will complete.
+			// If the server started succefully and responded 'this.onReady' will complete.
 			this.onReadyCompleter.resolve();
 		});
 

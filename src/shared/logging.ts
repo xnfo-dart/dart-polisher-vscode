@@ -96,6 +96,7 @@ export function logProcess(logger: Logger, category: LogCategory, process: Spawn
 	process.on("exit", (code, signal) => logger.info(`${prefix} exited (${code}, ${signal})`, category));
 }
 
+/// Only Errors & Warnings
 export function logToConsole(logger: EmittingLogger): IAmDisposable {
 	return logger.onLog((m) => {
 		if (m.severity === LogSeverity.Error)
