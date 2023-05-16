@@ -18,6 +18,7 @@ export const isRunningLocally =
 	!isKnownCloudIde
 	&& (!formatterExtension || formatterExtension.extensionKind === ExtensionKind.UI);
 
+export const isDebugMode = () => process.env.VSCODE_DEBUG_MODE === "true";
 
 export function toRange(document: TextDocument, offset: number, length: number): Range {
 	return new Range(document.positionAt(offset), document.positionAt(offset + length));

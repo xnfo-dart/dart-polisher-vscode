@@ -77,15 +77,15 @@ export class ResourceConfig {
 	get blockIndent(): undefined | number { return this.getConfig<null | number>("blockIndent", null); }
 	get cascadeIndent(): undefined | number { return this.getConfig<null | number>("cascadeIndent", null); }
 	get constructorInitializerIndent(): undefined | number { return this.getConfig<null | number>("constructorInitializerIndent", null); }
-	get codeStyleCode(): number {
-		const key = this.getConfig<CodeStylesEnum>("codeStyle", CodeStylesEnum["Dart Style"]);
+	get styleNumber(): number {
+		const key = this.getConfig<CodeStylesEnum>("style", CodeStylesEnum["Dart Style"]);
 		const num = CodeStylesEnum[key];
 		// the syntax analyzer is confused and thinks this is a string, so...
 		let numValue = Number(num);
 		if (Number.isNaN(numValue)) { numValue = 0; }
 		return numValue;
 	}
-	get codeStyle(): CodeStylesEnum { return this.getConfig<CodeStylesEnum>("codeStyle", CodeStylesEnum["Dart Style"]); }
+	get style(): CodeStylesEnum { return this.getConfig<CodeStylesEnum>("style", CodeStylesEnum["Dart Style"]); }
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention

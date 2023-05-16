@@ -6,7 +6,7 @@ import { CodeStyle, TabSize } from "../../shared/formatter_server_types";
 import { IAmDisposable, Logger } from "../../shared/interfaces";
 import { disposeAll } from "../../shared/utils";
 import { fsPath } from "../../shared/utils/fs";
-import { fromRange } from "../../shared/vscode/utils";
+import { fromRange, isDebugMode } from "../../shared/vscode/utils";
 import { Context } from "../../shared/vscode/workspace";
 import { config } from "../config";
 import { DfsFormatterClient } from "../formatter/formatter_dfs";
@@ -138,7 +138,7 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 
 			// Get selected code style
 			const style: CodeStyle = new CodeStyle();
-			style.code = config.for(document.uri).codeStyleCode;
+			style.code = config.for(document.uri).styleNumber;
 
 			const pageWidth = config.for(document.uri).lineLength;
 
@@ -166,8 +166,10 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 
 		} finally {
 			const formatEndTime = new Date();
-			this.logger.info("Format performance: " +
-				(formatEndTime.getTime() - formatStartTime.getTime()).toString() + " ms\n");
+			const time = formatEndTime.getTime() - formatStartTime.getTime();
+			this.logger.info("Format performance: " + time.toString() + " ms", LogCategory.Formatter);
+			if (isDebugMode())
+				console.log("Format performance:", time, "ms");
 		}
 	}
 

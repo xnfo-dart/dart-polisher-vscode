@@ -110,7 +110,7 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 
 	private async doFormat(document: TextDocument, doLogError = true, options: FormattingOptions, range: Range | undefined)
 		: Promise<TextEdit[] | undefined> {
-		const debug = true; // set to true for debugging.
+		const debug = false; // set to true for debugging. //TODO: setting
 
 		if (debug) {
 			console.log("[DEBUG] doFormat called:");
@@ -165,7 +165,7 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 				constructorInitializer: config.for(document.uri).constructorInitializerIndent ?? editorTabSize,
 			};
 			const foptions: dp.FOptions = {
-				style: config.for(document.uri).codeStyleCode,
+				style: config.for(document.uri).styleNumber,
 				tabSizes: findents,
 				indent: 0,
 				pageWidth: config.for(document.uri).lineLength,
@@ -223,8 +223,11 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 			return undefined;
 
 		} finally {
-			const formatEndTime = new Date();
-			if (debug) console.log("[DEBUG] Format performance:", (formatEndTime.getTime() - formatStartTime.getTime()), "ms");
+			if (debug) {
+				const formatEndTime = new Date();
+				const time = formatEndTime.getTime() - formatStartTime.getTime();
+				console.log("[DEBUG] Format performance:", time, "ms");
+			}
 			// Production tests (release mode)
 			// Chrome: 10k lines file took ~850-1150ms (best-worst) on DEV-PC1 using: dart-polisher 0.9.3/Dart 2.18
 			// Node with FServer: 10k lines file took ~390-410ms (best-worst) on DEV-PC1 using: dart-polisher 0.9.3/Dart 2.18
