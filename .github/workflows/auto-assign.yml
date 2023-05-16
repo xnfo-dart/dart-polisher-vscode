@@ -15,18 +15,19 @@ jobs:
     steps:
       - uses: wow-actions/auto-assign@v3
         with:
+          # The GitHub token for authentication
+          # Default: N/A
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
           # Set to true to add assignees to issues/PRs.
-          # Set to 'author' to add issue/PR's author as a assignee.
           # Default: true
-          addAssignees: author
+          addAssignees: true
 
           # Set to true to add reviewers to PRs.
           # Default: true
           addReviewers: true
 
-          # A list of reviewers(GitHub user name) to be added to PR.
+          # Candidate list of reviewers(GitHub username) to be added to PR.
           # Default: []
           # using the `org/team_slug` or `/team_slug`
           # syntax to add git team as reviewers
