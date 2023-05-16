@@ -2,7 +2,7 @@
 //import { runProcess, RunProcessResult, safeSpawn } from "../../shared/processes";
 
 // Environment used when spawning Dart and Flutter processes.
-let toolEnv: /* { [key: string]: string | undefined } */ any = {};
+let toolEnv: { [key: string]: string } = {};
 
 export function getToolEnv() {
 	return toolEnv;
