@@ -1,9 +1,9 @@
 /**
- * Return the version number of the analysis server.
+ * Return the version number of the formatter server.
  */
 export interface ServerGetVersionResponse {
 	/**
-	 * The version number of the analysis server.
+	 * The version number of the formatter server.
 	 */
 	version: string;
 

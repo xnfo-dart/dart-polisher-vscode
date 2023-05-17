@@ -7,10 +7,11 @@ const path = require("path");
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 //const webpack = require("webpack");
 
+// Bundles the web extension path to one js file
 /**
  * @type {import("webpack").Configuration}
  */
-const webConfig = /** @type WebpackConfig */ {
+const webExtensionConfig = /** @type WebpackConfig */ {
 	context: __dirname,
 	mode: "none", // this leaves the source code as close as possible to the original (when packaging we set this to 'production')
 	target: "webworker", // web extensions run in a webworker context
@@ -77,6 +78,7 @@ const webConfig = /** @type WebpackConfig */ {
 	devtool: "source-map",
 };
 
+// Bundles the non-web extension to one js file
 const nodeConfig = {
 	target: "node", // vscode extensions run in webworker context for VS Code web 📖 -> https://webpack.js.org/configuration/target/#target
 
@@ -136,4 +138,4 @@ const nodeConfig = {
 		],
 	},
 };
-module.exports = [nodeConfig, webConfig];
+module.exports = [nodeConfig, webExtensionConfig];
