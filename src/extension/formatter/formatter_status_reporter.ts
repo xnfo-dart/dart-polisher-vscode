@@ -65,7 +65,7 @@ export class FormatterStatusReporter {
 		// Offer to report the error.
 		if (config.notifyFormatterErrors && errorCount <= maxErrorReportCount) {
 			const showLog: string = "Show log";
-			window.showErrorMessage(`Exception from the Dart custom formatter server: ${error.message}`, showLog).then((res) => {
+			window.showErrorMessage(`Exception from the Dart Polisher formatter server: ${error.message}`, showLog).then((res) => {
 				if (res === showLog)
 					this.showErrorLog(error, method);
 			});

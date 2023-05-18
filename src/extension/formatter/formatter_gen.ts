@@ -3,7 +3,7 @@
 // and should not be hand-edited!
 
 import * as vs from "vscode";
-import * as as from "../../shared/formatter_server_types";
+import * as st from "../../shared/formatter_server_types";
 import { Logger } from "../../shared/interfaces";
 import { UnknownNotification, UnknownResponse } from "../../shared/services/interfaces";
 import { StdIOService } from "../../shared/services/stdio_service";
@@ -21,16 +21,16 @@ export abstract class FormatterGen extends StdIOService<UnknownNotification> {
 		);
 	}
 
-	private serverConnectedSubscriptions: ((notification: as.ServerConnectedNotification) => void)[] = [];
-	private serverErrorSubscriptions: ((notification: as.ServerErrorNotification) => void)[] = [];
+	private serverConnectedSubscriptions: ((notification: st.ServerConnectedNotification) => void)[] = [];
+	private serverErrorSubscriptions: ((notification: st.ServerErrorNotification) => void)[] = [];
 
 	protected async handleNotification(evt: UnknownNotification): Promise<void> {
 		switch (evt.event) {
 			case "server.connected":
-				await this.notify(this.serverConnectedSubscriptions, <as.ServerConnectedNotification>evt.params);
+				await this.notify(this.serverConnectedSubscriptions, <st.ServerConnectedNotification>evt.params);
 				break;
 			case "server.error":
-				await this.notify(this.serverErrorSubscriptions, <as.ServerErrorNotification>evt.params);
+				await this.notify(this.serverErrorSubscriptions, <st.ServerErrorNotification>evt.params);
 				break;
 		}
 	}
@@ -43,14 +43,14 @@ export abstract class FormatterGen extends StdIOService<UnknownNotification> {
 		It is not possible to subscribe to or unsubscribe from this
 		notification.
 	*/
-	registerForServerConnected(subscriber: (notification: as.ServerConnectedNotification) => void): vs.Disposable {
+	registerForServerConnected(subscriber: (notification: st.ServerConnectedNotification) => void): vs.Disposable {
 		return this.subscribe(this.serverConnectedSubscriptions, subscriber);
 	}
 
 	/**
 		Return the version number of the formatter server.
 	*/
-	serverGetVersion(): Promise<as.ServerGetVersionResponse> {
+	serverGetVersion(): Promise<st.ServerGetVersionResponse> {
 		return this.sendRequest("server.getVersion");
 	}
 
@@ -76,7 +76,7 @@ export abstract class FormatterGen extends StdIOService<UnknownNotification> {
 		It is not possible to subscribe to or unsubscribe from this
 		notification.
 	*/
-	registerForServerError(subscriber: (notification: as.ServerErrorNotification) => void): vs.Disposable {
+	registerForServerError(subscriber: (notification: st.ServerErrorNotification) => void): vs.Disposable {
 		return this.subscribe(this.serverErrorSubscriptions, subscriber);
 	}
 
@@ -95,7 +95,7 @@ export abstract class FormatterGen extends StdIOService<UnknownNotification> {
 		contains syntax errors, an error of type FORMAT_WITH_ERRORS
 		will be generated.
 	*/
-	editFormat(request: as.EditFormatRequest): Promise<as.EditFormatResponse> {
+	editFormat(request: st.EditFormatRequest): Promise<st.EditFormatResponse> {
 		return this.sendRequest("edit.format", request);
 	}
 
@@ -110,7 +110,7 @@ export abstract class FormatterGen extends StdIOService<UnknownNotification> {
 		if the file path represents the path to a directory on the
 		filesystem.
 	*/
-	serverUpdateContent(request: as.ServerUpdateContentRequest): Promise<UnknownResponse> {
+	serverUpdateContent(request: st.ServerUpdateContentRequest): Promise<UnknownResponse> {
 		return this.sendRequest("server.updateContent", request);
 	}
 
