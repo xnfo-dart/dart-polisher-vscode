@@ -65,41 +65,64 @@ export interface EditFormatRequest {
 	 */
 	selectionOnly?: boolean;
 
-	/// The tab size in spaces to be used by the formatter.
-	/// defaults all indents to 4 if not set
+	/**
+	 * The tab size in spaces to be used by the formatter.
+	 * defaults all indents to 4 if not set
+	 */
 	tabSize?: TabSize;
 
-	/// True if the code to be formatted should use spaces for indentations,
-	/// false to use tab stops. ignores [spaceIndent] if false. defaults to true
-	/// if not set.
+	/**
+	 * True if the code to be formatted should use spaces for indentations,
+	 * false to use tab stops. ignores [spaceIndent] if false. defaults to true
+	 * if not set.
+	 */
 	insertSpaces?: boolean;
 
-	/// Set of common code styles.
-	///  default to 0 = dart_style with unlocked indent sizes.
-	///  for more info check [CodeStyle] type.
+	/**
+	 * Set of common code styles.
+	 *  default to 0 = dart_style with unlocked indent sizes.
+	 *  for more info check [CodeStyle] type.
+	 */
 	codeStyle?: CodeStyle;
 }
 
 export class TabSize {
-	/// The number of spaces in a block or collection body.
+	/**
+	 * The number of spaces in a block or collection body.
+	 */
 	block: number = 4;
 
-	/// How much wrapped cascade sections indent.
+	/**
+	 * How much wrapped cascade sections indent.
+	 */
 	cascade: number = 4;
 
-	/// The number of spaces in a single level of expression nesting.
+	/**
+	 * The number of spaces in a single level of expression nesting.
+	 */
 	expression: number = 4;
 
-	/// The ":" on a wrapped constructor initialization list.
+	/**
+	 * The ":" on a wrapped constructor initialization list.
+	 */
 	constructorInitializer: number = 4;
 }
 
+/**
+ * Numeric code for a code style
+ *
+ * 0 = dart_style
+ *
+ * 1 = expanded_style
+ *
+ * 2 = etc
+ * 3 = etc
+ * 4 = etc
+ */
 export class CodeStyle {
-	/// 0 = dart_style
-	/// 1 = expanded_style
-	/// 2 = etc
-	/// 3 = etc
-	/// 4 = etc
+	/**
+	 * Code number, Defaults to '0' (dart_style)
+	 */
 	code: number = 0;
 }
 

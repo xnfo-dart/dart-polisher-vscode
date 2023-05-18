@@ -229,12 +229,12 @@ export class DartFormattingEditProvider implements DocumentFormattingEditProvide
 				console.log("[DEBUG] Format performance:", time, "ms");
 			}
 			// Production tests
-			// [RELEASE]Chrome: 10k lines file took ~850-1150ms (best-worst) on DEV-PC1 using: dart-polisher 0.9.3/Dart 2.18
+			// [RELEASE]Chrome: 10k lines file took ~850-1150ms (best-worst) on DEV-PC1 using: dart-polisher-nodejs 0.9.3/Dart 2.18
 			// [RELEASE]Node with FServer: 10k lines file took ~390-410ms (best-worst) on DEV-PC1 using: dart-polisher 0.9.3/Dart 2.18
 
 			// Debug tests
-			// [DEBUG]Chrome: 10k lines file took ~850-1150ms (best-worst) on DEV-PC1 using: dart-polisher 0.9.5-dev/Dart 3.00
-			// [DEBUG]Node with FServer: 10k lines file took ~290-350ms (best-worst) on DEV-PC1 using: dart-polisher 0.9.5-dev/Dart 3.00
+			// [DEBUG]Chrome: 10k lines file took ~1150-1600ms (best-worst) on DEV-PC1 using: dart-polisher-nodejs 0.9.5/Dart 3.00
+			// [DEBUG]Node with FServer: 10k lines file took ~260-300ms (best-worst) on DEV-PC1 using: dart-polisher 0.9.5/Server 0.9.3/Dart 3.00
 		}
 	}
 	/*
