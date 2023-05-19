@@ -2,7 +2,7 @@
 	"name": "dart-polisher",
 	"displayName": "Dart Polisher - Formatter",
 	"description": "Dart formatter, custom indents and styles, based on dart_style",
-	"version": "0.9.5-dev",
+	"version": "0.9.6-dev",
 	"publisher": "xnfo",
 	"repository": {
 		"type": "git",
@@ -292,7 +292,7 @@
 		"@typescript-eslint/parser": "^5.48.0",
 		"@vscode/test-electron": "^2.1.5",
 		"@vscode/test-web": "*",
-		"dart-polisher": "^0.9.3",
+		"dart-polisher": "^0.10.7",
 		"eslint": "^8.31.0",
 		"glob": "^8.0.3",
 		"mocha": "^9.2.2",
