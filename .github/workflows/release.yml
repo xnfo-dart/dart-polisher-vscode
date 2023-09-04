@@ -124,10 +124,10 @@ jobs:
 
       # To have access to CHANGELOG.md
       # https://github.com/actions/checkout/issues/430
-      # actions/checkout@v3 deletes all files before pulling.
+      # actions/checkout@v4 deletes all files before pulling.
       # Important, clean only works on existing git dir, so checkout in a subdir.
       - name: "Checkout local repository"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ env.CHECKOUT_TAG }}
           path: repo

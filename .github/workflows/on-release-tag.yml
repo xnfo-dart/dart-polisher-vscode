@@ -30,7 +30,7 @@ jobs:
     steps:
 
       - name: "Checkout local @master repository"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         # checkouts $GITHUB_REF_NAME
 
       # Version in package.json has to be the same as the ref TAG that fired this workflow.

@@ -33,7 +33,7 @@ jobs:
       # https://github.com/actions/checkout/issues/430
       # Important, clean: false only works on existing git dir
       - name: "Checkout local repository"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: "Setup build variables"
         run: |
